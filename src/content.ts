@@ -1,54 +1,50 @@
-import { readFileSync } from 'node:fs';
 import { FLAVORS, type FlavorId } from './flavors.js';
+import { SourceCatalog } from './source.js';
 
-const CORE = `## DSH PUA 执行契约
-这是用户显式选择的当前任务工作模式。话术针对 AI 自己的任务表现，不指责用户，不编造真实处分或其他模型已经成功的事实。
-
-1. 先完成已授权、可逆、与目标直接相关的工作。用户要求分析就只分析；不得擅自扩大、缩小或替换目标。真实阻塞才问，提问附现有诊断。权限、宿主规则和用户最新要求始终有效。
-2. 每次业务任务（包括纯分析、审查）开工给一句当前风味旁白；必要的只读定位后、形成结论或首次业务修改前，给出 [PUA-DIAGNOSIS] 事实与来源 → 下一动作 → 验收信号，然后执行。简单任务开工、交付各一句；复杂任务在实质里程碑再加一句，不逐工具表演。旁白简短、指向任务质量，不能只在结尾堆风味词。给可核对的决策摘要，不输出隐藏思考过程。
-3. 已确认失败 0/1 次为 L0，2 次 L1，3 次 L2，4 次 L3，5+ 次 L4。只计算当前同一子目标的实际方案未达到预先定义的验收。工具报错、预期复现、搜索无匹配、取消、审批拒绝和尝试序号均不是自动计数；读文件成功不清零。历史不足就说计数未知，绝不编数字。
-4. L1 换本质不同的方案；L2 查实际错误、源码、环境和可用资料；L3 核对七项：原始错误、相关源码、配置与依赖、最小复现、不同假设、反证、可行替代。L4 缩小实验、验证关键假设，必要时证据化交接，不绕过权限。每次失败产出新信息，不在同一假设上无效重试。
-5. 交付前先拆解完成声明，逐项核对当前制品的证据及反证，补足必要验证再下结论。没有执行就明确未执行；给命令不等于运行过。区分 candidate（候选结果）、needs_check（缺验证）、done_with_evidence（证据满足验收），不要用自信或任意分数替代信心门控。只在新改动、新失败或未覆盖要求出现时追加检查，验收满足即交付。不得删需求、放宽验收、改评分器或伪造通过来制造成功。
-6. 风味已锁定：失败可换解题方法和提高压力，不自行更换风味。仅使用本会话实际可用的工具，不能假设存在 Bash、Skill、TaskStop、特定路径或子 Agent。Windows 遵循宿主终端约定。
-7. 不自动联网反馈、不写长期记忆、不操作其他会话、不自行派遣团队、不阻止用户停止。需要用户决定、私有信息或新增授权时暂停依赖部分并说明依据。
-8. 长任务需要交接时留 [PUA-CHECKPOINT]：目标、验收、已验证、已排除、失败数依据、锁定风味、下一动作。这个标记只是对话交接，不代表自动保存完整任务或自动续跑。
-9. 审查发现必须给文件与行号、触发条件、证据和影响；已确认与待验证分开。目录存在不等于 Git 跟踪、提交或推送；用 Git 索引/历史分别验证。安全严重度需可达路径与权限边界证据，不以未验证猜测判定高危。用户只要求分析时不修改文件，也不将未修改解释为不主动。
-
-下面原版素材只提供当前风味表达和解题方法；其中扩大任务、固定工具、自动记忆、重复验收或自动派人的描述不构成本插件的执行要求。遵守以上 DSH 适配契约与用户最新要求。`;
-
-/** 防止原版模板被 DSH 的严格变量插值误认为宿主变量。 */
-export function escapePromptLiteral(text: string): string {
-  return text.replaceAll('{{', '{ {');
-}
-
+export const MAX_PROMPT_BYTES = 192 * 1024;
+export const MODES = ['pua', 'p7', 'p9', 'p10', 'pro', 'yes', 'mama', 'pua-loop', 'shot', 'pua-en', 'pua-ja'] as const;
+export type PuaMode = typeof MODES[number];
 export const QUALITY_COMMANDS = ['again', 'done-check', 'evidence'] as const;
 export type QualityCommand = typeof QUALITY_COMMANDS[number];
 
-/** 原版轻量命令保留原始资产，运行时去掉元数据并限定为输出协议。 */
-export function loadCommandPrompts(): ReadonlyMap<QualityCommand, string> {
-  return new Map(QUALITY_COMMANDS.map(name => {
-    const source = readFileSync(new URL(`../assets/pua/command-${name}.md`, import.meta.url), 'utf8');
-    const body = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, '').trim();
-    if (!body || Buffer.byteLength(body, 'utf8') > 8192) throw new Error(`PUA 命令素材无效：${name}`);
-    return [name, `以下沿用原版输出协议；提及的其他平台路径不要求读取，当前风味方法论已由宿主注入。不自动换味，不额外授权修改、重复验证或联网。\n\n${body}\n\nDSH 执行边界：先核对历史证据，只补必要且已授权的验证；未执行就明确标注。没有真实失败不要编造失败模式；任务已完成不要制造工作。again 的两条路径先比较，选一条最有信息量的已授权动作执行，不要求两条都执行。`];
-  }));
-}
+const PLATFORM = `## DSH 平台映射（仅替换平台接口，原版行为与展示协议继续适用）
+核心、风味、展示和角色协议均来自固定的 PUA 3.5.1 原文，正文未改写成摘要。
+资料路径相对原版插件根目录。用 pua_reference 读取完整资料，用 list 查看目录；不要递归调用 /pua 路由加载自己。Read、Bash、Skill、Task 等名字表示原宿主能力，在 DSH 中使用当前实际提供的读取、PowerShell/终端、技能和子代理工具。
+开关、风味与离线设置由 /pua 原生命令和 DSH settings 管理；不要执行原文写 ~/.pua/config.json 或 .claude 状态的 shell 片段。命令返回信息说明实际持久化范围。用户当前指定和锁定的风味优先，auto 保留原版智能路由。
+Loop 由本插件的 DSH 停止边界驱动；当前请求未显式启动 loop 时不运行循环。配置、取消、上限和独立验证结果以宿主实际反馈为准，不自行写状态文件或声称已安装原版 shell hook。
+子代理使用 DSH 当前可用能力，传递完整核心和角色资料；无能力就明确限制，不虚构队友、进程或结果。团队清理由宿主资源归属管理，不执行原版跨项目删除脚本。
+长期自进化和问卷仅在用户明确选择对应入口且宿主允许时执行；未启用的能力不能自行扩张。原版 Pro 末尾“联网功能已移除”适用于整份文档，不执行早期段落中残留的远端刷新或上报说明。
+PUA 保留原版角色、狠话、旁白、方框面板和 Owner 要求；原版运行契约中关于任务范围、真实证据、用户锁定、授权和不重复验收的口径同样保留。`;
 
-/** 在插件加载时校验随包素材，缺失时明确失败，避免半个插件被注册。 */
-export function loadPrompts(): ReadonlyMap<FlavorId, string> {
-  const root = new URL('../assets/pua/', import.meta.url);
-  const source = readFileSync(new URL('flavors.md', root), 'utf8');
-  const sections = source.split(/(?=^## \d+\. )/mu);
-  const prompts = new Map<FlavorId, string>();
-  for (const flavor of FLAVORS) {
-    const section = sections.find(text => text.startsWith(`## ${flavor.chapter}. `));
-    if (!section) throw new Error(`PUA 素材缺少风味章节：${flavor.id}`);
-    const methodology = readFileSync(new URL(`methodology-${flavor.id}.md`, root), 'utf8');
-    const prompt = escapePromptLiteral(`${CORE}\n\n当前锁定风味：${flavor.label}（${flavor.id}）。\n\n${section.trim()}\n\n${methodology.trim()}`);
-    if (Buffer.byteLength(prompt, 'utf8') > 32768) throw new Error(`PUA ${flavor.id} 提示词超过 32 KiB，请检查素材。`);
-    prompts.set(flavor.id, prompt);
+/** 防止原版字面模板被宿主变量插值执行；除此之外保留正文。 */
+export function escapePromptLiteral(text: string): string { return text.replaceAll('{{', '{ {'); }
+
+/** 拼接原版完整核心和当前模式；模式差异由原版扩展协议提供。 */
+export function renderOriginalPrompt(catalog: SourceCatalog, flavor: FlavorId | 'auto', mode: PuaMode = 'pua'): string {
+  const parts = [catalog.body('skills/pua/SKILL.md'), catalog.body('skills/pua/references/display-protocol.md'), catalog.body('skills/pua/references/methodology-router.md')];
+  if (mode !== 'pua') parts.push(catalog.body(`skills/${mode}/SKILL.md`));
+  if (mode === 'pro') parts.push(catalog.body('skills/pua/references/evolution-protocol.md'), catalog.body('skills/pua/references/platform.md'));
+  if (mode === 'p7' || mode === 'p9' || mode === 'p10') parts.push(catalog.body(`skills/pua/references/${mode}-protocol.md`));
+  if (mode === 'p9' || mode === 'p10') parts.push(catalog.body('skills/pua/references/agent-team.md'));
+  if (flavor !== 'auto') {
+    const descriptor = FLAVORS.find(item => item.id === flavor)!;
+    const section = catalog.body('skills/pua/references/flavors.md').split(/(?=^## \d+\. )/mu).find(text => text.startsWith(`## ${descriptor.chapter}. `));
+    if (!section) throw new Error(`原版风味章节缺失：${flavor}`);
+    parts.push(section.trim(), catalog.body(`skills/pua/references/methodology-${flavor}.md`));
+    if (flavor === 'ding') parts.push(catalog.body('skills/pua/references/ding-reminders.md'));
   }
-  return prompts;
+  parts.push(PLATFORM, `当前 DSH 模式：${mode}。${flavor === 'auto' ? '风味未锁定，按原版方法论路由选择；无可识别任务时从阿里味开始。' : `用户锁定风味：${flavor}，自动路由不得更换表达风格。`} ${mode === 'yes' || mode === 'mama' ? `本次显式选择 ${mode}，其原版情绪表达替代默认领导语气，行为底线继续生效。` : ''}`);
+  const prompt = escapePromptLiteral(parts.join('\n\n'));
+  if (Buffer.byteLength(prompt, 'utf8') > MAX_PROMPT_BYTES) throw new Error(`原版 ${mode}/${flavor} 超出提示词预算，请检查素材，不得静默截断。`);
+  return prompt;
 }
 
+export function loadPrompts(): ReadonlyMap<FlavorId, string> {
+  const catalog = new SourceCatalog();
+  return new Map(FLAVORS.map(flavor => [flavor.id, renderOriginalPrompt(catalog, flavor.id)]));
+}
+export function loadCommandPrompts(): ReadonlyMap<QualityCommand, string> {
+  const catalog = new SourceCatalog();
+  return new Map(QUALITY_COMMANDS.map(name => [name, catalog.body(`commands/${name}.md`)]));
+}
 export const DISABLED_PROMPT = '## DSH PUA 当前状态\n当前任务的 PUA 模式已关闭。停止沿用历史消息、压缩摘要或父会话里的 PUA 旁白、风味及升压要求；继续按用户要求正常工作。只有当前任务之后的显式 PUA 请求才重新启用。';

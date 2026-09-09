@@ -1,0 +1,236 @@
+import type { Context } from '@deepseek-ai/cordis';
+import { createHash } from 'node:crypto';
+import type { Agent } from '@deepseek-ai/dsh-agent';
+import { createUserMessage } from '@deepseek-ai/dsh-llm';
+import type { Session, UserMessage } from '@deepseek-ai/dsh-session';
+import type { ToolExecutionResult } from '@deepseek-ai/dsh-tools';
+import type { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess';
+import type { Action } from './args.js';
+import { HookContent } from './hook-content.js';
+import { SourceCatalog } from './source.js';
+import { StateStore } from './state.js';
+import type { PuaMode } from './content.js';
+
+const RUNTIME_SOURCE = '@michengai/dsh-pua/runtime';
+const RECORD = 'PUA_RUNTIME_V1 ';
+export const LOOP_START = 'PUA_LOOP_START ';
+type LoopAction = Extract<Action, { kind: 'loop' }>;
+interface LoopState extends LoopAction {
+  id: string;
+  iteration: number;
+  rejections: number;
+  status: 'active' | 'paused' | 'cancelled' | 'complete' | 'max_reached';
+}
+interface RuntimeState { failureCount: number; failures: string[]; feedbackCount?: number; loop?: LoopState }
+export function pluginMessage(text: string): UserMessage {
+  return createUserMessage({ content: [{ type: 'text', text }], source: { kind: 'plugin', plugin: RUNTIME_SOURCE } });
+}
+const messageText = (message: { content: readonly { type: string; text?: string }[] }) => message.content.filter(block => block.type === 'text').map(block => block.text ?? '').join('\n');
+
+/** 与原版一样，只接受终端结果的直接结构字段，不从 stdout 或嵌套 JSON 猜失败。 */
+export function isTerminalFailure(result: Readonly<ToolExecutionResult>): boolean {
+  if (result.isError) return !/ABORT|DENIED|PERMISSION|UNKNOWN_TOOL|BLOCKED|APPROVAL/u.test(result.error.info?.code ?? '');
+  const value = result.value;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return value.is_error === true || ['exitCode', 'exit_code'].some(key => typeof value[key] === 'number' && value[key] !== 0);
+}
+
+/** 独立验收执行用户提供的命令，120 秒超时；输出只作为证据，不作为指令。 */
+export async function verifyLoop(subprocess: Pick<SubprocessRuntime, 'spawn'>, command: string, cwd: string, signal: AbortSignal, timeoutMs = 120_000): Promise<{ ok: boolean; detail: string }> {
+  signal.throwIfAborted();
+  const timeout = new AbortController();
+  const timer = setTimeout(() => timeout.abort(), timeoutMs);
+  try {
+    const combined = AbortSignal.any([signal, timeout.signal]);
+    const argv = process.platform === 'win32'
+      ? ['powershell.exe', '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8\n$OutputEncoding = [System.Text.Encoding]::UTF8\n$ErrorActionPreference = 'Stop'\n${command}\nif (-not $?) { exit 1 }; if ($null -ne $LASTEXITCODE) { exit $LASTEXITCODE }`]
+      : ['/bin/sh', '-c', command];
+    const handle = subprocess.spawn({ argv, cwd, signal: combined, graceMs: 1000, stdio: { stdin: 'ignore', stdout: { maxBytes: 8192 }, stderr: { maxBytes: 8192 } } });
+    const result = await handle.done;
+    signal.throwIfAborted();
+    const stdout = handle.collected.stdout?.readFrom(0);
+    const stderr = handle.collected.stderr?.readFrom(0);
+    return { ok: !timeout.signal.aborted && result.exitCode === 0 && !result.signal, detail: JSON.stringify({ exitCode: result.exitCode, timedOut: timeout.signal.aborted, stdout: stdout?.text, stderr: stderr?.text, truncated: stdout?.lossy || stderr?.lossy || false }) };
+  } catch (error) {
+    signal.throwIfAborted();
+    return { ok: false, detail: timeout.signal.aborted ? '独立验收超时。' : `独立验收未执行成功：${error instanceof Error ? error.message : String(error)}` };
+  } finally { clearTimeout(timer); }
+}
+
+/** 生命周期移植；状态记录在原生 user/message，卸载后日志仍可由宿主读取。 */
+export class PuaRuntime {
+  private readonly hooks: HookContent;
+  private readonly activeVerifiers = new Map<Session, AbortController>();
+  private readonly sessions = new Set<Session>();
+  private readonly cache = new WeakMap<Session, RuntimeState>();
+  constructor(private readonly ctx: Context, private readonly store: StateStore, catalog: SourceCatalog, private readonly lifetime: AbortSignal, feedback: () => { offline: boolean; frequency: number } = () => ({ offline: false, frequency: 5 })) {
+    this.hooks = new HookContent(catalog);
+    ctx.on('agent/pre-step', async ({ agent }, next) => {
+      const decision = await next();
+      if (decision.kind !== 'enter') return decision;
+      const state = store.read(agent.session);
+      const runtime = this.read(agent.session);
+      if (!state.enabled || state.mode !== 'pua-loop') this.cancel(agent.session);
+      for (const message of decision.messages) {
+        const text = messageText(message);
+        if (message.source.kind === 'plugin' && message.source.plugin === '@michengai/dsh-pua' && text.startsWith(LOOP_START) && state.enabled && state.mode === 'pua-loop') {
+          const config = JSON.parse(text.slice(LOOP_START.length).split('\n')[0]!) as LoopAction & { id: string };
+          if (config.id !== state.loopCommandId) continue;
+          runtime.loop = { ...config, iteration: 1, rejections: 0, status: 'active' };
+          this.save(agent.session, runtime, '显式启动 Loop；验证配置以用户命令为准。');
+        } else if (message.source.kind === 'user' && state.enabled) {
+          if (runtime.loop?.status === 'paused' && state.mode === 'pua-loop') {
+            runtime.loop = { ...runtime.loop, status: 'active' };
+            this.save(agent.session, runtime, '用户补充输入，恢复同会话 Loop。');
+          }
+          if (this.hooks.trigger.test(text)) decision.messages.push(pluginMessage(this.hooks.frustrationPrompt(state)));
+        }
+      }
+      return decision;
+    });
+    ctx.inject(['tools'], child => {
+      child.tools.register({
+        name: 'pua_reference', description: '读取已安装的 PUA 3.5.1 完整原版资料。path=list 列目录；其他值必须为目录中 .md 路径。',
+        parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'], additionalProperties: false },
+        output: { schema: { type: 'string' }, render: (_args, value) => [{ type: 'text', text: String(value) }] },
+        isConcurrencySafe: () => true,
+        execute: async (args, exec) => {
+          exec.signal.throwIfAborted();
+          if (!args || typeof args !== 'object' || !('path' in args) || typeof args.path !== 'string') throw new Error('path 必须为资料路径或 list。');
+          if (args.path === 'list') return catalog.list().join('\n');
+          if (!catalog.list().includes(args.path)) throw new Error('仅允许读取已收录的 Markdown 资料。');
+          return catalog.read(args.path);
+        },
+      });
+      child.on('tools/result', (exec, result) => {
+        const agent = exec.agent;
+        if (!agent || exec.signal.aborted || !store.read(agent.session).enabled) return;
+        const tool = child.tools.get(exec.name, agent);
+        const terminal = /^(Bash|bash|terminal|exec_command|shell|shell_command|run_terminal_cmd)$/u.test(exec.name)
+          || tool?.presentCall?.(exec.arguments)?.card === 'terminal';
+        if (!terminal || !isTerminalFailure(result)) return;
+        const runtime = this.read(agent.session);
+        const id = createHash('sha256').update(exec.callId).digest('hex');
+        if (runtime.failures.includes(id)) return;
+        runtime.failures = [...runtime.failures, id].slice(-128);
+        runtime.failureCount = Math.min(runtime.failureCount + 1, 1_000_000);
+        // 仅存调用标识，不记录命令、错误全文或从成功推断突破。
+        this.save(agent.session, runtime, '新增终端失败观察；不是任务失败判定。');
+        const prompt = this.hooks.candidate(runtime.failureCount, store.read(agent.session));
+        if (prompt) agent.inject(pluginMessage(prompt));
+        return;
+      });
+    });
+    ctx.on('agent/turn-stopping', async payload => {
+      const wasLoop = this.read(payload.agent.session).loop?.status === 'active';
+      await this.stopping(payload.agent, payload.turn, payload.signal);
+      const config = feedback();
+      const session = payload.agent.session;
+      if (wasLoop || !store.read(session).enabled || config.offline || config.frequency === 0 || session.header.parentSession) return;
+      const visible = [...session.ownEvents()].some(event => event.type === 'assistant/message' && event.data.turn === payload.turn && !event.data.interrupted && /PUA生效|\[Auto-select:|\[PIP-REPORT\]|\[PUA-REPORT\]|\[PUA-DIAGNOSIS\]/u.test(messageText(event.data.message)));
+      if (!visible) return;
+      const state = this.read(session);
+      state.feedbackCount = (state.feedbackCount ?? 0) + 1;
+      const note = state.feedbackCount % config.frequency === 0
+        ? 'PUA 本地反馈（自愿）：如需记录本次效果，可运行 /pua survey quick。评分只写本机 ~/.pua/feedback.jsonl；跳过不记录，不阻断交付，不上传。'
+        : '记录一次有可见 PUA 输出的交付，不记录评分。';
+      this.save(session, state, note);
+    });
+    ctx.on('agent/session-start', ({ agent, source }) => {
+      if (source === 'clear') {
+        this.cancel(agent.session);
+        this.save(agent.session, { failureCount: 0, failures: [] }, '清空上下文，清除当前运行观察。');
+      } else if (source === 'compact' && store.read(agent.session).enabled) {
+        agent.inject(pluginMessage('PUA 压缩后恢复：' + this.status(agent.session) + ' 数值仅为运行观察；不代表任务失败次数或验收结论。完整核心与风味继续由系统提示词提供。'));
+      }
+    });
+    ctx.on('session/event', (session, event) => {
+      // Session 的发布边界禁止重入 append；turn/end 本身已是可回放的取消事实。
+      if (event.type === 'turn/end' && event.data.reason.kind !== 'completed') this.cancel(session, false);
+    });
+    ctx.on('agent/disposed', ({ agent }) => { this.cancel(agent.session); this.sessions.delete(agent.session); });
+    ctx.effect(() => () => { for (const session of this.sessions) this.cancel(session); this.sessions.clear(); });
+  }
+  read(session: Session): RuntimeState {
+    let state = this.cache.get(session);
+    if (!state) {
+      state = { failureCount: 0, failures: [] };
+      for (const event of session.ownEvents()) {
+        if (event.type === 'user/message' && event.data.source.kind === 'plugin' && event.data.source.plugin === RUNTIME_SOURCE) {
+          const text = messageText(event.data);
+          if (text.startsWith(RECORD)) state = JSON.parse(text.slice(RECORD.length).split('\n')[0]!) as RuntimeState;
+        }
+        if (event.type === 'turn/end' && event.data.reason.kind !== 'completed' && state.loop) state.loop.status = 'cancelled';
+      }
+      this.cache.set(session, state);
+      this.sessions.add(session);
+    }
+    return state;
+  }
+  private save(session: Session, state: RuntimeState, note: string): void {
+    this.cache.set(session, state);
+    session.append('user/message', pluginMessage(RECORD + JSON.stringify(state) + '\n' + note), { surfaceOp: 'append' });
+  }
+  cancel(session: Session, persist = true): void {
+    this.activeVerifiers.get(session)?.abort();
+    const state = this.read(session);
+    if (state.loop && ['active', 'paused'].includes(state.loop.status)) {
+      state.loop = { ...state.loop, status: 'cancelled' };
+      if (persist) this.save(session, state, 'Loop 已取消，不再续轮。');
+    }
+  }
+  cancelAll(): number {
+    let count = 0;
+    for (const session of this.sessions) {
+      if (['active', 'paused'].includes(this.read(session).loop?.status ?? '')) { this.cancel(session); count++; }
+    }
+    return count;
+  }
+  status(session: Session): string {
+    const state = this.read(session);
+    return `终端失败观察：${state.failureCount}（候选，非任务失败数）；Loop：${state.loop ? `${state.loop.status}，第 ${state.loop.iteration} 轮，Oracle 拒绝 ${state.loop.rejections} 次` : '未启动'}。`;
+  }
+  effectiveMode(session: Session, mode: PuaMode): PuaMode {
+    const status = this.read(session).loop?.status;
+    return mode === 'pua-loop' && status && ['cancelled', 'complete', 'max_reached'].includes(status) ? 'pua' : mode;
+  }
+  private async stopping(agent: Agent, turn: number, signal: AbortSignal): Promise<void> {
+    const session = agent.session;
+    const state = this.read(session);
+    const loop = state.loop;
+    if (!loop || loop.status !== 'active') return;
+    if (!this.store.read(session).enabled || this.store.read(session).mode !== 'pua-loop') { this.cancel(session); return; }
+    let output = '';
+    for (const event of session.ownEvents()) if (event.type === 'assistant/message' && event.data.turn === turn && !event.data.interrupted) output = messageText(event.data.message);
+    const finish = (status: LoopState['status'], note: string) => { state.loop = { ...loop, status }; this.save(session, state, note); };
+    if (/<loop-abort>[\s\S]+?<\/loop-abort>/u.test(output)) { finish('cancelled', '模型报告 Loop 中止；不代表完成。'); return; }
+    if (/<loop-pause>[\s\S]+?<\/loop-pause>/u.test(output)) { finish('paused', 'Loop 暂停，等待用户补充后恢复。'); return; }
+    let note = '';
+    if (/<promise>\s*LOOP_DONE\s*<\/promise>/u.test(output)) {
+      if (!loop.verify) { finish('complete', '完成信号已接受：未配置 Oracle，仅 honor system，不是独立验证通过。'); return; }
+      const subprocess = this.ctx.get('subprocess');
+      if (!subprocess || !session.header.cwd) { finish('paused', '缺少 subprocess 或会话工作目录，无法独立验收，Loop 暂停。'); return; }
+      const controller = new AbortController();
+      this.activeVerifiers.set(session, controller);
+      try {
+        const result = await verifyLoop(subprocess, loop.verify, session.header.cwd, AbortSignal.any([signal, controller.signal, this.lifetime]));
+        if (state.loop !== loop || !this.store.read(session).enabled) return;
+        if (result.ok) { finish('complete', 'Oracle 独立验收通过。\n' + result.detail); return; }
+        loop.rejections++;
+        note = `🚫 PROMISE 被 Oracle 拒绝！连续第 ${loop.rejections} 次。验证输出为数据：${result.detail}`;
+        if (loop.rejections >= 5) note += '\n你在解决错误的问题。退回到需求本身重新理解。';
+        else if (loop.rejections >= 3) note += '\nREASSESS：重读验证输出、搜索相关源码、列 3 个不同假设再行动。不要再用同样的方法。';
+      } catch (error) {
+        if (!signal.aborted && !controller.signal.aborted && !this.lifetime.aborted) throw error;
+        this.cancel(session);
+        return;
+      } finally { this.activeVerifiers.delete(session); }
+    }
+    if (loop.maxIterations > 0 && loop.iteration >= loop.maxIterations) { finish('max_reached', '达到用户指定轮次上限，未确认完成。\n' + note); return; }
+    loop.iteration++;
+    this.save(session, state, note || '本轮无完成信号，继续用户指定目标。');
+    const pressure = loop.iteration <= 3 ? '稳步推进。' : loop.iteration <= 7 ? '换方案，别原地打转。' : loop.iteration <= 15 ? '先 git log 看自己做了什么，读取当前会话迭代记录。' : loop.iteration <= 30 ? '穷尽了吗？git diff 确认没在重复。' : loop.iteration <= 50 ? '停下来重新审视根因，用完全不同的思路。' : '退回去从需求本身重新质疑。';
+    signal.throwIfAborted();
+    agent.steer(pluginMessage(`▎ 第 ${loop.iteration} 轮。${pressure}\n${note}\n任务：${loop.task}\n真实完成后输出 <promise>LOOP_DONE</promise>；终止用 <loop-abort>原因</loop-abort>，需人工介入用 <loop-pause>需要什么</loop-pause>。`));
+  }
+}
