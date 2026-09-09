@@ -121,6 +121,516 @@
       "source": "commands/evidence.md",
       "sha256": "7b370c726de2b1c73c64d715e99833214e25489e38f0f05bbc3b820d2b88213e",
       "gitBlobSha256": "2342f7d3b8aa8b68f25d3650f252a7761b25a6223926fc454a7e091d2ad896d6"
+    },
+    {
+      "file": "upstream/agents/cto-p10.md",
+      "source": "agents/cto-p10.md",
+      "sha256": "144a74b7ab18f7b26b82c6855a954b901446f73a033c9ea7e36ff1c6d806082a",
+      "gitBlobSha256": "144a74b7ab18f7b26b82c6855a954b901446f73a033c9ea7e36ff1c6d806082a"
+    },
+    {
+      "file": "upstream/agents/pua-action-executor.md",
+      "source": "agents/pua-action-executor.md",
+      "sha256": "15b7bf32ead7eedc8dd4f5244348ecbed33b1c7f271d233788a2dcbf00e11173",
+      "gitBlobSha256": "15b7bf32ead7eedc8dd4f5244348ecbed33b1c7f271d233788a2dcbf00e11173"
+    },
+    {
+      "file": "upstream/agents/pua-policy-guardian.md",
+      "source": "agents/pua-policy-guardian.md",
+      "sha256": "e4e33d489e62c81f5221950602d322002f73f27a6d50f49307e948c1aa0f0b34",
+      "gitBlobSha256": "e4e33d489e62c81f5221950602d322002f73f27a6d50f49307e948c1aa0f0b34"
+    },
+    {
+      "file": "upstream/agents/pua-self-reviewer.md",
+      "source": "agents/pua-self-reviewer.md",
+      "sha256": "2afabfd0d5005456049c53f0f8d893a4dc908ccc3b8f2c5f45bd5fc3897d8b5d",
+      "gitBlobSha256": "2afabfd0d5005456049c53f0f8d893a4dc908ccc3b8f2c5f45bd5fc3897d8b5d"
+    },
+    {
+      "file": "upstream/agents/pua-verifier.md",
+      "source": "agents/pua-verifier.md",
+      "sha256": "50539d6448cee5a61946bd941f9a1d5a11656235fbfd22f0c56d0d28477c3bc5",
+      "gitBlobSha256": "50539d6448cee5a61946bd941f9a1d5a11656235fbfd22f0c56d0d28477c3bc5"
+    },
+    {
+      "file": "upstream/agents/senior-engineer-p7.md",
+      "source": "agents/senior-engineer-p7.md",
+      "sha256": "405247303df9309a65b56ba236c67f3236266ce3fb4594ab1721f238ca3f8f3f",
+      "gitBlobSha256": "405247303df9309a65b56ba236c67f3236266ce3fb4594ab1721f238ca3f8f3f"
+    },
+    {
+      "file": "upstream/agents/tech-lead-p9.md",
+      "source": "agents/tech-lead-p9.md",
+      "sha256": "a020976aac4d819ecd06c1e91125bca3e4b7c920423deeb4f814f904bcd16ca5",
+      "gitBlobSha256": "a020976aac4d819ecd06c1e91125bca3e4b7c920423deeb4f814f904bcd16ca5"
+    },
+    {
+      "file": "upstream/commands/again.md",
+      "source": "commands/again.md",
+      "sha256": "635223e3331e669641ec871451357cc96a38e57e64f657b013816e18b4b7f211",
+      "gitBlobSha256": "635223e3331e669641ec871451357cc96a38e57e64f657b013816e18b4b7f211"
+    },
+    {
+      "file": "upstream/commands/cancel-pua-loop.md",
+      "source": "commands/cancel-pua-loop.md",
+      "sha256": "80a71d1b2e71445911a7ec8a6c69e77d71b5f778af5ebdbab9818731220ac3af",
+      "gitBlobSha256": "80a71d1b2e71445911a7ec8a6c69e77d71b5f778af5ebdbab9818731220ac3af"
+    },
+    {
+      "file": "upstream/commands/ding.md",
+      "source": "commands/ding.md",
+      "sha256": "f9cff15d4599721f7537f3cd237b0b8d16abfa749615d2061e852c9a4e4e912c",
+      "gitBlobSha256": "f9cff15d4599721f7537f3cd237b0b8d16abfa749615d2061e852c9a4e4e912c"
+    },
+    {
+      "file": "upstream/commands/done-check.md",
+      "source": "commands/done-check.md",
+      "sha256": "2d80ddb35c07ab2673fb607da2efd651d0e774d8b65b106327253f0ab3e2a45c",
+      "gitBlobSha256": "2d80ddb35c07ab2673fb607da2efd651d0e774d8b65b106327253f0ab3e2a45c"
+    },
+    {
+      "file": "upstream/commands/evidence.md",
+      "source": "commands/evidence.md",
+      "sha256": "2342f7d3b8aa8b68f25d3650f252a7761b25a6223926fc454a7e091d2ad896d6",
+      "gitBlobSha256": "2342f7d3b8aa8b68f25d3650f252a7761b25a6223926fc454a7e091d2ad896d6"
+    },
+    {
+      "file": "upstream/commands/flavor.md",
+      "source": "commands/flavor.md",
+      "sha256": "2439fd9cb5f0d06e5e4721e54c92f5ed845d5bc72832df2e812128cfb2af4286",
+      "gitBlobSha256": "2439fd9cb5f0d06e5e4721e54c92f5ed845d5bc72832df2e812128cfb2af4286"
+    },
+    {
+      "file": "upstream/commands/kpi.md",
+      "source": "commands/kpi.md",
+      "sha256": "ce41e5e3ce81261ceadd227f87d94b1fa8bc69e4799f99ed9a8d1f4571a45969",
+      "gitBlobSha256": "ce41e5e3ce81261ceadd227f87d94b1fa8bc69e4799f99ed9a8d1f4571a45969"
+    },
+    {
+      "file": "upstream/commands/mama.md",
+      "source": "commands/mama.md",
+      "sha256": "f27d25beb348279c41222215c6d103fdadcf9439cdaa8fd02ba7c189b761ebc1",
+      "gitBlobSha256": "f27d25beb348279c41222215c6d103fdadcf9439cdaa8fd02ba7c189b761ebc1"
+    },
+    {
+      "file": "upstream/commands/off.md",
+      "source": "commands/off.md",
+      "sha256": "4579abe4ef02c44bbe5c3fad4f9309c242180deb49368e1ad573a315d51cebe5",
+      "gitBlobSha256": "4579abe4ef02c44bbe5c3fad4f9309c242180deb49368e1ad573a315d51cebe5"
+    },
+    {
+      "file": "upstream/commands/offline.md",
+      "source": "commands/offline.md",
+      "sha256": "9e6156cad8637d31d68bfe60ca5a68a45cb7952427cfb31c140da17e921a19e8",
+      "gitBlobSha256": "9e6156cad8637d31d68bfe60ca5a68a45cb7952427cfb31c140da17e921a19e8"
+    },
+    {
+      "file": "upstream/commands/on.md",
+      "source": "commands/on.md",
+      "sha256": "9df7f479d8795a9c49d5048f61b69e8851b292890054bc7a95b34059dcf020dc",
+      "gitBlobSha256": "9df7f479d8795a9c49d5048f61b69e8851b292890054bc7a95b34059dcf020dc"
+    },
+    {
+      "file": "upstream/commands/p10.md",
+      "source": "commands/p10.md",
+      "sha256": "a1bba01b548139943758dd010538d2623d2d40801cd79506d192a2c42e790a40",
+      "gitBlobSha256": "a1bba01b548139943758dd010538d2623d2d40801cd79506d192a2c42e790a40"
+    },
+    {
+      "file": "upstream/commands/p7.md",
+      "source": "commands/p7.md",
+      "sha256": "cfd3bcb2c15a2d5fad41c20459a1cc61b8657d5a5e74efb78dca66f70871960c",
+      "gitBlobSha256": "cfd3bcb2c15a2d5fad41c20459a1cc61b8657d5a5e74efb78dca66f70871960c"
+    },
+    {
+      "file": "upstream/commands/p9.md",
+      "source": "commands/p9.md",
+      "sha256": "b9e3e9d470f9fcbc01752c6752d34bf14d3150df98ffccaf6bcd1afb95cff1dc",
+      "gitBlobSha256": "b9e3e9d470f9fcbc01752c6752d34bf14d3150df98ffccaf6bcd1afb95cff1dc"
+    },
+    {
+      "file": "upstream/commands/pro.md",
+      "source": "commands/pro.md",
+      "sha256": "98aecefb84b21e5377d854629b31548d4b8ded30ae445e13c427ec44739adf3e",
+      "gitBlobSha256": "98aecefb84b21e5377d854629b31548d4b8ded30ae445e13c427ec44739adf3e"
+    },
+    {
+      "file": "upstream/commands/pua-loop.md",
+      "source": "commands/pua-loop.md",
+      "sha256": "d935ebe2dd1c4e4a83d98dd077962ae46c4cea252b904485b8e401600d4c7a94",
+      "gitBlobSha256": "d935ebe2dd1c4e4a83d98dd077962ae46c4cea252b904485b8e401600d4c7a94"
+    },
+    {
+      "file": "upstream/commands/pua.md",
+      "source": "commands/pua.md",
+      "sha256": "df22461e3fda92889a17833a583b4379dee01fecf87fd67df95b9d8f5e3d1089",
+      "gitBlobSha256": "df22461e3fda92889a17833a583b4379dee01fecf87fd67df95b9d8f5e3d1089"
+    },
+    {
+      "file": "upstream/commands/reap-orphans.md",
+      "source": "commands/reap-orphans.md",
+      "sha256": "189353c43fee6ef4c2f7c3c3f333d4e48911004255625a2bab504ba1e7c73041",
+      "gitBlobSha256": "189353c43fee6ef4c2f7c3c3f333d4e48911004255625a2bab504ba1e7c73041"
+    },
+    {
+      "file": "upstream/commands/survey.md",
+      "source": "commands/survey.md",
+      "sha256": "6862807b2487da67348e6ab1b3f6f494d12fa24bbd2f1db9d79c86ced514b643",
+      "gitBlobSha256": "6862807b2487da67348e6ab1b3f6f494d12fa24bbd2f1db9d79c86ced514b643"
+    },
+    {
+      "file": "upstream/commands/team-status.md",
+      "source": "commands/team-status.md",
+      "sha256": "f7d66d3c17051089eb586ca19da78ed3b4c752b762400ef0c92f6bddbc94af92",
+      "gitBlobSha256": "f7d66d3c17051089eb586ca19da78ed3b4c752b762400ef0c92f6bddbc94af92"
+    },
+    {
+      "file": "upstream/commands/teardown-all.md",
+      "source": "commands/teardown-all.md",
+      "sha256": "7151371c7ea71fcd3348c971dd640ce68585ad9095d6bbc6c8ab6b40a1c7b56a",
+      "gitBlobSha256": "7151371c7ea71fcd3348c971dd640ce68585ad9095d6bbc6c8ab6b40a1c7b56a"
+    },
+    {
+      "file": "upstream/commands/yes.md",
+      "source": "commands/yes.md",
+      "sha256": "b25e92ae2090bffd4ae3d301e780f641f5b654f4d0084ff85d47ad0daa44b581",
+      "gitBlobSha256": "b25e92ae2090bffd4ae3d301e780f641f5b654f4d0084ff85d47ad0daa44b581"
+    },
+    {
+      "file": "upstream/hooks/checkpoint-save.sh",
+      "source": "hooks/checkpoint-save.sh",
+      "sha256": "ac145996b06c214df3f20923197ce88014400e339fd5491dfd45689484fe81b3",
+      "gitBlobSha256": "ac145996b06c214df3f20923197ce88014400e339fd5491dfd45689484fe81b3"
+    },
+    {
+      "file": "upstream/hooks/failure-detector.sh",
+      "source": "hooks/failure-detector.sh",
+      "sha256": "b7acf69061df88d8c9c1bffbd79871372ce509660d750129e678dc86d59f9a97",
+      "gitBlobSha256": "b7acf69061df88d8c9c1bffbd79871372ce509660d750129e678dc86d59f9a97"
+    },
+    {
+      "file": "upstream/hooks/flavor-helper.sh",
+      "source": "hooks/flavor-helper.sh",
+      "sha256": "3d994210219c23e6c16eeee4bcf2bd5937ba85683a8dad8bb4bdda1bae5a1eaf",
+      "gitBlobSha256": "3d994210219c23e6c16eeee4bcf2bd5937ba85683a8dad8bb4bdda1bae5a1eaf"
+    },
+    {
+      "file": "upstream/hooks/frustration-trigger.sh",
+      "source": "hooks/frustration-trigger.sh",
+      "sha256": "34961f184eeb0524ea756d93494c4ac271bf1faf8fece9fc59374678755773e7",
+      "gitBlobSha256": "34961f184eeb0524ea756d93494c4ac271bf1faf8fece9fc59374678755773e7"
+    },
+    {
+      "file": "upstream/hooks/hooks.json",
+      "source": "hooks/hooks.json",
+      "sha256": "a0f6dbf03a66e2a798a9a9cb91e41449f0e0216412c376cc9ac6fe92f7ca6cba",
+      "gitBlobSha256": "a0f6dbf03a66e2a798a9a9cb91e41449f0e0216412c376cc9ac6fe92f7ca6cba"
+    },
+    {
+      "file": "upstream/hooks/integrity-guard.sh",
+      "source": "hooks/integrity-guard.sh",
+      "sha256": "92d01c0942019d05e03681cabcd0293b1488f3a65edd4425eaeb26ff3127d299",
+      "gitBlobSha256": "92d01c0942019d05e03681cabcd0293b1488f3a65edd4425eaeb26ff3127d299"
+    },
+    {
+      "file": "upstream/hooks/pua-loop-hook.sh",
+      "source": "hooks/pua-loop-hook.sh",
+      "sha256": "98eccb7164b7a3f64f65f08cafc0446aa0d884517c6a9b2812d906b810655497",
+      "gitBlobSha256": "98eccb7164b7a3f64f65f08cafc0446aa0d884517c6a9b2812d906b810655497"
+    },
+    {
+      "file": "upstream/hooks/runtime-state.py",
+      "source": "hooks/runtime-state.py",
+      "sha256": "b4bdc7f0bbd5402b03c7c8941fe6d0867332a0135e6f0f0be9b889e3bfb9ad7c",
+      "gitBlobSha256": "b4bdc7f0bbd5402b03c7c8941fe6d0867332a0135e6f0f0be9b889e3bfb9ad7c"
+    },
+    {
+      "file": "upstream/hooks/sanitize-session.sh",
+      "source": "hooks/sanitize-session.sh",
+      "sha256": "550f73c6ea89b1efd6ca3a80f64774f439f5d25a8913e0bf7c9918982566e14f",
+      "gitBlobSha256": "550f73c6ea89b1efd6ca3a80f64774f439f5d25a8913e0bf7c9918982566e14f"
+    },
+    {
+      "file": "upstream/hooks/session-restore.sh",
+      "source": "hooks/session-restore.sh",
+      "sha256": "bea2014bfa75c7693569e2d6825e5b3c021170f6049ef7504506fb54a9682f17",
+      "gitBlobSha256": "bea2014bfa75c7693569e2d6825e5b3c021170f6049ef7504506fb54a9682f17"
+    },
+    {
+      "file": "upstream/hooks/stop-feedback.sh",
+      "source": "hooks/stop-feedback.sh",
+      "sha256": "32fd0b6d2736885c3292c452e4a4c7716ce27cdf62c1e288aaac9dc6cf772205",
+      "gitBlobSha256": "32fd0b6d2736885c3292c452e4a4c7716ce27cdf62c1e288aaac9dc6cf772205"
+    },
+    {
+      "file": "upstream/hooks/subagent-teardown.sh",
+      "source": "hooks/subagent-teardown.sh",
+      "sha256": "ba4ea1bd29ff937c4e7ed963454a4c0d3556254e3537ea4804b76c8bc081330a",
+      "gitBlobSha256": "ba4ea1bd29ff937c4e7ed963454a4c0d3556254e3537ea4804b76c8bc081330a"
+    },
+    {
+      "file": "upstream/skills/ding/SKILL.md",
+      "source": "skills/ding/SKILL.md",
+      "sha256": "6e9ecb0b7c7ea2ac262e4b6dccf8b3b194a0de5f47f1986efd9b41a3bbfe2605",
+      "gitBlobSha256": "6e9ecb0b7c7ea2ac262e4b6dccf8b3b194a0de5f47f1986efd9b41a3bbfe2605"
+    },
+    {
+      "file": "upstream/skills/ding/references/ding-reminders.md",
+      "source": "skills/ding/references/ding-reminders.md",
+      "sha256": "28bcf936af5f9bb29964a13832878cebb1c7a4f81755eaf1794293cb0ac95f58",
+      "gitBlobSha256": "28bcf936af5f9bb29964a13832878cebb1c7a4f81755eaf1794293cb0ac95f58"
+    },
+    {
+      "file": "upstream/skills/ding/references/methodology-ding.md",
+      "source": "skills/ding/references/methodology-ding.md",
+      "sha256": "b4e78429a63d721774aa39b8809d6f49cf8f65267ec83be526ebcc3c263da2f1",
+      "gitBlobSha256": "b4e78429a63d721774aa39b8809d6f49cf8f65267ec83be526ebcc3c263da2f1"
+    },
+    {
+      "file": "upstream/skills/mama/SKILL.md",
+      "source": "skills/mama/SKILL.md",
+      "sha256": "9f45ad749756e7f9c6cb1570128fefaf41a63b2498f2c71606238a3a05505a96",
+      "gitBlobSha256": "9f45ad749756e7f9c6cb1570128fefaf41a63b2498f2c71606238a3a05505a96"
+    },
+    {
+      "file": "upstream/skills/p10/SKILL.md",
+      "source": "skills/p10/SKILL.md",
+      "sha256": "950bcb0420a3c960da31235bdc4b62c83a59d963d87acb24655959d0bf097722",
+      "gitBlobSha256": "950bcb0420a3c960da31235bdc4b62c83a59d963d87acb24655959d0bf097722"
+    },
+    {
+      "file": "upstream/skills/p7/SKILL.md",
+      "source": "skills/p7/SKILL.md",
+      "sha256": "c15775473e9cf220169d39498441623a510fea8a0e1242a8d110d8243775668c",
+      "gitBlobSha256": "c15775473e9cf220169d39498441623a510fea8a0e1242a8d110d8243775668c"
+    },
+    {
+      "file": "upstream/skills/p9/SKILL.md",
+      "source": "skills/p9/SKILL.md",
+      "sha256": "3bebb16aba1979cef73cc29aab04d58159a3076c353c925c22c5b878f669654d",
+      "gitBlobSha256": "3bebb16aba1979cef73cc29aab04d58159a3076c353c925c22c5b878f669654d"
+    },
+    {
+      "file": "upstream/skills/pro/SKILL.md",
+      "source": "skills/pro/SKILL.md",
+      "sha256": "40f21697be1ef56454cbd0933e7bd1dead1cc2002a65fad217bed8fe37626f5a",
+      "gitBlobSha256": "40f21697be1ef56454cbd0933e7bd1dead1cc2002a65fad217bed8fe37626f5a"
+    },
+    {
+      "file": "upstream/skills/pua-en/SKILL.md",
+      "source": "skills/pua-en/SKILL.md",
+      "sha256": "56e5217734b61e1925523010e82ebfa2358bb9a64c31b21a3541bdaec506dbb3",
+      "gitBlobSha256": "56e5217734b61e1925523010e82ebfa2358bb9a64c31b21a3541bdaec506dbb3"
+    },
+    {
+      "file": "upstream/skills/pua-ja/SKILL.md",
+      "source": "skills/pua-ja/SKILL.md",
+      "sha256": "fbc14444fac41b7b7b465e1ff69bc5c06e53647227f357dfb762077b0e444a81",
+      "gitBlobSha256": "fbc14444fac41b7b7b465e1ff69bc5c06e53647227f357dfb762077b0e444a81"
+    },
+    {
+      "file": "upstream/skills/pua-loop/SKILL.md",
+      "source": "skills/pua-loop/SKILL.md",
+      "sha256": "20764fd6cd0534e0a3aa39c8820e163b82963147f2f327bb2ab0854bc04c7cfd",
+      "gitBlobSha256": "20764fd6cd0534e0a3aa39c8820e163b82963147f2f327bb2ab0854bc04c7cfd"
+    },
+    {
+      "file": "upstream/skills/pua/SKILL.md",
+      "source": "skills/pua/SKILL.md",
+      "sha256": "1f0a5dcacff7c6b301a487cfcf510d7a05d7b956dda6e524ec37221e7a76a5cd",
+      "gitBlobSha256": "1f0a5dcacff7c6b301a487cfcf510d7a05d7b956dda6e524ec37221e7a76a5cd"
+    },
+    {
+      "file": "upstream/skills/pua/references/agent-team.md",
+      "source": "skills/pua/references/agent-team.md",
+      "sha256": "f0b57056005d043fbb682fec8167a9dfb3b6e8364708b1dae4369398c33cad94",
+      "gitBlobSha256": "f0b57056005d043fbb682fec8167a9dfb3b6e8364708b1dae4369398c33cad94"
+    },
+    {
+      "file": "upstream/skills/pua/references/de-escalation-protocol.md",
+      "source": "skills/pua/references/de-escalation-protocol.md",
+      "sha256": "cfb444b38aaf2c8c52ded3d44c7915c138a1b6868ab08d3a5c7567d9850bda9a",
+      "gitBlobSha256": "cfb444b38aaf2c8c52ded3d44c7915c138a1b6868ab08d3a5c7567d9850bda9a"
+    },
+    {
+      "file": "upstream/skills/pua/references/ding-reminders.md",
+      "source": "skills/pua/references/ding-reminders.md",
+      "sha256": "28bcf936af5f9bb29964a13832878cebb1c7a4f81755eaf1794293cb0ac95f58",
+      "gitBlobSha256": "28bcf936af5f9bb29964a13832878cebb1c7a4f81755eaf1794293cb0ac95f58"
+    },
+    {
+      "file": "upstream/skills/pua/references/display-protocol.md",
+      "source": "skills/pua/references/display-protocol.md",
+      "sha256": "b6a5d88182a4457db4fda8569d9446f64992c4a0f417065f69d41a4e686aed1a",
+      "gitBlobSha256": "b6a5d88182a4457db4fda8569d9446f64992c4a0f417065f69d41a4e686aed1a"
+    },
+    {
+      "file": "upstream/skills/pua/references/evolution-protocol.md",
+      "source": "skills/pua/references/evolution-protocol.md",
+      "sha256": "c2b7ccf84b3f6069f2f2f586ea65270b65888505ad9c8dec52a08546da7bae3a",
+      "gitBlobSha256": "c2b7ccf84b3f6069f2f2f586ea65270b65888505ad9c8dec52a08546da7bae3a"
+    },
+    {
+      "file": "upstream/skills/pua/references/flavors.md",
+      "source": "skills/pua/references/flavors.md",
+      "sha256": "f2b1584adb9436f73957855a08a08028552c0f8d43afa19ef1f51e86bccdee9f",
+      "gitBlobSha256": "f2b1584adb9436f73957855a08a08028552c0f8d43afa19ef1f51e86bccdee9f"
+    },
+    {
+      "file": "upstream/skills/pua/references/harness-governance.md",
+      "source": "skills/pua/references/harness-governance.md",
+      "sha256": "9aeae5dc98a944b4a69dd2418980993e7e241c2b721c81f9d8e24f4d0c6db3c6",
+      "gitBlobSha256": "9aeae5dc98a944b4a69dd2418980993e7e241c2b721c81f9d8e24f4d0c6db3c6"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-alibaba.md",
+      "source": "skills/pua/references/methodology-alibaba.md",
+      "sha256": "1020106678c034d1969ca706153c3376daa57d79fbb3d254b27abb52b6506800",
+      "gitBlobSha256": "1020106678c034d1969ca706153c3376daa57d79fbb3d254b27abb52b6506800"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-amazon.md",
+      "source": "skills/pua/references/methodology-amazon.md",
+      "sha256": "16d3e7d91265b7734e40cddb17e283141b78d380291c5b51e6666c3bd74bb195",
+      "gitBlobSha256": "16d3e7d91265b7734e40cddb17e283141b78d380291c5b51e6666c3bd74bb195"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-apple.md",
+      "source": "skills/pua/references/methodology-apple.md",
+      "sha256": "7c3366fd99a00b63fdad29d8731f96a8958ecd17c53ce775b1cfaf1ec3e2beac",
+      "gitBlobSha256": "7c3366fd99a00b63fdad29d8731f96a8958ecd17c53ce775b1cfaf1ec3e2beac"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-baidu.md",
+      "source": "skills/pua/references/methodology-baidu.md",
+      "sha256": "ddf371e7f5e82405c254b1c908d8bca03c9deaf9cb4563638c07b658b838cfc0",
+      "gitBlobSha256": "ddf371e7f5e82405c254b1c908d8bca03c9deaf9cb4563638c07b658b838cfc0"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-bytedance.md",
+      "source": "skills/pua/references/methodology-bytedance.md",
+      "sha256": "6f5c803f92727aa7947aa67bc1d23a9404977a2f3a6cadde0a9f4fce7e071562",
+      "gitBlobSha256": "6f5c803f92727aa7947aa67bc1d23a9404977a2f3a6cadde0a9f4fce7e071562"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-ding.md",
+      "source": "skills/pua/references/methodology-ding.md",
+      "sha256": "b4e78429a63d721774aa39b8809d6f49cf8f65267ec83be526ebcc3c263da2f1",
+      "gitBlobSha256": "b4e78429a63d721774aa39b8809d6f49cf8f65267ec83be526ebcc3c263da2f1"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-huawei.md",
+      "source": "skills/pua/references/methodology-huawei.md",
+      "sha256": "f38a8872c5714f424a3ac9ed3d74cae6aad9cb48cf1e41072aaf8e62ebe64b5a",
+      "gitBlobSha256": "f38a8872c5714f424a3ac9ed3d74cae6aad9cb48cf1e41072aaf8e62ebe64b5a"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-jd.md",
+      "source": "skills/pua/references/methodology-jd.md",
+      "sha256": "b923f2f251b58f450a4399705fc7459200e5a6a1e64b51b0e592220cdfcf36c6",
+      "gitBlobSha256": "b923f2f251b58f450a4399705fc7459200e5a6a1e64b51b0e592220cdfcf36c6"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-meituan.md",
+      "source": "skills/pua/references/methodology-meituan.md",
+      "sha256": "c13896cf338ce26e06a6a4aa039f2305da705b4da1f6a6bc22e9fc240787951e",
+      "gitBlobSha256": "c13896cf338ce26e06a6a4aa039f2305da705b4da1f6a6bc22e9fc240787951e"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-microsoft.md",
+      "source": "skills/pua/references/methodology-microsoft.md",
+      "sha256": "1ef76e0dcf1d7cf7f9fd135a285f2a91383e303e58ccaeffc87e20cf813efc1f",
+      "gitBlobSha256": "1ef76e0dcf1d7cf7f9fd135a285f2a91383e303e58ccaeffc87e20cf813efc1f"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-netflix.md",
+      "source": "skills/pua/references/methodology-netflix.md",
+      "sha256": "ccf70a0d89eccfaab40c604a923c72421aba1f4e8afb3d7fee3f4e47e6cd1d8d",
+      "gitBlobSha256": "ccf70a0d89eccfaab40c604a923c72421aba1f4e8afb3d7fee3f4e47e6cd1d8d"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-pinduoduo.md",
+      "source": "skills/pua/references/methodology-pinduoduo.md",
+      "sha256": "591b0204a2d7f65d7d0dd239c372f20e89f0721c1060bfbc968f90dae9c1242e",
+      "gitBlobSha256": "591b0204a2d7f65d7d0dd239c372f20e89f0721c1060bfbc968f90dae9c1242e"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-router.md",
+      "source": "skills/pua/references/methodology-router.md",
+      "sha256": "1db30edb5a291b43528950c3707ca573b1fb222a12e937200962744a6c7b9e36",
+      "gitBlobSha256": "1db30edb5a291b43528950c3707ca573b1fb222a12e937200962744a6c7b9e36"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-tencent.md",
+      "source": "skills/pua/references/methodology-tencent.md",
+      "sha256": "a2bb01d715adc8dacdf806a8cc27d0f3de84c35a98330d37f2526ff3d11c3d2b",
+      "gitBlobSha256": "a2bb01d715adc8dacdf806a8cc27d0f3de84c35a98330d37f2526ff3d11c3d2b"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-tesla.md",
+      "source": "skills/pua/references/methodology-tesla.md",
+      "sha256": "2d9e328f6818ae3696fceea63c2d7995f0c827c3649ea8c06bf5d14294394a40",
+      "gitBlobSha256": "2d9e328f6818ae3696fceea63c2d7995f0c827c3649ea8c06bf5d14294394a40"
+    },
+    {
+      "file": "upstream/skills/pua/references/methodology-xiaomi.md",
+      "source": "skills/pua/references/methodology-xiaomi.md",
+      "sha256": "376439596efeb52809700c04f876cb5f923bb7ca6d2577a143146abc8c4b49c6",
+      "gitBlobSha256": "376439596efeb52809700c04f876cb5f923bb7ca6d2577a143146abc8c4b49c6"
+    },
+    {
+      "file": "upstream/skills/pua/references/p10-protocol.md",
+      "source": "skills/pua/references/p10-protocol.md",
+      "sha256": "0dd2a209948c42eafb1d551218cd2b22628e4fa517651d56d5b5b99b8e8d0c7d",
+      "gitBlobSha256": "0dd2a209948c42eafb1d551218cd2b22628e4fa517651d56d5b5b99b8e8d0c7d"
+    },
+    {
+      "file": "upstream/skills/pua/references/p7-protocol.md",
+      "source": "skills/pua/references/p7-protocol.md",
+      "sha256": "409473930d363874525c8c23becf554a1492652d8928b46e26b2928de885274a",
+      "gitBlobSha256": "409473930d363874525c8c23becf554a1492652d8928b46e26b2928de885274a"
+    },
+    {
+      "file": "upstream/skills/pua/references/p9-protocol.md",
+      "source": "skills/pua/references/p9-protocol.md",
+      "sha256": "2d2144401731f9c681399eb1efd9a9c23d29fc9041ff6d773537551e090374c0",
+      "gitBlobSha256": "2d2144401731f9c681399eb1efd9a9c23d29fc9041ff6d773537551e090374c0"
+    },
+    {
+      "file": "upstream/skills/pua/references/platform.md",
+      "source": "skills/pua/references/platform.md",
+      "sha256": "d7321edbfabe13d3e4ef6bd605ed9443c097da10b9285d5a889865e28c34bffd",
+      "gitBlobSha256": "d7321edbfabe13d3e4ef6bd605ed9443c097da10b9285d5a889865e28c34bffd"
+    },
+    {
+      "file": "upstream/skills/pua/references/runtime-contract.md",
+      "source": "skills/pua/references/runtime-contract.md",
+      "sha256": "340d0fc7c34dddaf88ed12bc67acfafc74b18a4d0c1f98fed124b051966a498b",
+      "gitBlobSha256": "340d0fc7c34dddaf88ed12bc67acfafc74b18a4d0c1f98fed124b051966a498b"
+    },
+    {
+      "file": "upstream/skills/pua/references/survey.md",
+      "source": "skills/pua/references/survey.md",
+      "sha256": "52be0f0c72c9f9a33045b4155af13414e75d3a0850cdb42649e86ef014c7a0ee",
+      "gitBlobSha256": "52be0f0c72c9f9a33045b4155af13414e75d3a0850cdb42649e86ef014c7a0ee"
+    },
+    {
+      "file": "upstream/skills/pua/references/teardown-protocol.md",
+      "source": "skills/pua/references/teardown-protocol.md",
+      "sha256": "d4ae0b3c11e819548c74887e3c04c43716acbbadbb96be741382d90b24bc9147",
+      "gitBlobSha256": "d4ae0b3c11e819548c74887e3c04c43716acbbadbb96be741382d90b24bc9147"
+    },
+    {
+      "file": "upstream/skills/shot/SKILL.md",
+      "source": "skills/shot/SKILL.md",
+      "sha256": "64a22c625c780517c963e0708949af2ba7577831d6031d54a8fd955fe8d95c2d",
+      "gitBlobSha256": "64a22c625c780517c963e0708949af2ba7577831d6031d54a8fd955fe8d95c2d"
+    },
+    {
+      "file": "upstream/skills/yes/SKILL.md",
+      "source": "skills/yes/SKILL.md",
+      "sha256": "dee62cf383020010e73e97c95e226ce25dbde091ed4addf6ee6476dc4614439b",
+      "gitBlobSha256": "dee62cf383020010e73e97c95e226ce25dbde091ed4addf6ee6476dc4614439b"
     }
   ],
   "byteSource": "保留原版本机检出的 CRLF 字节；gitBlobSha256 对应固定提交的 LF 对象字节。"
