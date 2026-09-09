@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/tanweai/pua",
+  "revision": "e6e6cd237ad17750d179674bff52f8184abea8fd",
+  "version": "3.5.1",
+  "author": "探微安全实验室",
+  "declaredLicense": "MIT",
+  "licenseEvidence": "plugin.json、.claude-plugin/plugin.json、skills/pua/SKILL.md",
+  "standaloneLicenseFound": false,
+  "files": [
+    {
+      "file": "flavors.md",
+      "source": "skills/pua/references/flavors.md",
+      "sha256": "0bf7fd9ad6433820779e09ef3ab9a52e7fae7124eca539746529d341a24b29a5",
+      "gitBlobSha256": "f2b1584adb9436f73957855a08a08028552c0f8d43afa19ef1f51e86bccdee9f"
+    },
+    {
+      "file": "methodology-alibaba.md",
+      "source": "skills/pua/references/methodology-alibaba.md",
+      "sha256": "bdbf491c974ffa266f1b5e0bbc0e61e31842e0e8baa2716ed6a60a1ef81b7fa0",
+      "gitBlobSha256": "1020106678c034d1969ca706153c3376daa57d79fbb3d254b27abb52b6506800"
+    },
+    {
+      "file": "methodology-bytedance.md",
+      "source": "skills/pua/references/methodology-bytedance.md",
+      "sha256": "1cd09601024ebedb73a79d6fbf6d36acf5dbba3f5bf4b83cd0795efb0e775c10",
+      "gitBlobSha256": "6f5c803f92727aa7947aa67bc1d23a9404977a2f3a6cadde0a9f4fce7e071562"
+    },
+    {
+      "file": "methodology-huawei.md",
+      "source": "skills/pua/references/methodology-huawei.md",
+      "sha256": "c570b9c5bea031d41ab3006fb5bc61027f379790b6f643692ed5681f2fc5d4df",
+      "gitBlobSha256": "f38a8872c5714f424a3ac9ed3d74cae6aad9cb48cf1e41072aaf8e62ebe64b5a"
+    },
+    {
+      "file": "methodology-tencent.md",
+      "source": "skills/pua/references/methodology-tencent.md",
+      "sha256": "d5d81b7cb77cb30afa3468883430472e06d94e8d5ac5bfc3ba878fc72e49e712",
+      "gitBlobSha256": "a2bb01d715adc8dacdf806a8cc27d0f3de84c35a98330d37f2526ff3d11c3d2b"
+    },
+    {
+      "file": "methodology-baidu.md",
+      "source": "skills/pua/references/methodology-baidu.md",
+      "sha256": "b57bb5b0ed9827777f13ddb43f6e7bca6a8416f7ddf7069ce91f5d3712efbe53",
+      "gitBlobSha256": "ddf371e7f5e82405c254b1c908d8bca03c9deaf9cb4563638c07b658b838cfc0"
+    },
+    {
+      "file": "methodology-pinduoduo.md",
+      "source": "skills/pua/references/methodology-pinduoduo.md",
+      "sha256": "da879c879b0a78693c0689d79c7698a6c26e95169f1868e8c22ffe6be527e235",
+      "gitBlobSha256": "591b0204a2d7f65d7d0dd239c372f20e89f0721c1060bfbc968f90dae9c1242e"
+    },
+    {
+      "file": "methodology-meituan.md",
+      "source": "skills/pua/references/methodology-meituan.md",
+      "sha256": "85d1cf5bd20345ccf87c417590df002914c6881600482214a1115a1f00c8e8d0",
+      "gitBlobSha256": "c13896cf338ce26e06a6a4aa039f2305da705b4da1f6a6bc22e9fc240787951e"
+    },
+    {
+      "file": "methodology-jd.md",
+      "source": "skills/pua/references/methodology-jd.md",
+      "sha256": "d7d3cca45995bdcd76972fed30a5201cff58d5dc1d86941d9944d46db8b57eb4",
+      "gitBlobSha256": "b923f2f251b58f450a4399705fc7459200e5a6a1e64b51b0e592220cdfcf36c6"
+    },
+    {
+      "file": "methodology-xiaomi.md",
+      "source": "skills/pua/references/methodology-xiaomi.md",
+      "sha256": "3620f29f1960f44d7a6b25e17d6c84876d12780885df24d37026728a1011e440",
+      "gitBlobSha256": "376439596efeb52809700c04f876cb5f923bb7ca6d2577a143146abc8c4b49c6"
+    },
+    {
+      "file": "methodology-netflix.md",
+      "source": "skills/pua/references/methodology-netflix.md",
+      "sha256": "fc093b5c18a07aa293917d195a631890016898829f0dca4aff4d3a13025d1709",
+      "gitBlobSha256": "ccf70a0d89eccfaab40c604a923c72421aba1f4e8afb3d7fee3f4e47e6cd1d8d"
+    },
+    {
+      "file": "methodology-tesla.md",
+      "source": "skills/pua/references/methodology-tesla.md",
+      "sha256": "f19b916961a2cdab48cdbd281ac9a816632004b9da49c396b8fd22225e4b5bf0",
+      "gitBlobSha256": "2d9e328f6818ae3696fceea63c2d7995f0c827c3649ea8c06bf5d14294394a40"
+    },
+    {
+      "file": "methodology-apple.md",
+      "source": "skills/pua/references/methodology-apple.md",
+      "sha256": "0c24ab5e48dbf517d1bb8eb098a3812e6f18f3fc4e97b99dbbdeea45bc648eca",
+      "gitBlobSha256": "7c3366fd99a00b63fdad29d8731f96a8958ecd17c53ce775b1cfaf1ec3e2beac"
+    },
+    {
+      "file": "methodology-amazon.md",
+      "source": "skills/pua/references/methodology-amazon.md",
+      "sha256": "2d0a19d2cc679e0d036b56f24d890dff85befb5c09f3937b77896f8aed5b927a",
+      "gitBlobSha256": "16d3e7d91265b7734e40cddb17e283141b78d380291c5b51e6666c3bd74bb195"
+    },
+    {
+      "file": "methodology-microsoft.md",
+      "source": "skills/pua/references/methodology-microsoft.md",
+      "sha256": "3502276911e014f14527e0363a0ddf4952557ec090331db1c4fa2fa26527447f",
+      "gitBlobSha256": "1ef76e0dcf1d7cf7f9fd135a285f2a91383e303e58ccaeffc87e20cf813efc1f"
+    },
+    {
+      "file": "methodology-ding.md",
+      "source": "skills/pua/references/methodology-ding.md",
+      "sha256": "7da4364419231ab1d0380c5339cd4f3a648e887ba5a53e064b4efffea6b3525a",
+      "gitBlobSha256": "b4e78429a63d721774aa39b8809d6f49cf8f65267ec83be526ebcc3c263da2f1"
+    },
+    {
+      "file": "command-again.md",
+      "source": "commands/again.md",
+      "sha256": "036646633662d5a75e0afd994537a1acee4e72e397a5e15123b2302a49590368",
+      "gitBlobSha256": "635223e3331e669641ec871451357cc96a38e57e64f657b013816e18b4b7f211"
+    },
+    {
+      "file": "command-done-check.md",
+      "source": "commands/done-check.md",
+      "sha256": "784bddf2cce508379b86f380311bdf9efcfb7eb064e506aaea4368b0dd01ce18",
+      "gitBlobSha256": "2d80ddb35c07ab2673fb607da2efd651d0e774d8b65b106327253f0ab3e2a45c"
+    },
+    {
+      "file": "command-evidence.md",
+      "source": "commands/evidence.md",
+      "sha256": "7b370c726de2b1c73c64d715e99833214e25489e38f0f05bbc3b820d2b88213e",
+      "gitBlobSha256": "2342f7d3b8aa8b68f25d3650f252a7761b25a6223926fc454a7e091d2ad896d6"
+    }
+  ],
+  "byteSource": "保留原版本机检出的 CRLF 字节；gitBlobSha256 对应固定提交的 LF 对象字节。"
+}

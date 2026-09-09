@@ -1,0 +1,15 @@
+DSH PUA 是 MichengAI 开发的社区 DSH 插件，不是 DeepSeek 或 PUA 上游发布的官方产品。
+
+第三方内容：assets/pua 下的 flavors.md、methodology-*.md 和 command-*.md。
+来源：https://github.com/tanweai/pua
+作者：探微安全实验室（依据上游 plugin.json 的 author 字段）。
+来源版本：3.5.1。
+来源提交：e6e6cd237ad17750d179674bff52f8184abea8fd。
+许可声明：MIT（上游 plugin.json、.claude-plugin/plugin.json、skills/pua/SKILL.md）。
+
+上述 Markdown 保留上游本机检出的 CRLF 字节；与固定提交的 Git 对象仅换行不同。
+文件清单、本地字节 SHA-256 和 Git 对象字节 gitBlobSha256 见 assets/pua/upstream.json。
+本插件仅选择当前风味章节并追加 DSH 适配契约，不把完整 Claude hooks 或安装器移植到 DSH。
+当前来源快照没有独立 LICENSE 文件，GitHub license API 也未提供该文件；这里记录元数据声明，
+不声称取得了上游独立版权文件。原作者权利不因本项目 LICENSE 中的 MichengAI 署名而改变。
+MIT 许可完整标准文本见本包 LICENSE；公开发布前应复核上游许可及署名要求。
