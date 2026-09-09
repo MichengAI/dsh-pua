@@ -22,7 +22,7 @@ test('真实误输入回归：重复前缀只路由一次，疑似控制命令�
   assert.deepEqual(parseArgs('pua flavor'), { kind: 'flavors' });
   assert.deepEqual(parseArgs('/pua flavor 华为'), { kind: 'flavor', flavor: 'huawei' });
   assert.deepEqual(parseArgs('/pua:off'), { kind: 'off' });
-  for (const value of ['in', 'onn', 'of', 'flavour', 'stauts', 'pua pua flavor', 'loop', 'p9']) assert.throws(() => parseArgs(value), undefined, value);
+  for (const value of ['in', 'onn', 'of', 'flavour', 'stauts', 'pua pua flavor', 'loop']) assert.throws(() => parseArgs(value), undefined, value);
   assert.deepEqual(parseArgs('-- in'), { kind: 'activate', task: 'in' });
   assert.deepEqual(parseArgs('implement login'), { kind: 'activate', task: 'implement login' });
 });

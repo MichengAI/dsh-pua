@@ -10,8 +10,9 @@ if (!prefix) throw new Error('请提供已安装包的隔离目录。');
 const modules = resolve(prefix, 'node_modules');
 const requireInstalled = createRequire(pathToFileURL(join(modules, '@michengai/dsh-pua/package.json')));
 const load = name => import(pathToFileURL(requireInstalled.resolve('@deepseek-ai/' + name)).href);
-const [{ Context }, { CommandRuntime }, { Session, SESSION_FORMAT_VERSION }, { SystemPrompt, renderPrompt }, plugin] = await Promise.all([
+const [{ Context }, { CommandRuntime }, { Session, SESSION_FORMAT_VERSION }, { SystemPrompt, renderPrompt }, { ToolRuntime }, { SettingsProvider }, plugin] = await Promise.all([
   load('cordis'), load('dsh-commands'), load('dsh-session'), load('dsh-system-prompt'),
+  load('dsh-tools'), load('dsh-settings'),
   import(pathToFileURL(join(modules, '@michengai/dsh-pua/lib/index.js')).href),
 ]);
 const pkg = JSON.parse(readFileSync(join(modules, '@michengai/dsh-pua/package.json'), 'utf8'));
@@ -23,6 +24,13 @@ if (gitCwd) {
 }
 new CommandRuntime(ctx);
 new SystemPrompt(ctx, { includeHarnessIdentity: false });
+new ToolRuntime(ctx);
+class MemorySettings extends SettingsProvider {
+  writable = true;
+  async load() { return {}; }
+  async persist() {}
+}
+new MemorySettings(ctx);
 const installed = ctx.plugin(plugin);
 try {
   await installed.await();
@@ -42,6 +50,16 @@ try {
   const text = renderPrompt(await ctx.systemPrompt.assemble({ agent }));
   assert.match(text, /军令状/);
   assert.match(text, /PUA-DIAGNOSIS/);
+  assert.match(text, /每一句话都用当前味道的语气在说话/);
+  assert.match(text, /# PUA 展示协议/);
+  assert.equal(ctx.settings.get('michengai-pua').flavor, 'huawei');
+  const reference = await ctx.tools.execute({ name: 'pua_reference', arguments: { path: 'skills/pua/SKILL.md' }, agent, callId: 'smoke-reference', signal: new AbortController().signal });
+  assert.equal(reference.isError, false);
+  assert.equal(reference.value, readFileSync(join(modules, '@michengai/dsh-pua/assets/pua/upstream/skills/pua/SKILL.md'), 'utf8'));
+  await run('/pua p9 审查团队交付');
+  assert.match(renderPrompt(await ctx.systemPrompt.assemble({ agent })), /当前 DSH 模式：p9/);
+  await run('/pua flavor auto');
+  assert.match(renderPrompt(await ctx.systemPrompt.assemble({ agent })), /风味未锁定/);
   await run('/pua again');
   assert.match(messages.at(-1).content[0].text, /路径 B/);
   await run('/pua done-check');
@@ -52,7 +70,9 @@ try {
   assert.match(renderPrompt(await ctx.systemPrompt.assemble({ agent })), /已关闭/);
   await installed.dispose();
   assert.equal(ctx.commands.find(agent, 'pua'), undefined);
-  console.log(`安装包验证通过：${pkg.name}@${pkg.version}，依赖解析、误输入、原版模板、审查${gitCwd ? '及真实 Git 预检' : '降级'}、开关和卸载正常。`);
+  assert.equal(ctx.tools.get('pua_reference'), undefined);
+  assert.equal(ctx.settings.describe().some(item => item.ns === 'michengai-pua'), false);
+  console.log(`安装包验证通过：${pkg.name}@${pkg.version}，完整核心、P9、auto、settings、资料工具、审查${gitCwd ? '及真实 Git 预检' : '降级'}、开关和卸载正常。`);
 } finally {
   await ctx.fiber.dispose();
 }

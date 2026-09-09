@@ -51,7 +51,7 @@ test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移�
   const reviewRequest = JSON.stringify(requests[1]);
   assert.match(reviewRequest, /只读审查/);
   assert.match(reviewRequest, /未获取 Git 证据/);
-  assert.match(requests[1].system, /包括纯分析、审查/);
+  assert.match(requests[1].system, /每一句话都用当前味道的语气在说话/);
   await run('/pua done-check');
   await agent.whenIdle();
   assert.equal(requests.length, 3);

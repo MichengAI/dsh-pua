@@ -3,7 +3,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
 import assert from 'node:assert/strict';
-import { loadPrompts, loadCommandPrompts, QUALITY_COMMANDS } from '../lib/content.js';
+import { loadPrompts, loadCommandPrompts, QUALITY_COMMANDS, MAX_PROMPT_BYTES, MODES, renderOriginalPrompt } from '../lib/content.js';
+import { SourceCatalog } from '../lib/source.js';
 import { FLAVORS } from '../lib/flavors.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -16,7 +17,8 @@ assert.match(read('cordis.patch.yml'), /name: '@michengai\/dsh-pua'/);
 const manifest = JSON.parse(read('assets/pua/upstream.json'));
 assert.match(manifest.revision, /^[0-9a-f]{40}$/);
 const expected = ['flavors.md', ...FLAVORS.map(f => `methodology-${f.id}.md`), ...QUALITY_COMMANDS.map(name => `command-${name}.md`)].sort();
-assert.deepEqual(manifest.files.map(file => file.file).sort(), expected, '素材清单与风味不一致');
+assert.deepEqual(manifest.files.filter(file => !file.file.startsWith('upstream/')).map(file => file.file).sort(), expected, '旧素材清单与风味不一致');
+assert.equal(manifest.files.filter(file => file.file.startsWith('upstream/')).length, 85, '完整原版目录缺失');
 for (const entry of manifest.files) {
   const bytes = readFileSync(join(root, 'assets/pua', entry.file));
   assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, `素材指纹变化：${entry.file}`);
@@ -26,7 +28,9 @@ const prompts = loadPrompts();
 assert.equal(loadCommandPrompts().size, 3);
 assert.equal(prompts.size, 15);
 const sizes = [...prompts.values()].map(text => Buffer.byteLength(text, 'utf8'));
-assert.ok(Math.max(...sizes) <= 32768);
+const catalog = new SourceCatalog();
+for (const mode of MODES) for (const flavor of ['auto', ...FLAVORS.map(item => item.id)]) sizes.push(Buffer.byteLength(renderOriginalPrompt(catalog, flavor, mode), 'utf8'));
+assert.ok(Math.max(...sizes) <= MAX_PROMPT_BYTES);
 
 function markdownFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
