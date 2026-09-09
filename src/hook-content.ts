@@ -33,16 +33,21 @@ export class HookContent {
     return this.interpolate(body, this.variables(state));
   }
   candidate(count: number, state: PuaState): string {
+    // 原版 failure-detector.sh 首次确认失败保持不打断，从第二次观察才提供 L1 候选。
     const level = Math.min(4, count - 1);
     if (level < 1) return '';
     const blocks = [...this.failure.matchAll(/<< EOF_OUTPUT\n([\s\S]*?)\nEOF_OUTPUT/gu)];
     const gate = /<< EOF_GATE[^\n]*\n([\s\S]*?)\nEOF_GATE/u.exec(this.failure)?.[1];
     const routing = [...this.failure.matchAll(/<< EOF_ROUTING[^\n]*\n([\s\S]*?)\nEOF_ROUTING/gu)];
     const flavorContext = [...this.failure.matchAll(/^\s*FLAVOR_CONTEXT="(.*)"$/gmu)];
+    // 索引顺序来自固定版本：locked L2/L4、auto L2/L4；升级素材须显式适配。
+    if (!gate || blocks.length !== 4 || routing.length !== 4 || flavorContext.length !== 2) {
+      throw new Error(`原版失败候选模板结构不匹配：gate=${Boolean(gate)}，output=${blocks.length}/4，routing=${routing.length}/4，flavor=${flavorContext.length}/2。`);
+    }
     const variables = { ...this.variables(state), COUNT: String(count), CANDIDATE_LEVEL: `L${level}`, CANDIDATE_THRESHOLD: count >= 5 ? '5+' : String(count) };
     const expanded: Record<string, string> = {
       ...variables,
-      CONDITIONAL_GATE: this.interpolate(gate!, variables),
+      CONDITIONAL_GATE: this.interpolate(gate, variables),
       OBSERVATION_NOTE: `Scoped tool-failure observation count: ${count}. It is not a task/sub-goal failure count or an acceptance conclusion.`,
       SKILL_READ_NOTE: '需要细节时用 pua_reference 读取 skills/pua/SKILL.md；不递归激活技能。',
       FLAVOR_CONTEXT: this.interpolate(flavorContext[state.flavorLocked ? 0 : 1]![1]!, variables),

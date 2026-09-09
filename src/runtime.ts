@@ -42,6 +42,7 @@ export async function verifyLoop(subprocess: Pick<SubprocessRuntime, 'spawn'>, c
   const timer = setTimeout(() => timeout.abort(), timeoutMs);
   try {
     const combined = AbortSignal.any([signal, timeout.signal]);
+    // 脚本是 argv 的单个参数，由宿主 spawn(program, args) 传递，无外层 shell 字符串转义。
     const argv = process.platform === 'win32'
       ? ['powershell.exe', '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8\n$OutputEncoding = [System.Text.Encoding]::UTF8\n$ErrorActionPreference = 'Stop'\n${command}\nif (-not $?) { exit 1 }; if ($null -ne $LASTEXITCODE) { exit $LASTEXITCODE }`]
       : ['/bin/sh', '-c', command];
@@ -57,17 +58,19 @@ export async function verifyLoop(subprocess: Pick<SubprocessRuntime, 'spawn'>, c
   } finally { clearTimeout(timer); }
 }
 
-/** 生命周期移植；状态记录在原生 user/message，卸载后日志仍可由宿主读取。 */
+/** 生命周期移植；完整状态留在日志，通过宿主 surface 替换只向模型提供说明。 */
 export class PuaRuntime {
   private readonly hooks: HookContent;
   private readonly activeVerifiers = new Map<Session, AbortController>();
   private readonly sessions = new Set<Session>();
   private readonly cache = new WeakMap<Session, RuntimeState>();
+  private readonly normalized = new WeakSet<Session>();
   constructor(private readonly ctx: Context, private readonly store: StateStore, catalog: SourceCatalog, private readonly lifetime: AbortSignal, feedback: () => { offline: boolean; frequency: number } = () => ({ offline: false, frequency: 5 })) {
     this.hooks = new HookContent(catalog);
     ctx.on('agent/pre-step', async ({ agent }, next) => {
       const decision = await next();
       if (decision.kind !== 'enter') return decision;
+      this.hideLegacyRecords(agent.session);
       const state = store.read(agent.session);
       const runtime = this.read(agent.session);
       if (!state.enabled || state.mode !== 'pua-loop') this.cancel(agent.session);
@@ -169,7 +172,28 @@ export class PuaRuntime {
   }
   private save(session: Session, state: RuntimeState, note: string): void {
     this.cache.set(session, state);
-    session.append('user/message', pluginMessage(RECORD + JSON.stringify(state) + '\n' + note), { surfaceOp: 'append' });
+    const record = session.append('user/message', pluginMessage(RECORD + JSON.stringify(state) + '\n' + note), { surfaceOp: 'append' });
+    // 当前宿主 append 不支持 ignorable 自定义事件。用原生替换保留回放依据，
+    // 避免未知必需事件导致卸载后无法加载；两次同步 append 之间不发起模型请求。
+    session.append('user/message', pluginMessage(note), {
+      surfaceOp: { op: 'replace', start: record.seq, end: record.seq }, sourceEventSeqs: [record.seq],
+    });
+  }
+  private hideLegacyRecords(session: Session): void {
+    if (this.normalized.has(session)) return;
+    // 包括分叉带入的可见旧记录，但配置恢复仍只读取 ownEvents。
+    for (const seq of [...session.surface.nodes]) {
+      const event = session.eventAt(seq);
+      if (event?.type !== 'user/message' || event.data.source.kind !== 'plugin' || event.data.source.plugin !== RUNTIME_SOURCE) continue;
+      const text = messageText(event.data);
+      if (!text.startsWith(RECORD)) continue;
+      const newline = text.indexOf('\n');
+      const note = newline < 0 ? 'PUA 历史运行记录已保留在会话日志中。' : text.slice(newline + 1);
+      session.append('user/message', pluginMessage(note), {
+        surfaceOp: { op: 'replace', start: seq, end: seq }, sourceEventSeqs: [seq],
+      });
+    }
+    this.normalized.add(session);
   }
   cancel(session: Session, persist = true): void {
     this.activeVerifiers.get(session)?.abort();
