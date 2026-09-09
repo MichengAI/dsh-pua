@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { Context } from '@deepseek-ai/cordis';
 import { AgentRegistry } from '@deepseek-ai/dsh-agent';
 import { AgentLoop } from '@deepseek-ai/dsh-agent-loop';
@@ -187,14 +190,52 @@ test('真实 Windows Oracle 保留双引号、反引号、换行及带空格路�
     ['Write-Output "a b"', 'a b'],
     ['Write-Output "a`"b"', 'a"b'],
     ['Write-Output "a`nb"', 'a\nb'],
-    ['"a b" | findstr /c:"a b"', 'a b'],
-    ['& "$env:SystemRoot\\System32\\where.exe" "powershell.exe"', process.env.SystemRoot + '\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'],
     ['if (-not (Test-Path -LiteralPath "$env:ProgramFiles")) { exit 9 }; Write-Output "space path OK"', 'space path OK'],
   ];
   for (const [command, expected] of cases) {
     const result = await verifyLoop(subprocess, command, process.cwd(), new AbortController().signal);
     assert.equal(result.ok, true, result.detail);
-    assert.equal(JSON.parse(result.detail).stdout.replaceAll('\r\n', '\n').trim(), expected);
+    // 仅统一行尾；不能用 trim() 隐藏 BOM 或实际输出中的空格。
+    assert.equal(JSON.parse(result.detail).stdout.replaceAll('\r\n', '\n'), expected + '\n', command);
+  }
+});
+
+test('真实 Windows Oracle 原生引号校验读取无 BOM 文件，不依赖 stdin', { skip: process.platform !== 'win32', timeout: 15000 }, async t => {
+  const ctx = new Context();
+  t.after(() => ctx.fiber.dispose());
+  const subprocess = new LocalSubprocessRuntime(ctx);
+  const directory = mkdtempSync(join(tmpdir(), 'dsh-pua-oracle-'));
+  t.after(() => rmdirSync(directory));
+  const file = join(directory, "quoted 'input file.txt");
+  // Node 的 utf8 写入不带 BOM，避免 PowerShell 5.1 的 -Encoding utf8 差异。
+  writeFileSync(file, 'a\r\nb\r\na b\r\n', 'utf8');
+  try {
+    const literalPath = "'" + file.replaceAll("'", "''") + "'";
+    for (const [pattern, expectedCode, expectedOutput] of [['a b', 0, 'a b\n'], ['missing phrase', 1, '']]) {
+      const command = `& "$env:SystemRoot\\System32\\findstr.exe" /c:"${pattern}" ${literalPath}`;
+      const result = await verifyLoop(subprocess, command, process.cwd(), new AbortController().signal);
+      const detail = JSON.parse(result.detail);
+      assert.equal(result.ok, expectedCode === 0, command + '\n' + result.detail);
+      assert.equal(detail.exitCode, expectedCode, command);
+      assert.equal(detail.stdout.replaceAll('\r\n', '\n'), expectedOutput, command);
+      assert.equal(detail.stderr, '', command);
+    }
+  } finally { unlinkSync(file); }
+});
+
+test('真实 Windows Oracle 使用 PowerShell 管道匹配，未匹配显式失败', { skip: process.platform !== 'win32', timeout: 15000 }, async t => {
+  const ctx = new Context();
+  t.after(() => ctx.fiber.dispose());
+  const subprocess = new LocalSubprocessRuntime(ctx);
+  for (const [pattern, expectedCode, expectedOutput] of [['a b', 0, 'a b\n'], ['missing', 1, '']]) {
+    // Select-String 未匹配不自动返回失败退出码，验收脚本必须主动表达失败。
+    const command = `$puaMatch = "a b" | Select-String -SimpleMatch -Pattern "${pattern}"; if ($null -eq $puaMatch) { exit 1 }; Write-Output $puaMatch.Line`;
+    const result = await verifyLoop(subprocess, command, process.cwd(), new AbortController().signal);
+    const detail = JSON.parse(result.detail);
+    assert.equal(result.ok, expectedCode === 0, command + '\n' + result.detail);
+    assert.equal(detail.exitCode, expectedCode, command);
+    assert.equal(detail.stdout.replaceAll('\r\n', '\n'), expectedOutput, command);
+    assert.equal(detail.stderr, '', command);
   }
 });
 
