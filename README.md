@@ -29,15 +29,15 @@ npm pack
 dsh plugin --profile web add .\michengai-dsh-pua-0.2.0.tgz --ignore-scripts
 ```
 
-这里的 `0.2.0.tgz` 由上一行 `npm pack` 生成。使用本次审查修复的现成本地包时，直接安装实际文件名：
+这里的 `0.2.0.tgz` 由上一行 `npm pack` 生成。使用工具消息顺序修复的现成本地包时，直接安装实际文件名：
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-dsh plugin --profile web add .\michengai-dsh-pua-0.2.0-review-fix.tgz --ignore-scripts
+dsh plugin --profile web add .\michengai-dsh-pua-0.2.0-tool-order-fix.tgz --ignore-scripts
 ```
 
-此前的 `michengai-dsh-pua-0.2.0-local.tgz` 保留用于回退，不包含本次审查修复。
+此前的 `michengai-dsh-pua-0.2.0-review-fix.tgz` 和 `0.2.0-local.tgz` 保留用于回退；两者仍有工具消息顺序缺陷，不能作为本次修复的安装证据。
 
 等待当前任务结束后重载 DSH 后端。浏览器刷新不一定重载插件；用 `/pua help` 确认能看到 P9、Loop 等入口。同版本重新打包时使用新文件名，避免包管理器复用旧内容。
 
@@ -92,6 +92,10 @@ Loop 必须显式启动，省略上限为原版无限模式，省略 `--verify` 
 
 源码审查修复使用宿主 `surface replace` 将每条 `PUA_RUNTIME_V1` 替换为简短运行说明：完整 JSON 留在日志供恢复，后续模型请求不重复接收它。旧会话中仍可见的原始记录在下一次模型步骤前替换；过去已经发出的请求保持原样，卸载后宿主仍能按日志重建替换结果。命令状态只消费新增事件，设置变化仍会刷新默认值。
 
+终端失败通知早于宿主工具结果落库，因此只更新内存观察。整组工具结果落库后才保存记录，下一步至多注入该组最新一级候选；off、取消和卸载也遵守这一写入边界。进程在安全写入前退出可能丢失尚未持久化的观察，不补造工具结果。
+
+旧版形成的“工具调用 → PUA 消息 → 工具结果”会在下一次模型步骤前兼容处理：仅针对结果齐全、间隔消息全部来自本插件运行时的工具组，用宿主上下文替换保留原结果身份和内容，省去打断顺序的 PUA 节点。原始日志不改写，不重新执行工具。升级并重载后可在原会话继续；真正缺失结果或其他来源插入消息不在自动修复范围。详见[工具消息顺序修复](docs/07-迭代归档/2026/I003-完整原版移植/03-工具消息顺序修复.md)。
+
 off 后后续步骤收到停用说明；已发出的普通模型请求和工具调用不撤回，已排队用户任务仍正常处理。卸载保留宿主历史与业务文件。用 complete system prompt 压制普通 section 的 Agent 不在当前支持范围内。
 
 ## 验证与开发结构
@@ -102,7 +106,7 @@ off 后后续步骤收到停用说明；已发出的普通模型请求和工具�
 | --- | --- |
 | `src/content.ts`、`src/source.ts` | 原文校验、完整拼装、资料白名单 |
 | `src/command.ts`、`src/args.ts`、`src/state.ts` | 命令与会话状态 |
-| `src/runtime.ts`、`src/hook-content.ts` | hook 模板、观察、Loop 与生命周期 |
+| `src/runtime.ts`、`src/hook-content.ts`、`src/tool-order.ts` | hook 模板、观察、Loop、工具组写入边界与历史兼容 |
 | `src/settings.ts` | DSH 设置 schema 和持久默认 |
 | `src/review.ts` | 有界只读 Git 索引证据 |
 | `assets/pua/upstream` | 85 个原版文件，旧 19 份素材保留兼容 |
@@ -116,15 +120,15 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 dsh plugin --profile web remove @michengai/dsh-pua
 ```
 
-撤销本次审查修复、保留 0.2.0 功能时，重新安装此前的本地包，再等待当前任务结束后重载后端：
+仅撤销本次工具顺序修复时，重新安装此前的审查修复包，再等待当前任务结束后重载后端；旧包会重新引入该顺序缺陷：
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-dsh plugin --profile web add .\michengai-dsh-pua-0.2.0-local.tgz --ignore-scripts
+dsh plugin --profile web add .\michengai-dsh-pua-0.2.0-review-fix.tgz --ignore-scripts
 ```
 
-如需跨版本回退到 0.1.1，可安装保留的 `michengai-dsh-pua-0.1.1-final.tgz`。0.1.1 忽略新增设置，新增命令历史不保证被旧版本正确恢复，建议旧版本新开会话。
+如需撤销此前审查修复，可安装 `michengai-dsh-pua-0.2.0-local.tgz`。跨版本回退到 0.1.1 可安装 `michengai-dsh-pua-0.1.1-final.tgz`；0.1.1 忽略新增设置，新增命令历史不保证被旧版本正确恢复，建议旧版本新开会话。代码回退不会撤销已追加的上下文替换事件，原始工具证据始终保留。
 
 ## 来源与许可
 
