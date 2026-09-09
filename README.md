@@ -116,7 +116,15 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 dsh plugin --profile web remove @michengai/dsh-pua
 ```
 
-回退可重新安装保留的 `michengai-dsh-pua-0.1.1-final.tgz` 后重载后端。0.1.1 忽略新增设置，新增命令历史不保证被旧版本正确恢复，建议旧版本新开会话。
+撤销本次审查修复、保留 0.2.0 功能时，重新安装此前的本地包，再等待当前任务结束后重载后端：
+
+```powershell
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+dsh plugin --profile web add .\michengai-dsh-pua-0.2.0-local.tgz --ignore-scripts
+```
+
+如需跨版本回退到 0.1.1，可安装保留的 `michengai-dsh-pua-0.1.1-final.tgz`。0.1.1 忽略新增设置，新增命令历史不保证被旧版本正确恢复，建议旧版本新开会话。
 
 ## 来源与许可
 
