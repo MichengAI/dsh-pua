@@ -1,7 +1,7 @@
 {
   "name": "@michengai/dsh-pua",
   "version": "0.2.0",
-  "description": "DSH PUA 任务增强插件：会话开关、大厂风味、换方法与证据验收",
+  "description": "基于 PUA 3.5.1 完整协议文本的 DSH 适配插件：角色模式、风味路由与独立验收 Loop",
   "type": "module",
   "license": "MIT",
   "engines": {
