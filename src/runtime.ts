@@ -10,6 +10,7 @@ import { HookContent } from './hook-content.js';
 import { SourceCatalog } from './source.js';
 import { StateStore } from './state.js';
 import type { PuaMode } from './content.js';
+import { hasPendingToolCalls, repairPuaToolOrder } from './tool-order.js';
 
 const RUNTIME_SOURCE = '@michengai/dsh-pua/runtime';
 const RECORD = 'PUA_RUNTIME_V1 ';
@@ -65,14 +66,22 @@ export class PuaRuntime {
   private readonly sessions = new Set<Session>();
   private readonly cache = new WeakMap<Session, RuntimeState>();
   private readonly normalized = new WeakSet<Session>();
+  private readonly pendingWrites = new Map<Session, string>();
+  private readonly pendingCandidates = new WeakSet<Session>();
   constructor(private readonly ctx: Context, private readonly store: StateStore, catalog: SourceCatalog, private readonly lifetime: AbortSignal, feedback: () => { offline: boolean; frequency: number } = () => ({ offline: false, frequency: 5 })) {
     this.hooks = new HookContent(catalog);
     ctx.on('agent/pre-step', async ({ agent }, next) => {
       const decision = await next();
       if (decision.kind !== 'enter') return decision;
       this.hideLegacyRecords(agent.session);
+      this.flush(agent.session);
       const state = store.read(agent.session);
       const runtime = this.read(agent.session);
+      if (this.pendingCandidates.has(agent.session) && !hasPendingToolCalls(agent.session)) {
+        this.pendingCandidates.delete(agent.session);
+        const prompt = state.enabled ? this.hooks.candidate(runtime.failureCount, state) : '';
+        if (prompt) decision.messages.push(pluginMessage(prompt));
+      }
       if (!state.enabled || state.mode !== 'pua-loop') this.cancel(agent.session);
       for (const message of decision.messages) {
         const text = messageText(message);
@@ -117,14 +126,17 @@ export class PuaRuntime {
         if (runtime.failures.includes(id)) return;
         runtime.failures = [...runtime.failures, id].slice(-128);
         runtime.failureCount = Math.min(runtime.failureCount + 1, 1_000_000);
-        // 仅存调用标识，不记录命令、错误全文或从成功推断突破。
-        this.save(agent.session, runtime, '新增终端失败观察；不是任务失败判定。');
-        const prompt = this.hooks.candidate(runtime.failureCount, store.read(agent.session));
-        if (prompt) agent.inject(pluginMessage(prompt));
+        // 此通知早于宿主 tool/result 落库；只暂存，不能在工具组中插入普通消息。
+        this.pendingWrites.set(
+          agent.session,
+          "新增终端失败观察；不是任务失败判定。",
+        );
+        this.pendingCandidates.add(agent.session);
         return;
       });
     });
     ctx.on('agent/turn-stopping', async payload => {
+      this.flush(payload.agent.session);
       const wasLoop = this.read(payload.agent.session).loop?.status === 'active';
       await this.stopping(payload.agent, payload.turn, payload.signal);
       const config = feedback();
@@ -141,6 +153,7 @@ export class PuaRuntime {
     });
     ctx.on('agent/session-start', ({ agent, source }) => {
       if (source === 'clear') {
+        this.pendingCandidates.delete(agent.session);
         this.cancel(agent.session);
         this.save(agent.session, { failureCount: 0, failures: [] }, '清空上下文，清除当前运行观察。');
       } else if (source === 'compact' && store.read(agent.session).enabled) {
@@ -151,8 +164,30 @@ export class PuaRuntime {
       // Session 的发布边界禁止重入 append；turn/end 本身已是可回放的取消事实。
       if (event.type === 'turn/end' && event.data.reason.kind !== 'completed') this.cancel(session, false);
     });
-    ctx.on('agent/disposed', ({ agent }) => { this.cancel(agent.session); this.sessions.delete(agent.session); });
-    ctx.effect(() => () => { for (const session of this.sessions) this.cancel(session); this.sessions.clear(); });
+    ctx.on("agent/disposed", ({ agent }) => {
+      this.cancel(agent.session);
+      this.flush(agent.session);
+      this.sessions.delete(agent.session);
+    });
+    let disposed = false;
+    // 卸载发生在工具组中途时，只保留待写状态的边界监听，写完即撤销。
+    // 根上下文监听不注入候选或唤醒模型，也不接管工具生命周期。
+    const stopObserving = ctx.root.on('session/event', (session, event) => {
+      if (!this.pendingWrites.has(session) || !['step/end', 'turn/end'].includes(event.type)) return;
+      // Session 禁止在事件发布栈重入 append；由已发生的明确边界触发微任务。
+      queueMicrotask(() => {
+        try { this.flush(session); }
+        catch (error) { ctx.logger.warn('PUA 延后状态记录未写入，将在下一安全边界重试：%s', error); }
+        if (disposed && this.pendingWrites.size === 0) stopObserving();
+      });
+    });
+    ctx.effect(() => () => {
+      disposed = true;
+      for (const session of this.sessions) this.cancel(session);
+      for (const session of this.pendingWrites.keys()) this.flush(session);
+      this.sessions.clear();
+      if (this.pendingWrites.size === 0) stopObserving();
+    });
   }
   read(session: Session): RuntimeState {
     let state = this.cache.get(session);
@@ -172,15 +207,29 @@ export class PuaRuntime {
   }
   private save(session: Session, state: RuntimeState, note: string): void {
     this.cache.set(session, state);
-    const record = session.append('user/message', pluginMessage(RECORD + JSON.stringify(state) + '\n' + note), { surfaceOp: 'append' });
+    this.pendingWrites.set(session, note);
+    this.flush(session);
+  }
+  private flush(session: Session): void {
+    const note = this.pendingWrites.get(session);
+    if (note === undefined || hasPendingToolCalls(session)) return;
+    const state = this.read(session);
+    const record = session.append(
+      "user/message",
+      pluginMessage(RECORD + JSON.stringify(state) + "\n" + note),
+      { surfaceOp: "append" },
+    );
     // 当前宿主 append 不支持 ignorable 自定义事件。用原生替换保留回放依据，
     // 避免未知必需事件导致卸载后无法加载；两次同步 append 之间不发起模型请求。
-    session.append('user/message', pluginMessage(note), {
-      surfaceOp: { op: 'replace', start: record.seq, end: record.seq }, sourceEventSeqs: [record.seq],
+    session.append("user/message", pluginMessage(note), {
+      surfaceOp: { op: "replace", start: record.seq, end: record.seq },
+      sourceEventSeqs: [record.seq],
     });
+    this.pendingWrites.delete(session);
   }
   private hideLegacyRecords(session: Session): void {
     if (this.normalized.has(session)) return;
+    repairPuaToolOrder(session, RUNTIME_SOURCE);
     // 包括分叉带入的可见旧记录，但配置恢复仍只读取 ownEvents。
     for (const seq of [...session.surface.nodes]) {
       const event = session.eventAt(seq);
