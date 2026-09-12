@@ -4,12 +4,11 @@
 
 **让 Agent 少一点敷衍，多一点尝试和验证**
 
-[English](README.md) · [功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [更新日志](CHANGELOG.md) · [Apache-2.0](LICENSE)
+[English](README.md) · [功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [更新日志](CHANGELOG.md)
 
-[![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg)](https://www.npmjs.com/package/@michengai/dsh-pua)
-[![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg)](https://www.npmjs.com/package/@michengai/dsh-pua)
+[![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
+[![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![CI](https://github.com/MichengAI/dsh-pua/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MichengAI/dsh-pua/actions/workflows/ci.yml)
-[![GitHub release](https://img.shields.io/github/v/release/MichengAI/dsh-pua.svg)](https://github.com/MichengAI/dsh-pua/releases/latest)
 [![许可证：Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 [![DSH Web Plugin](https://img.shields.io/badge/DSH%20Web-Plugin-0f766e.svg)](https://github.com/deepseek-ai/deepseek-harness)
 [![Node.js 22.19+](https://img.shields.io/badge/Node.js-22.19%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
