@@ -1,26 +1,76 @@
+<div align="center">
+
 # DSH PUA
 
-基于 PUA 3.5.1 完整协议文本的 DSH 适配实现。保留原版核心、领导人格、旁白、Banner、诊断与验收文本，适配 DSH 命令、设置和主要生命周期；不执行原版 Bash hooks。文本保真不等于模型行为已通过验收。
+**让 Agent 少一点敷衍，多一点尝试和验证**
 
-社区插件 `@michengai/dsh-pua`，当前版本 `0.3.8`。开发状态见[交接入口](docs/00-交接入口/00-阅读导航.md)，平台差异见[架构说明](docs/03-技术架构/01-插件架构.md)。
+[功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [更新日志](CHANGELOG.md) · [Apache-2.0](LICENSE)
 
-## 与原版的关系
+[![许可证：Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![DSH Web Plugin](https://img.shields.io/badge/DSH%20Web-Plugin-0f766e.svg)](https://github.com/deepseek-ai/deepseek-harness)
+[![Node.js 22.19+](https://img.shields.io/badge/Node.js-22.19%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
 
-- 固定提交 `e6e6cd237ad17750d179674bff52f8184abea8fd`，原文按 Git 对象字节保存并校验 SHA-256。
-- 完整注入核心、展示协议和方法论路由，保留 15 种风味。auto 由模型按原版任务路由选择，显式选择则锁定。
-- P7、P9、P10、Pro、Yes、Mama、Shot、英文和日文模式加载完整原版协议；资料工具提供完整关联文档。
-- 原版失败候选模板接到真实终端结果；保留条件门控，工具失败不直接变成任务失败。
-- 显式 Loop 接到 Agent 停止边界，支持独立验收、暂停、中止、取消和轮次上限。
+</div>
 
-原版 Bash hooks 不在本机执行。DSH 命令名不支持冒号，因此 `/pua:p9` 对应 `/pua p9`。团队进程、worktree 和工具权限由 DSH 及所属插件管理，不将 Claude Code 管理脚本视为跨宿主通用实现。
+> DSH PUA 将 [原版 PUA](https://github.com/tanweai/pua) 带到 DeepSeek Harness，在 Agent 反复失败、过早放弃或草率宣告完成时，引导它换方法、查原因、拿证据。社区维护，非 DeepSeek AI 或 PUA 官方产品。
 
-## 环境与安装
+## 功能概览
 
-Node.js >= 22.19，支持 DSH `0.1.2-rc.1`、`0.1.5-rc.1`、`0.1.5-rc.2`，开发依赖固定 `0.1.5-rc.2`。必需 `commands`、`systemPrompt`；完整体验需要宿主 `tools`、`settings`、AgentLoop。Oracle 和 Git 预检使用 `subprocess`。不需要额外模型密钥。
+- **遇到困难换方法**：提醒 Agent 重新检查思路，避免重复无效尝试。
+- **完成前检查证据**：要求核对结果，减少“说完成了，却没有验证”的情况。
+- **选择你喜欢的风格**：支持 15 种大厂风味，以及 P7、P9、P10、夸夸、妈妈等角色模式。
+- **在界面中调整**：插件设置保存全局默认，聊天入口可以单独调整当前会话。
+- **按验收结果继续任务**：可启动 Loop，让 Agent 继续修正，直到验收通过、达到轮次上限或被取消。
 
-上述范围经过真实宿主服务的离线回归；真实模型、钉钉会话和桌面设置交互仍待验收。`0.1.0-rc.8`、`0.1.1-rc.2` 缺少本插件所需日志接口，不在支持范围。旧 `0.2.0` 包不支持新版宿主，升级 DSH 后请使用 `0.2.1` 或更新版本。Web 配置入口需要宿主客户端插件、设置、会话及 Typert Remote 服务。
+实际效果取决于所用模型和任务，插件不保证每次都能解决问题。
 
-当前尚未发布到 npm。安装最新源码修复时，在项目目录构建并安装到实际使用的 profile：
+## 界面预览
+
+### 全局配置
+
+在「设置 → 插件 → PUA 配置」设置默认开关、风味、角色和子代理选项，保存后供会话使用。
+
+![PUA 全局配置：开关、风味、角色模式和子代理选项](assets/screenshots/pua-global-settings.png)
+
+### 当前会话配置
+
+点击专家入口右侧的 **PUA**，单独调整当前会话。修改项可以恢复默认，也可以在面板中启动或取消 Loop。
+
+![聊天中的 PUA 入口与当前会话配置面板](assets/screenshots/pua-session-settings.png)
+
+## DSH 产品生态
+
+以下是可配合使用的同系列项目，按实际需要选择：
+
+| 项目 | 你可以用它做什么 |
+| --- | --- |
+| [Codex Desktop](https://github.com/MichengAI/dsh-codex-desktop) | 使用集成 DSH Web 的桌面工作台 |
+| [Codex UI](https://github.com/MichengAI/dsh-codex-ui) | 整理项目与会话、搜索任务、跳转对话轮次 |
+| [IM Connect](https://github.com/MichengAI/dsh-im-connect) | 从消息平台下任务、收回复 |
+| [Automation](https://github.com/MichengAI/dsh-automation) | 按计划执行任务，查看每次运行的结果 |
+| [Skills Manager](https://github.com/MichengAI/dsh-skills-manager) | 查找、启停、创建和导入本机技能 |
+| [Archive Manager](https://github.com/MichengAI/dsh-archive-manager) | 搜索、恢复或清理已归档会话 |
+| [Agency Agents](https://github.com/MichengAI/dsh-agency-agents) | 按任务选择并召唤专业角色 |
+| [BTW](https://github.com/MichengAI/dsh-btw) | 在当前上下文中临时旁问，不打断主任务 |
+| [Simplify](https://github.com/MichengAI/dsh-simplify) | 整理 Git 改动范围内的代码 |
+
+## 安装
+
+需要 Node.js 22.19 或更新版本，以及 DSH `0.1.2-rc.1`、`0.1.5-rc.1` 或 `0.1.5-rc.2`。使用 DSH 已有的模型配置，无需额外密钥。
+
+当前版本为 `0.3.8`，尚未发布到 npm，需要从源码安装。以下示例使用 `web` profile，请替换为实际使用的 profile。
+
+### 让 Agent 帮你安装
+
+将本项目源码目录和下面这段话发给能够操作本机终端的 Agent：
+
+```text
+请将这个目录中的 DSH PUA 插件构建并安装到本机 web profile。当前版本尚未发布到 npm，请使用本地源码打包安装，完成后检查插件是否加载，并告诉我如何打开 PUA 配置。
+```
+
+### 手动安装
+
+在本项目根目录执行：
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -31,111 +81,64 @@ npm pack
 dsh plugin --profile web add .\michengai-dsh-pua-0.3.8.tgz --ignore-scripts
 ```
 
-这里的 `michengai-dsh-pua-0.3.8.tgz` 由上一行 `npm pack` 生成，也可直接使用同名本地交付包。此前的包不包含本轮 Web 配置与会话覆盖实现，不能作为 0.3.0 的验证证据。
+等待当前任务结束后，重新加载 DSH 或重启 Web 服务；仅刷新浏览器不够。输入 `/pua help` 可检查插件是否可用。
 
-等待当前任务结束后重载 DSH 后端。浏览器刷新不一定重载插件；用 `/pua help` 确认能看到 P9、Loop 等入口。同版本重新打包时使用新文件名，避免包管理器复用旧内容。
+## 使用
 
-## 设置页面
+1. 打开「设置 → 插件」，在第一个「插件配置」页签中展开「PUA 配置」。
+2. 开启 PUA，选择喜欢的风味和角色，保存设置。
+3. 回到聊天，像平时一样提交任务。
 
-在「设置 → 插件 → 插件配置 → PUA 配置」修改并保存当前 profile 的全局默认。控件使用宿主公共 Button、Menu、Switch 和箭头图标，标签与下拉/开关同排，卡片外壳按官方 PluginCard 的布局与主题变量实现。全局关闭时隐藏聊天 PUA 入口；全局开启时，聊天输入栏权限右侧提供仅显示 PUA 的短入口，当前会话关闭时以斜线划掉文字，排在专家插件前，可查看当前生效值、逐项自定义或恢复继承。全局入口是首个 TAB 中可展开的卡片，不新增 TAB。会话参数直接编辑即覆盖，未修改项自动继承；仅已修改项显示“已自定义”和“恢复默认”，底部可全部恢复。组件交互已离线验证，真实 DSH 桌面联动仍待验收。
+聊天输入栏专家入口右侧会显示 **PUA**，点击即可查看或调整当前会话。当前会话关闭时，PUA 文字显示斜线；全局关闭时，聊天入口隐藏。
 
-**0.3.0 行为变化：** 命令与聊天面板只修改当前会话，不再写入全局。已有 profile 设置保留；会话未覆盖的参数从下一模型步骤起跟随全局变化，显式选择与全局相同的值也算覆盖。`/pua reset [参数名]` 可恢复单项或全部继承。普通分叉不继承父会话命令或循环，使用全局默认。没有 settings 时降级为当前会话，默认关闭。
+## 配置
 
-| 参数 | 默认值 | 用途 |
-| --- | --- | --- |
-| `enabled` | 开启 | PUA 总开关；关闭取消当前 Loop，普通角色选择保留 |
-| `flavor` | auto | 自动选味或锁定 15 种风味之一 |
-| `mode` | pua | 普通、P7/P9/P10、Pro、Yes、Mama、Shot、英文或日文 |
-| `subagents` | 关闭 | 是否对子代理启用；父会话关闭时子代理不能强制开启 |
-| `terminalReview` | 开启 | 终端异常文本核验提醒 |
-| `failureCandidates` | 开启 | 已确认失败的升级候选提示 |
-| `qualityTriggers` | 开启 | 用户质量纠偏提示 |
-| `offline` | false | true 关闭反馈提醒 |
-| `feedbackFrequency` | 5 | 反馈提醒频率，0 关闭 |
-| `maxIterations` | 0 | Loop 默认轮次上限，0 不限 |
-| `verify` | 空 | 默认验收命令，空为模型报告 |
-| `verificationTimeout` | 120 秒 | 独立验收超时，1–3600 秒 |
+**全局默认只在插件配置页修改。聊天面板和命令只影响当前会话。**
 
-对子代理启用默认关闭，避免覆盖专家插件的专业角色约束。开启后继承父会话生效配置，不继承 Loop 实例、命令 ID 或失败计数；父会话不可用时保持关闭。开启不保证两套提示词没有语义冲突，仍需真实专家任务验收。
+不修改就使用全局默认；修改某一项，只覆盖这一项。点击「恢复默认」即可重新跟随全局，也可以一次恢复全部。
 
-会话面板内的 Loop 表单必须显式点击启动。表单参数只用于本次启动，不修改默认配置；已启动 Loop 保持启动时的参数快照。
-
-离线模式关闭自愿反馈提醒；任何设置下都没有联网刷新或上报能力。反馈默认每 5 次有可见 PUA 输出的交付提醒一次，0 关闭，提醒不会唤醒模型或记录评分。
-
-## 命令
-
-| 输入 | 行为 |
+| 可以调整什么 | 说明 |
 | --- | --- |
-| `/pua [任务描述]` | 开启完整核心；明确任务排到后续轮次，无描述则继续当前任务 |
-| `/pua on`、`/pua off` | 开关；off 同时取消本会话循环及其独立验收 |
-| `/pua config {"subagents":true}` | 只修改当前会话参数，不写全局 |
-| `/pua reset [参数名]` | 恢复单项或全部跟随全局 |
-| `/pua flavor [名称或auto]` | 列表、锁定风味或恢复自动路由，不唤醒模型 |
-| `/pua p7 [任务]` | 原版 P7 方案驱动模式 |
-| `/pua p9 [任务]`、`/pua p10 [任务]` | 原版技术负责人、战略层协议，使用宿主实际可用子代理能力 |
-| `/pua pro [任务]` | 自进化、KPI、周报等完整本地协议；写入依赖宿主文件工具和授权 |
-| `/pua yes [任务]`、`/pua mama [任务]` | 原版夸夸模式、妈妈模式 |
-| `/pua shot [任务]` | 原版 Shot 文本及完整核心 |
-| `/pua pua-en [任务]`、`/pua pua-ja [任务]` | 原版英文、日文技能 |
-| `/pua ding [任务]` | 钉内/钉外味 |
-| `/pua again [补充]` | 原版换方法协议 |
-| `/pua done-check [补充]`、`/pua evidence [补充]` | 原版完成检查、证据检查 |
-| `/pua review [范围]` | DSH 扩展：只读审查，附有界 Git 索引预检 |
-| `/pua loop "任务" --verify "npm test" --max-iterations 10` | 独立验收循环，配置不由模型输出改写 |
-| `/pua cancel-pua-loop`、`/cancel-pua-loop` | 取消当前循环，包括尚未开始的排队循环 |
-| `/pua kpi`、`/pua survey [quick]` | KPI 报告、本地问卷；用户明确选择后才记录评分 |
-| `/pua offline` | 关闭反馈提醒，保持无上报能力 |
-| `/pua team-status` | 当前会话及直接子代理状态、当前循环状态 |
-| `/pua reap-orphans` | 说明资源管理状态，不删除其他插件资源 |
-| `/pua teardown-all` | 取消本插件在当前后端管理的全部循环，不删除 worktree |
-| `/pua status`、`/pua help` | 开关、模式、失败观察、循环与用法 |
-| `/pua -- on feature` | 将以保留命令开头的文字作为任务 |
+| PUA 开关 | 默认开启，可单独关闭当前会话 |
+| 风味与角色 | 自动选味或指定风味，选择不同角色模式 |
+| 对子代理启用 | 默认关闭；需要让专家等子代理也使用 PUA 时再开启 |
+| 纠偏提醒 | 调整终端核验、失败升级与质量提醒 |
+| 反馈提醒 | 调整提醒频率，或关闭提醒；插件不上传反馈 |
+| Loop 默认值 | 设置验收命令、超时时间和轮次上限 |
 
-风味：`alibaba`、`bytedance`、`huawei`、`tencent`、`baidu`、`pinduoduo`、`meituan`、`jd`、`xiaomi`、`netflix`、`tesla`（Musk）、`apple`（Jobs）、`amazon`、`microsoft`、`ding`，支持中文名及 `musk`、`jobs` 别名。
+从 `0.3.0` 起，命令不再修改全局设置。子代理是否使用 PUA 还受父会话开关控制。
 
-普通消息 `huawei` 不等于切换命令，请用 `/pua flavor huawei`。输入上限 8 KiB，不接收图片附件。“已提交”只表示入队。
+### 让任务按验收结果继续
 
-## 循环、恢复与关闭
+在聊天 PUA 面板中填写 Loop 任务、验收命令和轮次上限，再点击启动。例如，让 Agent 修复测试，使用 `npm test` 检查结果，最多执行 10 轮。
 
-Loop 必须显式启动，省略参数使用当前会话生效默认值。出厂默认不限轮次、无验收命令（honor system），不能声称独立验收通过。Windows Oracle 使用 PowerShell，在会话工作目录执行，默认超时 120 秒，可配置为 1–3600 秒，stdout/stderr 各最多保留 8 KiB。命令通过不代表测试文件不可能被修改；这不是操作系统级隔离沙箱。
+也可以直接输入：
 
-启动任务中的 `PUA_LOOP_START` 包含完整 `--verify` 命令，对模型可见。命令 ID 校验用于阻止旧排队请求恢复旧配置；验证命令不由模型输出改写，但验证文件和执行环境没有不可篡改保证。
+```text
+/pua loop "修复当前测试失败并补齐回归" --verify "npm test" --max-iterations 10
+```
 
-模型输出 `<promise>LOOP_DONE</promise>` 后触发 Oracle；失败继续，连续 3/5 次拒绝触发反思。`<loop-pause>需要什么</loop-pause>` 暂停，用户在同会话补充后恢复；`<loop-abort>原因</loop-abort>` 中止。用户取消、异常结束、卸载均取消续轮，恢复会话不会自行唤醒模型。
+需要停止时输入 `/cancel-pua-loop`。关闭当前会话 PUA 也会取消 Loop，但不会撤回已经执行的操作。
 
-会话命令与运行记录保存在宿主日志，不新增未知必需事件。失败观察保存计数和最近 128 个调用 ID 哈希；Loop 保存任务、用户验证配置、迭代与独立验证摘要。压缩后恢复数字观察，不将其当作任务失败或验收结论。clear 清除运行观察。
+建议设置验收命令和轮次上限：未设置验收命令时，只依据模型报告判断完成；轮次上限为 0 表示不限轮次。
 
-源码审查修复使用宿主 `surface replace` 将每条 `PUA_RUNTIME_V1` 替换为简短运行说明：完整 JSON 留在日志供恢复，后续模型请求不重复接收它。旧会话中仍可见的原始记录在下一次模型步骤前替换；过去已经发出的请求保持原样，卸载后宿主仍能按日志重建替换结果。命令状态只消费新增事件，设置变化仍会刷新默认值。
+## 常用命令
 
-终端失败通知早于宿主工具结果落库，因此只更新内存观察。整组工具结果落库后才保存记录，下一步至多注入该组最新一级候选；off、取消和卸载也遵守这一写入边界。进程在安全写入前退出可能丢失尚未持久化的观察，不补造工具结果。
+日常开关、风味和角色都可以在界面操作，无需记住命令。
 
-DSH 0.1.5 的默认持久终端返回纯文本，退出或超时标记也可能由命令自行打印。插件在整组结果完整后的下一步骤合并发送一次“终端状态待核验”提示，不把这些文本累计为确认失败，不自动触发 L1–L4 升级。结构化退出码或工具执行错误仍沿用既有观察逻辑；显式 Loop 的独立 Oracle 不受此降级影响。
-
-会话上下文替换适配 V2 的 `start/end` 和 V3 的 `startSeq/endSeq`。旧日志迁移由官方宿主负责；本插件不会自行改写历史文件。
-
-旧版形成的“工具调用 → PUA 消息 → 工具结果”会在下一次模型步骤前兼容处理：仅针对结果齐全、间隔消息全部来自本插件运行时的工具组，用宿主上下文替换保留原结果身份和内容，省去打断顺序的 PUA 节点。原始日志不改写，不重新执行工具。升级并重载后可在原会话继续；真正缺失结果或其他来源插入消息不在自动修复范围。详见[工具消息顺序修复](docs/07-迭代归档/2026/I003-完整原版移植/03-工具消息顺序修复.md)。
-
-off 后后续步骤收到停用说明；已发出的普通模型请求和工具调用不撤回，已排队用户任务仍正常处理。卸载保留宿主历史与业务文件。用 complete system prompt 压制普通 section 的 Agent 不在当前支持范围内。
-
-## 验证与开发结构
-
-测试覆盖真实 DSH 命令、settings、资料工具、AgentLoop、原文保真、状态恢复、循环控制和真实 Git/PowerShell。固定回复适配器只证明请求及控制链正确，不证明真实模型遵循程度或任务效率。
-
-执行 `npm run check` 验证当前开发宿主；构建后执行 `npm run test:compat` 在隔离依赖树中验证全部声明版本，也可传入 `-- 0.1.5-rc.2`。新版持久终端测试运行官方工具包装，使用内存 PTY 夹具；迁移测试运行官方 V2→V3 逻辑事件迁移阶段，均不读写用户会话。
-
-| 路径 | 用途 |
+| 目标 | 命令示例 |
 | --- | --- |
-| `src/content.ts`、`src/source.ts` | 原文校验、完整拼装、资料白名单 |
-| `src/command.ts`、`src/args.ts`、`src/state.ts` | 命令与会话状态 |
-| `src/runtime.ts`、`src/hook-content.ts`、`src/tool-order.ts` | hook 模板、观察、Loop、工具组写入边界与历史兼容 |
-| `src/session-compat.ts`、`src/terminal-observation.ts` | V2/V3 替换范围与持久终端文本核验线索 |
-| `src/settings.ts` | DSH 设置 schema 和持久默认 |
-| `src/configuration.ts`、`src/remote-contract.ts`、`src/remote.ts`、`src/client.ts` | 共享配置校验、原生 Remote、插件设置页与会话面板 |
-| `src/review.ts` | 有界只读 Git 索引证据 |
-| `assets/pua/upstream` | 85 个原版文件，旧 19 份素材保留兼容 |
-| `scripts/verify.mjs`、`scripts/smoke-package.mjs`、`scripts/check-compat.mjs` | 素材、文档、依赖一致性、安装校验与版本矩阵 |
+| 开启或关闭当前会话 PUA | `/pua on`、`/pua off` |
+| 指定风味 | `/pua flavor huawei` |
+| 让 Agent 换个方法 | `/pua again` |
+| 检查是否真的完成 | `/pua done-check` |
+| 检查交付证据 | `/pua evidence` |
+| 只读审查当前改动 | `/pua review` |
+| 恢复当前会话的全局默认 | `/pua reset` |
+| 取消验收循环 | `/cancel-pua-loop` |
+| 查看状态或完整用法 | `/pua status`、`/pua help` |
 
-## 卸载与回退
+## 卸载
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -143,16 +146,10 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 dsh plugin --profile web remove @michengai/dsh-pua
 ```
 
-卸载后等待当前任务结束再重载后端，保留业务文件和会话日志。rc.2 环境可用保留的 `michengai-dsh-pua-0.2.1.tgz` 回退代码；新会话覆盖不会被旧版识别，旧命令恢复为可修改全局的语义。回退代码不撤销已保存的全局配置，需要先在新配置页调整。若需回到插件 `0.2.0`，仅可在 DSH `0.1.2-rc.1` 的独立环境中使用此前保留工具顺序修复的包：
-
-```powershell
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$OutputEncoding = [System.Text.Encoding]::UTF8
-dsh plugin --profile web add .\michengai-dsh-pua-0.2.0-tool-order-fix.tgz --ignore-scripts
-```
-
-不要将 `0.2.0` 安装到 rc.2 环境，也不要让旧宿主读取已迁移的 V3 日志；恢复旧宿主需要匹配版本的独立环境及迁移前数据。更早的 `0.2.0-review-fix`、`0.2.0-local` 仍有工具消息顺序缺陷。代码回退不会撤销已追加的上下文替换事件，原始工具证据始终保留。
+重新加载 DSH 后生效，业务文件和会话记录会保留。
 
 ## 来源与许可
 
-实现采用 MIT。原版来自 [tanweai/pua](https://github.com/tanweai/pua)，固定为 3.5.1。署名及许可边界见 [NOTICE](NOTICE)，指纹见[素材清单](assets/pua/upstream.json)。本项目不是 PUA 或 DeepSeek 官方插件。
+基于 [tanweai/pua](https://github.com/tanweai/pua) 3.5.1 适配。角色和协作能力以 DSH 实际支持为准。
+
+本项目原创代码采用 [Apache License 2.0](LICENSE)。随包提供的 PUA 素材保留上游声明的 MIT 许可及署名，详见 [NOTICE](NOTICE)。
