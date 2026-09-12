@@ -102,3 +102,18 @@ test('同值命令不制造配置冲突，首次开启与恢复继承仍改变 r
   remote.setSession(agent.id, { flavor: 'huawei' }, revision);
   assert.ok(remote.getSession(agent.id).revision > revision);
 });
+
+
+test('全局保存通过可选服务访问，不触发未注入 settings 的属性访问', async t => {
+  const { ctx, remote } = await setup(t);
+  const guarded = {
+    ctx: new Proxy(ctx, { get(target, key) {
+      if (key === 'settings') throw new Error('cannot get property "settings" without inject');
+      return Reflect.get(target, key);
+    } }),
+    getGlobal: () => remote.getGlobal(),
+  };
+  const initial = remote.getGlobal();
+  await PuaRemote.prototype.setGlobal.call(guarded, { ...initial.values, flavor: 'tencent' }, initial.revision);
+  assert.equal(remote.getGlobal().values.flavor, 'tencent');
+});

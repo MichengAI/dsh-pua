@@ -27,9 +27,10 @@ export default class PuaRemote extends TypertRemoteService {
   }
   @Remote('setGlobal')
   async setGlobal(input: Configuration, revision: number): Promise<ConfigurationSnapshot> {
-    if (!this.ctx.get('settings')) throw new Error('宿主未提供全局设置，仅支持会话命令配置。');
+    const settings = this.ctx.get('settings');
+    if (!settings) throw new Error('宿主未提供全局设置，仅支持会话命令配置。');
     const { enabled: alwaysOn, ...values } = configSchema.parse(input);
-    await this.ctx.settings.update('michengai-pua', { ...values, alwaysOn }, revision);
+    await settings.update('michengai-pua', { ...values, alwaysOn }, revision);
     return this.getGlobal();
   }
   @Remote('getSession')
