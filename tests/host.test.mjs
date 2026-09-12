@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
 import { Context } from '@deepseek-ai/cordis';
 import { CommandRuntime } from '@deepseek-ai/dsh-commands';
@@ -17,7 +18,7 @@ async function setup(t) {
 }
 
 function agent(id = 'a', seed = [], extra = {}, inherited = 0) {
-  const header = { id, version: SESSION_FORMAT_VERSION, createdAt: 1, cwd: 'D:\\工作区', isSeeded: inherited > 0, ...extra };
+  const header = { id, version: SESSION_FORMAT_VERSION, createdAt: 1, cwd: resolve('工作区'), isSeeded: inherited > 0, ...extra };
   const session = Session.create(id, seed, header, inherited);
   const messages = [];
   return { id, session, messages, followup: m => messages.push({ mode: 'followup', ...m }), steer: m => messages.push({ mode: 'steer', ...m }) };

@@ -675,7 +675,7 @@ test("用户取消及卸载取消活动 Loop，不在下一条普通输入时恢
   }
 });
 
-test("真实 PowerShell Oracle：非零退出码、命令不存在与超时都不会误判成功", {
+test("真实 Oracle：非零退出码、命令不存在与超时都不会误判成功", {
   timeout: 15000,
 }, async (t) => {
   const ctx = new Context();
@@ -703,7 +703,7 @@ test("真实 PowerShell Oracle：非零退出码、命令不存在与超时都�
   );
   const timeout = await verifyLoop(
     subprocess,
-    "Start-Sleep -Seconds 30",
+    process.platform === "win32" ? "Start-Sleep -Seconds 30" : "sleep 30",
     process.cwd(),
     signal,
     100,
