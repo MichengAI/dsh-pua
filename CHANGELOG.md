@@ -1,6 +1,19 @@
 # 更新记录
 
-## 0.3.7（未发布 / Unreleased）
+## 0.3.8（未发布 / Unreleased）
+
+### 中文
+
+- 修复审批与权限拒绝被误计为失败的问题；拒绝和无法分类的宿主错误不再累计或清零观察。
+- 会话参数保存前先校验，空数值显示中文错误；修复客户端调试映射与最终代码不匹配。
+
+### English
+
+- Fix approval and permission denials being counted as failures; denials and unclassified host errors neither increment nor reset observations.
+- Validate session changes before sending them, show localized errors for empty numeric inputs, and generate source maps for the final client bundle.
+
+
+## 0.3.7（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -15,7 +28,7 @@
 - Successful terminal results reset consecutive failure observations; candidate prompts are capped at four per turn and permission errors are excluded. Global and session override rules remain unchanged.
 
 
-## 0.3.6（未发布 / Unreleased）
+## 0.3.6（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -25,7 +38,7 @@
 
 - Show the PUA entry as soon as global enablement is confirmed, enable it when session configuration is ready, and retry initialization failures sooner.
 
-## 0.3.5（未发布 / Unreleased）
+## 0.3.5（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -35,7 +48,7 @@
 
 - Fix configuration dropdowns overflowing to the right by aligning menus with the right edge of their triggers.
 
-## 0.3.4（未发布 / Unreleased）
+## 0.3.4（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -47,7 +60,7 @@
 - Dropdown triggers and form actions now use the host Button component, with labels and dropdowns on the same row.
 - The chat entry displays only PUA, crossed diagonally when the session is disabled; global disablement still hides the entry.
 
-## 0.3.3（未发布 / Unreleased）
+## 0.3.3（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -57,7 +70,7 @@
 
 - Hide the chat entry when PUA is globally disabled and restore it when re-enabled. Disabling only the current session keeps the entry available.
 
-## 0.3.2（未发布 / Unreleased）
+## 0.3.2（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -69,7 +82,7 @@
 - Settings now use shared host menus, switches, and icons; the card follows the official plugin configuration layout and theme tokens.
 - The chat PUA entry shows only enabled or disabled status; flavor and overrides remain available in the panel.
 
-## 0.3.1（未发布 / Unreleased）
+## 0.3.1（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -81,7 +94,7 @@
 - Moved global PUA settings into an expandable card in the official first Plugin configuration tab, removing the separate tab.
 - Session fields can be edited directly to create overrides. Removed source selectors and duplicate effective values; customized fields offer a reset action.
 
-## 0.3.0（未发布 / Unreleased）
+## 0.3.0（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 
@@ -95,7 +108,7 @@
 - **Behavior change:** commands now update only the current session, never global defaults. Unmodified fields follow global changes, existing profile settings are retained, and omitted Loop arguments use effective session defaults frozen at startup.
 - Added an opt-in subagent switch, disabled by default. Enabled subagents inherit effective parent configuration, cannot override a disabled parent, and do not inherit its Loop or failure count.
 
-## 0.2.1（未发布 / Unreleased）
+## 0.2.1（本地版本，未公开发布 / Local build, not publicly released）
 
 ### 中文
 

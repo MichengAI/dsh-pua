@@ -2,7 +2,7 @@
 
 基于 PUA 3.5.1 完整协议文本的 DSH 适配实现。保留原版核心、领导人格、旁白、Banner、诊断与验收文本，适配 DSH 命令、设置和主要生命周期；不执行原版 Bash hooks。文本保真不等于模型行为已通过验收。
 
-社区插件 `@michengai/dsh-pua`，当前版本 `0.3.7`。开发状态见[交接入口](docs/00-交接入口/00-阅读导航.md)，平台差异见[架构说明](docs/03-技术架构/01-插件架构.md)。
+社区插件 `@michengai/dsh-pua`，当前版本 `0.3.8`。开发状态见[交接入口](docs/00-交接入口/00-阅读导航.md)，平台差异见[架构说明](docs/03-技术架构/01-插件架构.md)。
 
 ## 与原版的关系
 
@@ -28,10 +28,10 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 npm ci --ignore-scripts
 npm run check
 npm pack
-dsh plugin --profile web add .\michengai-dsh-pua-0.3.7.tgz --ignore-scripts
+dsh plugin --profile web add .\michengai-dsh-pua-0.3.8.tgz --ignore-scripts
 ```
 
-这里的 `michengai-dsh-pua-0.3.7.tgz` 由上一行 `npm pack` 生成，也可直接使用同名本地交付包。此前的包不包含本轮 Web 配置与会话覆盖实现，不能作为 0.3.0 的验证证据。
+这里的 `michengai-dsh-pua-0.3.8.tgz` 由上一行 `npm pack` 生成，也可直接使用同名本地交付包。此前的包不包含本轮 Web 配置与会话覆盖实现，不能作为 0.3.0 的验证证据。
 
 等待当前任务结束后重载 DSH 后端。浏览器刷新不一定重载插件；用 `/pua help` 确认能看到 P9、Loop 等入口。同版本重新打包时使用新文件名，避免包管理器复用旧内容。
 
