@@ -130,6 +130,7 @@ test("只识别真实终端失败，排除文本伪造、嵌套退出码、取�
   ])
     assert.equal(isTerminalFailure(ok(value)), false);
   assert.equal(isTerminalFailure(ok({ exitCode: 1 })), true);
+  assert.equal(isTerminalFailure({ isError: true, error: { message: "宿主未就绪" } }), false);
   for (const code of [
     "ABORTED",
     "ABORTED_BEFORE_DISPATCH",
@@ -254,6 +255,13 @@ test("候选失败只在开启后注入，调用去重、成功清零、关停�
   await execute("failure-1");
   await execute("failure-1");
   assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  const unguard = ctx.tools.guard(() => 'the user rejected tool "bash"');
+  const rejected = await execute('denied');
+  assert.equal(rejected.isError, true);
+  assert.equal(rejected.error.info, undefined);
+  assert.equal(isTerminalFailure(rejected), false);
+  assert.match((await run('/pua status')).result.text, /终端失败观察：1/);
+  unguard();
   await execute("success", 0);
   assert.match((await run("/pua status")).result.text, /终端失败观察：0/);
   await execute("failure-2");
@@ -733,10 +741,8 @@ test("压缩生命周期保留观察，clear 清除计数且不复活旧循环",
     name: "bash",
     description: "测试",
     parameters: { type: "object" },
-    output: { schema: { type: "integer" }, render: () => [] },
-    execute: async () => {
-      throw new Error("失败");
-    },
+    output: { schema: { type: "object" }, render: () => [] },
+    execute: async () => ({ exitCode: 1 }),
   });
   await ctx.tools.execute({
     name: "bash",

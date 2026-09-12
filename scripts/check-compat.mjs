@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
+import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 // 每个版本使用独立依赖树和构建产物副本，不修改开发依赖或用户 profile。
@@ -13,11 +15,12 @@ if (versions.some(version => !supported.includes(version))) throw new Error('只
 const npmCli = process.env.npm_execpath;
 if (!npmCli || !existsSync(npmCli)) throw new Error('请通过 npm run test:compat 执行。');
 if (!existsSync(join(root, 'lib/index.js'))) throw new Error('请先 npm run build。');
-const tmpBase = join(root, '.test-tmp');
+const tmpBase = join(tmpdir(), 'dsh-pua-compat');
 mkdirSync(tmpBase, { recursive: true });
 const run = (cwd, args) => new Promise((resolveResult, reject) => {
   const env = { ...process.env };
   delete env.PUA_TEST_PROFILE;
+  delete env.NODE_PATH;
   const child = spawn(process.execPath, args, { cwd, env, windowsHide: true });
   let output = '';
   child.stdout.on('data', data => { output += data.toString('utf8'); });
@@ -50,6 +53,11 @@ const results = await Promise.allSettled(versions.map(async version => {
     for (const name of ['dsh-agent', 'dsh-session', 'dsh-tools']) {
       const installed = JSON.parse(readFileSync(join(dir, 'node_modules', '@deepseek-ai', name, 'package.json'), 'utf8'));
       if (installed.version !== version) throw new Error(`${name} 意外解析为 ${installed.version}`);
+    }
+    const isolatedRequire = createRequire(join(dir, 'package.json'));
+    for (const name of Object.keys(manifest.devDependencies).filter(name => name.startsWith('@deepseek-ai/') || ['react', 'react-dom', 'zod'].includes(name))) {
+      const resolved = isolatedRequire.resolve(name);
+      if (!resolve(resolved).startsWith(resolve(dir) + sep)) throw new Error(name + ' 解析到隔离目录之外：' + resolved);
     }
     const files = readdirSync(join(dir, 'tests')).filter(name => name.endsWith('.test.mjs') && (version.startsWith('0.1.5-') || !['persistent-terminal.test.mjs', 'session-migration.test.mjs'].includes(name))).map(name => join('tests', name));
     if (!files.length) throw new Error('兼容测试目录为空，拒绝报告成功。');

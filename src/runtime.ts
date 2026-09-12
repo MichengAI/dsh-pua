@@ -50,7 +50,7 @@ export function isTerminalFailure(
   result: Readonly<ToolExecutionResult>,
 ): boolean {
   if (result.isError)
-    return !/ABORT|DENIED|PERMISSION|EPERM|EACCES|UNKNOWN_TOOL|BLOCKED|APPROVAL/u.test(
+    return !!result.error.info?.code && !/ABORT|DENIED|PERMISSION|EPERM|EACCES|UNKNOWN_TOOL|BLOCKED|APPROVAL/u.test(
       result.error.info?.code ?? "",
     );
   const value = result.value;
@@ -253,6 +253,8 @@ export class PuaRuntime {
           ) || tool?.presentCall?.(exec.arguments)?.card === "terminal";
         if (!terminal) return;
         if (!isTerminalFailure(result)) {
+          // 拒绝、取消及无结构化错误码的宿主故障不是成功，不清零已有观察。
+          if (result.isError) return;
           if (terminalTextNeedsReview(result)) this.pendingTerminalReviews.add(agent.session);
           else {
             // 成功打断连续失败观察；不会撤销独立验收结果。

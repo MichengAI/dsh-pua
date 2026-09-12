@@ -35,3 +35,14 @@ test('交付客户端 bundle 经宿主加载器注册两个独立入口，卸载
   assert.ok(slots[0].render({}));
   dispose(); assert.equal(unmounted, true);
 });
+
+
+test('客户端 sourcemap 来自最终 bundle 并包含依赖模块映射', () => {
+  const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
+  const map = JSON.parse(readFileSync(new URL('../lib/client.js.map', import.meta.url), 'utf8'));
+  assert.match(js, /sourceMappingURL=client.js.map/);
+  assert.ok(map.sources.some(source => source.endsWith('/client.ts')));
+  assert.ok(map.sources.some(source => source.endsWith('/configuration.ts')));
+  assert.ok(map.mappings.length > 0);
+  assert.equal(map.sources.length, map.sourcesContent.length);
+});

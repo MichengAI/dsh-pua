@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Button, Menu, Switch, IconChevronDownOutline14 } from '@deepseek-ai/dsh-client-ui-primitives';
 import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol';
-import { CONFIG_DEFAULTS, CONFIG_KEYS, CONFIG_MODES, configSchema, type Configuration, type ConfigurationPatch } from './configuration.js';
+import { CONFIG_DEFAULTS, CONFIG_KEYS, CONFIG_MODES, configSchema, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
 import { FLAVORS } from './flavors.js';
 import { watchComposerConfiguration } from './client-refresh.js';
 import { TYPERT_REMOTE, type ConfigurationSnapshot, type PuaRemoteApi } from './remote-contract.js';
@@ -103,7 +103,7 @@ export function ConfigurationPanel({ remote, sessionId }: { remote: PuaRemoteApi
     ++epoch.current;
     saving.current = true; setBusy(true); setError(''); setStatus('正在保存…');
     try {
-      const saved = await unwrap(global ? remote.setGlobal(configSchema.parse(draft), snapshot.revision) : remote.setSession(sessionId!, patch ?? {}, snapshot.revision));
+      const saved = await unwrap(global ? remote.setGlobal(configSchema.parse(draft), snapshot.revision) : remote.setSession(sessionId!, parsePatch(patch ?? {}), snapshot.revision));
       accept(saved);
       setStatus(!global && patch?.enabled === true && !saved.values.enabled ? '已保存；实际开关受父会话与子代理策略限制，请以下方状态为准' : '已保存 · 从下一模型步骤生效');
     } catch (reason) { setError(message(reason)); setStatus('未保存'); }
