@@ -1,17 +1,18 @@
 # 更新记录
 
-## 0.3.8（未发布 / Unreleased）
+## 0.3.8
 
 ### 中文
 
-- 修复审批与权限拒绝被误计为失败的问题；拒绝和无法分类的宿主错误不再累计或清零观察。
-- 会话参数保存前先校验，空数值显示中文错误；修复客户端调试映射与最终代码不匹配。
+- 首次公开发布：将 PUA 3.5.1 的任务推进、角色风味和证据检查带到 DSH，支持显式验收 Loop。
+- 在插件设置中保存全局默认，通过专家右侧的 PUA 入口调整当前会话；修复全局保存错误、会话输入校验和审批拒绝误计失败。全局默认开启，聊天操作只覆盖当前会话，子代理默认关闭。
+- 支持 DSH 0.1.2-rc.1、0.1.5-rc.1 和 0.1.5-rc.2。原创代码采用 Apache-2.0，上游 PUA 素材保留 MIT 声明与署名。真实模型效果因任务和模型而异。
 
 ### English
 
-- Fix approval and permission denials being counted as failures; denials and unclassified host errors neither increment nor reset observations.
-- Validate session changes before sending them, show localized errors for empty numeric inputs, and generate source maps for the final client bundle.
-
+- First public release: bring PUA 3.5.1 task persistence, personas, styles, and evidence checks to DSH, with explicit verification loops.
+- Save global defaults in plugin settings and adjust individual sessions through the PUA entry to the right of Experts. Fix global saves, session input validation, and approval denials being counted as failures. PUA is enabled globally by default; chat changes affect only the current session, and subagents are disabled by default.
+- Support DSH 0.1.2-rc.1, 0.1.5-rc.1, and 0.1.5-rc.2. Original code uses Apache-2.0; upstream PUA assets retain their declared MIT license and attribution. Actual results vary by task and model.
 
 ## 0.3.7（本地版本，未公开发布 / Local build, not publicly released）
 

@@ -160,5 +160,13 @@
   },
   "dependencies": {
     "zod": "4.4.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichengAI/dsh-pua.git"
+  },
+  "homepage": "https://github.com/MichengAI/dsh-pua#readme",
+  "bugs": {
+    "url": "https://github.com/MichengAI/dsh-pua/issues"
   }
 }

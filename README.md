@@ -58,27 +58,22 @@
 
 需要 Node.js 22.19 或更新版本，以及 DSH `0.1.2-rc.1`、`0.1.5-rc.1` 或 `0.1.5-rc.2`。使用 DSH 已有的模型配置，无需额外密钥。
 
-当前版本为 `0.3.8`，尚未发布到 npm，需要从源码安装。以下示例使用 `web` profile，请替换为实际使用的 profile。
+以下示例使用 `web` profile，请替换为实际使用的 profile。
 
 ### 让 Agent 帮你安装
 
-将本项目源码目录和下面这段话发给能够操作本机终端的 Agent：
+把下面这段话发给能够操作本机终端的 Agent：
 
 ```text
-请将这个目录中的 DSH PUA 插件构建并安装到本机 web profile。当前版本尚未发布到 npm，请使用本地源码打包安装，完成后检查插件是否加载，并告诉我如何打开 PUA 配置。
+请将 @michengai/dsh-pua 安装到本机 web profile，执行 dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/。完成后检查插件是否加载，并告诉我如何打开 PUA 配置。
 ```
 
 ### 手动安装
 
-在本项目根目录执行：
-
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-npm ci --ignore-scripts
-npm run check
-npm pack
-dsh plugin --profile web add .\michengai-dsh-pua-0.3.8.tgz --ignore-scripts
+dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/
 ```
 
 等待当前任务结束后，重新加载 DSH 或重启 Web 服务；仅刷新浏览器不够。输入 `/pua help` 可检查插件是否可用。
