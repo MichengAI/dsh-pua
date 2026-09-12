@@ -53,7 +53,7 @@ function markdownFiles(dir) {
 }
 
 const docs = join(root, 'docs');
-const markdown = [join(root, 'README.md'), ...markdownFiles(docs)];
+const markdown = [join(root, 'README.md'), ...(existsSync(docs) ? markdownFiles(docs) : [])];
 let links = 0;
 for (const file of markdown) {
   const content = readFileSync(file, 'utf8');
@@ -82,6 +82,9 @@ for (const dir of ['01-当前工作', '07-迭代归档']) {
     else assert.match(content, /状态：(已完成|已取消)/);
   }
 }
-assert.ok(iterations.length > 0, '缺少迭代总览');
-assert.equal(readdirSync(docs).filter(name => name.endsWith('.md')).length, 0, 'docs 根目录有散落 Markdown');
+// docs 仅在本地维护，公开检出不要求存在；本地存在时仍校验。
+if (existsSync(docs)) {
+  assert.ok(iterations.length > 0, '缺少迭代总览');
+  assert.equal(readdirSync(docs).filter(name => name.endsWith('.md')).length, 0, 'docs 根目录有散落 Markdown');
+}
 console.log(`校验通过：${manifest.files.length} 份原版素材，${prompts.size} 种风味，提示词 ${Math.min(...sizes)}–${Math.max(...sizes)} 字节，${links} 个文档链接。`);

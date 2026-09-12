@@ -3,7 +3,7 @@
   "version": "0.3.8",
   "description": "PUA 的 DSH 实现：完整协议、全局与会话配置、角色风味、子代理策略与独立验收 Loop",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=22.19.0"
   },
@@ -25,12 +25,12 @@
   "files": [
     "lib",
     "assets/pua",
+    "assets/screenshots",
     "cordis.patch.yml",
     "README.md",
     "LICENSE",
     "NOTICE",
-    "CHANGELOG.md",
-    "docs"
+    "CHANGELOG.md"
   ],
   "dsh": {
     "bundle": {
