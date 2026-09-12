@@ -52,7 +52,7 @@ try {
   assert.match(text, /PUA-DIAGNOSIS/);
   assert.match(text, /每一句话都用当前味道的语气在说话/);
   assert.match(text, /# PUA 展示协议/);
-  assert.equal(ctx.settings.get('michengai-pua').flavor, 'huawei');
+  assert.equal(ctx.settings.get('michengai-pua').flavor, 'auto');
   const reference = await ctx.tools.execute({ name: 'pua_reference', arguments: { path: 'skills/pua/SKILL.md' }, agent, callId: 'smoke-reference', signal: new AbortController().signal });
   assert.equal(reference.isError, false);
   assert.equal(reference.value, readFileSync(join(modules, '@michengai/dsh-pua/assets/pua/upstream/skills/pua/SKILL.md'), 'utf8'));

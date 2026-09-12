@@ -12,7 +12,7 @@ const load = specifier => import(installedRequire ? pathToFileURL(installedRequi
 const local = file => load(installedRequire ? './' + file : '../lib/' + file);
 const [{ Context }, { AgentRegistry }, { AgentLoop }, { CommandRuntime },
   { LlmAdapter, LlmRuntime, createUserMessage, createAssistantMessage, createToolResultMessage },
-  { SessionStore, Session }, { SessionProjectionRegistry }, { SystemPrompt }, { ToolRuntime },
+  { SessionStore, Session, SESSION_FORMAT_VERSION }, { SessionProjectionRegistry }, { SystemPrompt }, { ToolRuntime },
   { PuaRuntime }, { StateStore }, { SourceCatalog }, plugin] = await Promise.all([
   ...['cordis', 'dsh-agent', 'dsh-agent-loop', 'dsh-commands', 'dsh-llm', 'dsh-session',
     'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools'].map(name => load('@deepseek-ai/' + name)),
@@ -36,14 +36,14 @@ function assertToolOrder(messages) {
   assert.equal(pending.size, 0, '不得遗失工具结果');
 }
 
-async function setup(t, { count = 1, seed, inherited = false, execute = async () => ({ exitCode: 1 }) } = {}) {
+async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execute = async () => ({ exitCode: 1 }), toolName = 'bash', resultType = 'object', terminal = false } = {}) {
   const requests = [];
   class OfflineAdapter extends LlmAdapter {
     async *stream(options) {
       requests.push(options);
-      if (!seed && requests.length === 1) {
+      if (!seed && requests.length <= rounds) {
         for (let index = 0; index < count; index++) {
-          const block = { type: 'tool-call', id: 'ordered-' + index, name: 'bash', arguments: JSON.stringify({ index }) };
+          const block = { type: 'tool-call', id: (requests.length === 1 ? 'ordered-' : 'round-' + requests.length + '-') + index, name: toolName, arguments: JSON.stringify({ index }) };
           yield { type: 'block-start', index, blockType: 'tool-call' };
           yield { type: 'tool-call-delta', index, id: block.id, name: block.name, argumentsDelta: block.arguments };
           yield { type: 'block-end', index, block };
@@ -64,8 +64,9 @@ async function setup(t, { count = 1, seed, inherited = false, execute = async ()
   new LlmRuntime(ctx); new SystemPrompt(ctx, { includeHarnessIdentity: false });
   new ToolRuntime(ctx); new CommandRuntime(ctx); new AgentLoop(ctx, { agents: [] });
   ctx.llm.registerAdapter(['offline-order-test'], new OfflineAdapter());
-  ctx.tools.register({ name: 'bash', description: '内存终端夹具', parameters: { type: 'object' }, isConcurrencySafe: () => true,
-    output: { schema: { type: 'object' }, render: (_, value) => [{ type: 'text', text: JSON.stringify(value) }] }, execute });
+  ctx.tools.register({ name: toolName, description: '内存终端夹具', parameters: { type: 'object' }, isConcurrencySafe: () => true,
+    ...(terminal ? { presentCall: () => ({ card: 'terminal', title: '内存终端' }) } : {}),
+    output: { schema: { type: resultType }, render: (_, value) => [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value) }] }, execute });
   const installed = ctx.plugin(plugin);
   await installed.await();
   const handle = await ctx.agents.create({ sessionId: 'order-test', seed,
@@ -90,6 +91,25 @@ test('真实 AgentLoop 发起单次及并行失败，完整结果先于 PUA 记�
     assert.doesNotMatch(JSON.stringify(requests[1].messages), /PUA_RUNTIME_V1/);
     assert.match((await run('/pua status')).result.text, new RegExp('终端失败观察：' + count));
     assert.equal(JSON.stringify(requests[1].messages).includes('PUA Candidate L1'), count === 2);
+  });
+});
+
+test('文本终端状态仅触发待核验提示，整组完成后合并，不增加失败计数', async t => {
+  for (const [value, terminal, expected] of [
+    ['正常输出', true, false],
+    ['错误输出\n[exit code: 1]', true, true],
+    ['正常输出\n[exit code: 0]', true, false],
+    ['Your command timed out after 300 seconds or experienced an OOM error. Below is partial output:', true, true],
+    ['[exit code: 1]', false, false],
+  ]) await t.test(`${terminal}/${value.slice(0, 24)}`, async t => {
+    const { agent, run, requests } = await setup(t, { count: 2, toolName: terminal ? 'pwsh' : 'read_file', terminal, resultType: 'string', execute: async () => value });
+    await run('/pua 处理测试任务');
+    await agent.whenIdle();
+    assert.equal(requests.length, 2);
+    requests.forEach(request => assertToolOrder(request.messages));
+    assert.equal(requests[1].messages.filter(message => isRuntime(message) && JSON.stringify(message.content).includes('终端状态待核验')).length, expected ? 1 : 0);
+    assert.doesNotMatch(JSON.stringify(requests[1].messages), /PUA Candidate L1/);
+    assert.match((await run('/pua status')).result.text, /终端失败观察：0/);
   });
 });
 
@@ -123,17 +143,41 @@ test('工具组未完成时 off、取消和卸载不插入消息，安全边界�
   });
 });
 
+test('文本核验提示在 off、取消与卸载后不泄漏到下一次任务', async t => {
+  for (const mode of ['off', 'cancel', 'unload']) await t.test(mode, async t => {
+    let release, arrived;
+    const wait = new Promise(resolve => { release = resolve; });
+    const ready = new Promise(resolve => { arrived = resolve; });
+    const { ctx, agent, installed, run, requests } = await setup(t, {
+      count: 2, toolName: 'pwsh', terminal: true, resultType: 'string',
+      execute: async ({ index }) => { if (index === 1) await wait; return '[exit code: 1]'; },
+    });
+    ctx.on('session/event', (session, event) => { if (session === agent.session && event.type === 'tool/result') arrived(); });
+    await run('/pua 测试文本终端');
+    await ready;
+    try {
+      if (mode === 'off') await run('/pua off');
+      else if (mode === 'cancel') agent.cancel({ kind: 'user' });
+      else await installed.dispose();
+    } finally { release(); await agent.whenIdle(); }
+    agent.followup(textMessage('继续新任务'));
+    await agent.whenIdle();
+    requests.forEach(request => assertToolOrder(request.messages));
+    assert.equal(JSON.stringify(requests.at(-1).messages).includes('终端状态待核验'), false);
+  });
+});
+
 function brokenHistory({ replaced = false, complete = true, foreign = false } = {}) {
   const session = Session.create('old-order');
   session.append('turn/start', { turn: 1 });
   session.append('step/start', { turn: 1, step: 1 });
   const calls = [0, 1].map(index => ({ type: 'tool-call', id: 'old-' + index, name: 'bash', arguments: '{}' }));
-  session.append('assistant/message', { turn: 1, step: 1, message: createAssistantMessage({ content: calls, source: { provider: 'offline-order-test', model: 'fixed-response' } }) }, { surfaceOp: 'append' });
+  session.append('assistant/message', { turn: 1, step: 1, stream: [], message: createAssistantMessage({ content: calls, source: { provider: 'offline-order-test', model: 'fixed-response' } }) }, { surfaceOp: 'append' });
   for (const [index, call] of calls.entries()) {
     const originalCall = session.append('tool/call', { turn: 1, step: 1, callId: call.id, name: call.name, arguments: call.arguments });
     const note = '新增终端失败观察；不是任务失败判定。';
     const record = session.append('user/message', textMessage('PUA_RUNTIME_V1 ' + JSON.stringify({ failureCount: index + 1, failures: ['old-' + index] }) + '\n' + note, foreign ? { kind: 'user' } : runtimeSource), { surfaceOp: 'append' });
-    if (replaced) session.append('user/message', textMessage(note, runtimeSource), { surfaceOp: { op: 'replace', start: record.seq, end: record.seq }, sourceEventSeqs: [record.seq] });
+    if (replaced) session.append('user/message', textMessage(note, runtimeSource), { surfaceOp: SESSION_FORMAT_VERSION >= 3 ? { op: 'replace', startSeq: record.seq, endSeq: record.seq } : { op: 'replace', start: record.seq, end: record.seq }, sourceEventSeqs: [record.seq] });
     if (complete || index === 0) session.append('tool/result', { turn: 1, step: 1, message: createToolResultMessage({ callId: call.id, content: [{ type: 'text', text: 'ModuleNotFoundError: retained evidence ' + index }], isError: true }), error: { name: 'ToolError', code: 'FAILED' }, meta: { original: true } }, { surfaceOp: 'append', sourceEventSeqs: [originalCall.seq] });
   }
   session.append('step/end', { turn: 1, step: 1 });
@@ -176,4 +220,33 @@ test('历史兼容不移除同名用户消息，也不伪造缺失的工具结�
     assert.equal(requests[0].messages.filter(message => message.source.kind === 'tool').length, options.complete === false ? 1 : 2);
     if (options.foreign) assert.ok(requests[0].messages.some(message => message.source.kind === 'user' && JSON.stringify(message.content).includes('PUA_RUNTIME_V1')));
   });
+});
+
+
+test('孤儿工具组结束后取消状态可以落库，卸载不保留待写队列', async t => {
+  const { ctx, agent, installed } = await setup(t);
+  agent.session.append('turn/start', { turn: 1 });
+  agent.session.append('assistant/message', { turn: 1, step: 1, stream: [], message: createAssistantMessage({ content: [{ type: 'tool-call', id: 'orphan', name: 'bash', arguments: '{}' }], source: { provider: 'offline-order-test', model: 'fixed-response' } }) }, { surfaceOp: 'append' });
+  const runtime = ctx.puaConfiguration.runtime;
+  runtime.read(agent.session).loop = { kind: 'loop', task: '测试', id: 'orphan-loop', maxIterations: 1, iteration: 0, rejections: 0, status: 'active' };
+  runtime.cancel(agent.session);
+  assert.ok(runtime.pendingWrites.has(agent.session));
+  const before = agent.session.snapshotEvents().length;
+  await installed.dispose();
+  assert.equal(agent.session.snapshotEvents().length, before, '卸载不在活跃工具组中插入消息');
+  agent.session.append('turn/end', { turn: 1, reason: { kind: 'completed' } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(runtime.pendingWrites.size, 0);
+  const replay = new PuaRuntime(ctx, new StateStore(), new SourceCatalog(), new AbortController().signal);
+  assert.equal(replay.read(agent.session).loop.status, 'cancelled');
+});
+
+
+test('同一轮连续失败的候选最多注入四次，后续失败仍可完成工具协议', async t => {
+  const { ctx, agent, run, requests } = await setup(t, { rounds: 8 });
+  await run('/pua 处理连续失败测试'); await agent.whenIdle();
+  assert.equal(requests.length, 9);
+  assert.equal(ctx.puaConfiguration.runtime.read(agent.session).candidateCount, 4);
+  assert.equal(requests.at(-1).messages.filter(message => /PUA Candidate L[1-4]/.test(JSON.stringify(message))).length, 4);
+  requests.forEach(request => assertToolOrder(request.messages));
 });

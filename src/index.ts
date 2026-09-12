@@ -7,6 +7,13 @@ import { StateStore } from './state.js';
 import { SourceCatalog } from './source.js';
 import { PreferencesBridge } from './settings.js';
 import { PuaRuntime } from './runtime.js';
+import { Service } from '@deepseek-ai/cordis';
+
+/** Web Remote 仅访问此插件提供的配置能力，不持有其他插件的运行状态。 */
+export class PuaConfigurationService extends Service {
+  constructor(ctx: Context, readonly store: StateStore, readonly preferences: PreferencesBridge, readonly runtime: PuaRuntime) { super(ctx, 'puaConfiguration'); }
+}
+declare module '@deepseek-ai/cordis' { interface Context { puaConfiguration: PuaConfigurationService } }
 
 export const name = 'michengai-pua';
 export const inject = ['commands', 'systemPrompt'];
@@ -17,10 +24,14 @@ export function apply(ctx: Context): void {
   const prompts = new Map<string, string>();
   const templates = loadCommandPrompts();
   const preferences = new PreferencesBridge(ctx);
-  const store = new StateStore(() => preferences.defaults());
+  const store = new StateStore(() => preferences.defaults(), session => {
+    if ((session.header.delegationDepth ?? 0) === 0 || !session.header.parentSession) return undefined;
+    return ctx.get('agents')?.get(session.header.parentSession)?.session;
+  });
   const lifetime = new AbortController();
   ctx.effect(() => () => lifetime.abort());
   const runtime = new PuaRuntime(ctx, store, catalog, lifetime.signal, () => preferences.feedback());
+  new PuaConfigurationService(ctx, store, preferences, runtime);
   ctx.systemPrompt.section({
     name: 'michengai:pua',
     order: 120,
@@ -34,6 +45,7 @@ export function apply(ctx: Context): void {
         if (!prompts.has(key)) prompts.set(key, renderOriginalPrompt(catalog, flavor, mode));
         return prompts.get(key)!;
       }
+      if ((agent.session.header.delegationDepth ?? 0) > 0) return '';
       return state.configured || agent.session.header.parentSession !== undefined ? DISABLED_PROMPT : '';
     },
   });

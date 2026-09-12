@@ -13,6 +13,19 @@ const pkg = JSON.parse(read('package.json'));
 const lock = JSON.parse(read('package-lock.json'));
 assert.equal(pkg.version, lock.version, '锁文件版本不一致');
 assert.equal(pkg.name, lock.name, '锁文件包名不一致');
+assert.deepEqual(lock.packages[''].peerDependencies, pkg.peerDependencies, '锁文件 peer 范围未同步');
+assert.deepEqual(lock.packages[''].devDependencies, pkg.devDependencies, '锁文件开发依赖未同步');
+const hostRange = pkg.peerDependencies['@deepseek-ai/dsh-session'];
+for (const [name, range] of Object.entries(pkg.peerDependencies)) {
+  if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(range, hostRange, `${name} 的支持范围不一致`);
+}
+const hostVersion = pkg.devDependencies['@deepseek-ai/dsh-session'];
+assert.ok(hostRange.split(' || ').includes(hostVersion), '开发宿主不在支持范围内');
+for (const [name, version] of Object.entries(pkg.devDependencies)) {
+  if (!name.startsWith('@deepseek-ai/dsh-')) continue;
+  assert.equal(version, hostVersion, `${name} 未锁定同一宿主版本`);
+  assert.equal(lock.packages[`node_modules/${name}`].version, version, `${name} 锁文件解析版本不一致`);
+}
 assert.match(read('cordis.patch.yml'), /name: '@michengai\/dsh-pua'/);
 const manifest = JSON.parse(read('assets/pua/upstream.json'));
 assert.match(manifest.revision, /^[0-9a-f]{40}$/);

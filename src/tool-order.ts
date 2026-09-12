@@ -1,23 +1,29 @@
-import { SessionLogOffset, type Session, type UserMessage } from '@deepseek-ai/dsh-session';
+import { type Session, type UserMessage } from '@deepseek-ai/dsh-session';
+import { replacementSurface } from './session-compat.js';
 
-interface PendingCalls { cursor: Session['seq']; ids: Set<string> }
+interface PendingCalls { cursor: Session['seq']; ids: Map<string, Session["surface"]["nodes"][number]> }
 const calls = new WeakMap<Session, PendingCalls>();
 
 /** 从原始日志增量检查整组调用；包含已声明但尚未派发的并行调用。 */
 export function hasPendingToolCalls(session: Session): boolean {
   let pending = calls.get(session);
   if (!pending) {
-    pending = { cursor: SessionLogOffset(0), ids: new Set() };
+    pending = { cursor: session.inheritedEventCount, ids: new Map() };
     calls.set(session, pending);
   }
   for (const event of session.snapshotEvents(pending.cursor)) {
     if (event.type === 'assistant/message' && event.surfaceOp === 'append') {
-      for (const block of event.data.message.content) if (block.type === 'tool-call') pending.ids.add(block.id);
+      for (const block of event.data.message.content) if (block.type === 'tool-call') pending.ids.set(block.id, event.seq);
     } else if (event.type === 'tool/result' && event.surfaceOp === 'append') {
       pending.ids.delete(event.data.message.source.callId);
+    } else if (event.type === 'turn/end' || event.type === 'turn/start') {
+      // 结束轮次的孤儿不再阻塞后续轮次，不伪造缺失结果。
+      pending.ids.clear();
     }
   }
   pending.cursor = session.seq;
+  const visible = new Set(session.surface.nodes);
+  for (const [id, seq] of pending.ids) if (!visible.has(seq)) pending.ids.delete(id);
   return pending.ids.size !== 0;
 }
 
@@ -57,7 +63,7 @@ export function repairPuaToolOrder(session: Session, plugin: string): void {
     if (pending.size) continue;
     for (const replacement of replacements) {
       session.append('user/message', replacement.message, {
-        surfaceOp: { op: 'replace', start: replacement.nodes[0]!, end: replacement.nodes.at(-1)! },
+        surfaceOp: replacementSurface(replacement.nodes[0]!, replacement.nodes.at(-1)!),
         sourceEventSeqs: replacement.nodes,
       });
     }

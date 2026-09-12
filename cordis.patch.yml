@@ -1,3 +1,5 @@
 - insert:
+    - id: michengai-pua-remote
+      name: '@michengai/dsh-pua/remote'
     - id: michengai-pua
       name: '@michengai/dsh-pua'

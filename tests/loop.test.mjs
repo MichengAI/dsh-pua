@@ -10,6 +10,7 @@ import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection';
 import { SystemPrompt } from '@deepseek-ai/dsh-system-prompt';
 import { ToolRuntime } from '@deepseek-ai/dsh-tools';
 import * as plugin from '../lib/index.js';
+import { requestSystem } from './request-context.mjs';
 
 test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移除风味', { timeout: 10000 }, async t => {
   const requests = [];
@@ -43,15 +44,15 @@ test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移�
   assert.equal((await run('/pua 处理离线测试任务')).result.kind, 'success');
   await agent.whenIdle();
   assert.equal(requests.length, 1);
-  assert.match(requests[0].system, /军令状/);
-  assert.match(requests[0].system, /PUA-DIAGNOSIS/);
+  assert.match(requestSystem(requests[0]), /军令状/);
+  assert.match(requestSystem(requests[0]), /PUA-DIAGNOSIS/);
   await run('/pua review');
   await agent.whenIdle();
   assert.equal(requests.length, 2);
   const reviewRequest = JSON.stringify(requests[1]);
   assert.match(reviewRequest, /只读审查/);
   assert.match(reviewRequest, /未获取 Git 证据/);
-  assert.match(requests[1].system, /每一句话都用当前味道的语气在说话/);
+  assert.match(requestSystem(requests[1]), /每一句话都用当前味道的语气在说话/);
   await run('/pua done-check');
   await agent.whenIdle();
   assert.equal(requests.length, 3);
@@ -61,8 +62,8 @@ test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移�
   agent.followup(createUserMessage({ content: [{ type: 'text', text: '继续正常任务' }], source: { kind: 'user' } }));
   await agent.whenIdle();
   assert.equal(requests.length, 4);
-  assert.match(requests[3].system, /已关闭/);
-  assert.doesNotMatch(requests[3].system, /军令状/);
+  assert.match(requestSystem(requests[3]), /已关闭/);
+  assert.doesNotMatch(requestSystem(requests[3]), /军令状/);
   await installed.dispose();
   assert.equal(ctx.commands.find(agent, 'pua'), undefined);
 });

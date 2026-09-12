@@ -2,7 +2,7 @@ import type { CommandInvocation, CommandResult } from '@deepseek-ai/dsh-commands
 import { createUserMessage } from '@deepseek-ai/dsh-llm';
 import { parseArgs, type Action } from './args.js';
 import { flavorLabel, listFlavors } from './flavors.js';
-import { StateStore, RESULT_PREFIX } from './state.js';
+import { StateStore, SESSION_RESULT_PREFIX as RESULT_PREFIX } from './state.js';
 import type { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess';
 import type { QualityCommand } from './content.js';
 import { collectGitEvidence, REVIEW_RULES } from './review.js';
@@ -16,11 +16,13 @@ interface Services { catalog: SourceCatalog; preferences: PreferencesBridge; run
 export const HELP = `用法：
 /pua [任务描述]：开启 PUA；无描述时继续当前任务
 /pua review [范围]：只读审查，附带当前仓库 Git 索引证据（宿主可用时）
-/pua on / /pua off：开启或关闭；有 settings 时同步 profile 默认，不发起模型请求
+/pua on / /pua off：只修改当前会话；不改变全局默认、不发起模型请求
+/pua config {"subagents":true}：修改当前会话参数
+/pua reset [参数名]：恢复单项或全部跟随全局
 /pua flavor [名称|auto]：列出、锁定或恢复自动选味，不自动开启
 /pua p7|p9|p10|pro|yes|mama|shot|pua-en|pua-ja [任务]：完整原版模式
 /pua ding [任务]：钉内/钉外味
-/pua loop "任务" --verify "npm test" --max-iterations 10：独立验收循环；省略上限为无限，省略 verify 为 honor system
+/pua loop "任务" --verify "npm test" --max-iterations 10：独立验收循环；省略参数使用当前会话生效默认值
 /pua cancel-pua-loop 或 /cancel-pua-loop：取消当前循环
 /pua kpi / /pua survey [quick]：原版 KPI 与本地问卷
 /pua offline：保持本地模式，无上传能力
@@ -61,7 +63,7 @@ export async function handleCommand(store: StateStore, invocation: CommandInvoca
   const { agent, signal, commandId } = invocation;
   try {
     signal.throwIfAborted();
-    const action = parseArgs(invocation.rawInput);
+    const action = parseArgs(invocation.rawInput, store.configuration(agent.session));
     if (action.kind === 'help') return { kind: 'success', text: RESULT_PREFIX + HELP };
     if (action.kind === 'flavors') return { kind: 'success', text: RESULT_PREFIX + listFlavors() + '\n例如：/pua flavor huawei' };
     if (action.kind === 'status') {
@@ -77,11 +79,12 @@ export async function handleCommand(store: StateStore, invocation: CommandInvoca
     // 只读预检完成且未取消后才暂存开关；等待期间不让其他模型请求误用未完成配置。
     const evidence = action.kind === 'review' ? await collectGitEvidence(subprocess, agent.session.header.cwd, signal) : undefined;
     signal.throwIfAborted();
-    await services?.preferences.update(action);
     if (action.kind === 'off' || action.kind === 'cancel-pua-loop' || action.kind === 'loop') services?.runtime.cancel(agent.session);
     const stopped = action.kind === 'teardown-all' ? services?.runtime.cancelAll() ?? 0 : 0;
     store.stage(agent.session, commandId, action);
     const state = store.read(agent.session);
+    if (!state.enabled) services?.runtime.cancel(agent.session);
+    if (action.kind === 'configure') return { kind: 'success', text: RESULT_PREFIX + '会话配置已保存；未覆盖项继续跟随全局。' };
     const task = actionPrompt(action, templates, services?.catalog ?? new SourceCatalog());
     if (task !== undefined) {
       signal.throwIfAborted();

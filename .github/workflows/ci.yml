@@ -19,3 +19,15 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm pack --dry-run
+
+  compatibility:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.19.0'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm run test:compat
