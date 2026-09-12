@@ -1,14 +1,113 @@
 # 更新记录
 
-## 未发布
+## 0.3.7（未发布 / Unreleased）
 
-- 修复终端失败通知中提前写入普通消息导致工具调用与结果断开的错误；整组结果落库后再记录，下一步骤合并注入失败候选，关闭、取消与卸载遵守同一边界。
-- 为旧版 PUA 打断且结果齐全的工具组追加原生上下文替换，保留原始事件和工具结果，不重跑工具；增加真实 AgentLoop 离线请求、并发关停和历史重载回归。
-- 将运行状态 JSON 在宿主模型上下文中替换为简短说明，保留完整日志、旧版恢复及卸载后的可读性。
-- 命令状态增量消费新增事件，缓存解析结果，保留并发进入顺序、pending 回滚及动态设置默认值。
-- 增加原版 hook 模板结构检查和首次失败不打断的说明，补充真实 PowerShell 引号与路径回归覆盖。
-- 将 Windows 原生引号测试改为读取无 BOM 文件，单独验证 PowerShell 管道的匹配与失败退出；输出断言只统一行尾，不用 trim 隐藏 BOM。
-- 区分源码构建和既有包安装，明确模型可见的 Loop 配置与未完成的产品验收，更新包描述。
+### 中文
+
+- 修复未完成工具调用长期阻塞 PUA 状态同步，以及无 settings 宿主的会话配置降级问题。
+- 修复 Loop 表单长度限制冲突、同值命令误报配置冲突、子会话保存反馈和输入校验；保留 Oracle 的真实非零退出码。
+- 终端成功会清除连续失败观察，每轮候选提示最多四次，权限边界不计入升级；全局开关和会话覆盖规则不变。
+
+### English
+
+- Fix unfinished tool calls blocking PUA state persistence and restore session-only fallback on hosts without settings.
+- Fix Loop form limits, false configuration conflicts from unchanged commands, child-session save feedback, and input validation; preserve native Oracle exit codes.
+- Successful terminal results reset consecutive failure observations; candidate prompts are capped at four per turn and permission errors are excluded. Global and session override rules remain unchanged.
+
+
+## 0.3.6（未发布 / Unreleased）
+
+### 中文
+
+- 加快新会话 PUA 入口显示：全局开启后先显示入口，会话配置就绪后即可操作；初始化失败时快速重试。
+
+### English
+
+- Show the PUA entry as soon as global enablement is confirmed, enable it when session configuration is ready, and retry initialization failures sooner.
+
+## 0.3.5（未发布 / Unreleased）
+
+### 中文
+
+- 修复配置下拉菜单向右溢出：菜单右边缘对齐按钮，向左展开。
+
+### English
+
+- Fix configuration dropdowns overflowing to the right by aligning menus with the right edge of their triggers.
+
+## 0.3.4（未发布 / Unreleased）
+
+### 中文
+
+- 下拉触发及表单操作改用宿主 Button，标签与下拉控件同排，不再使用另起一行的矩形按钮。
+- CHAT 入口仅显示 PUA，当前会话关闭时加斜线；全局关闭仍隐藏入口。
+
+### English
+
+- Dropdown triggers and form actions now use the host Button component, with labels and dropdowns on the same row.
+- The chat entry displays only PUA, crossed diagonally when the session is disabled; global disablement still hides the entry.
+
+## 0.3.3（未发布 / Unreleased）
+
+### 中文
+
+- 全局关闭 PUA 时隐藏聊天入口，重新开启后恢复；仅关闭当前会话时仍保留入口。
+
+### English
+
+- Hide the chat entry when PUA is globally disabled and restore it when re-enabled. Disabling only the current session keeps the entry available.
+
+## 0.3.2（未发布 / Unreleased）
+
+### 中文
+
+- 设置中的菜单、开关和图标改用宿主公共控件，卡片对齐官方插件配置的布局与主题样式。
+- 聊天 PUA 入口仅显示开启或关闭，风味与自定义状态仍可在面板查看。
+
+### English
+
+- Settings now use shared host menus, switches, and icons; the card follows the official plugin configuration layout and theme tokens.
+- The chat PUA entry shows only enabled or disabled status; flavor and overrides remain available in the panel.
+
+## 0.3.1（未发布 / Unreleased）
+
+### 中文
+
+- PUA 全局配置移入官方“插件配置”首个 TAB 的可展开卡片，不再新增独立 TAB。
+- 会话参数可直接修改，自动形成覆盖；移除配置来源下拉框和重复生效值，仅自定义项提供恢复默认。
+
+### English
+
+- Moved global PUA settings into an expandable card in the official first Plugin configuration tab, removing the separate tab.
+- Session fields can be edited directly to create overrides. Removed source selectors and duplicate effective values; customized fields offer a reset action.
+
+## 0.3.0（未发布 / Unreleased）
+
+### 中文
+
+- 新增「设置 → 插件 → PUA 配置」和聊天栏 PUA 入口，支持全局默认、逐项会话覆盖与恢复继承；Loop 表单可单独指定本次验收参数。
+- **行为变化：** 命令仅修改当前会话，不再写全局；未覆盖项动态跟随全局，旧 profile 设置保留。Loop 省略参数时使用会话生效默认值，启动后保持快照。
+- 新增对子代理启用开关，默认关闭；开启后继承父会话生效配置，父会话关闭时不能强制开启，不继承父 Loop 或失败计数。
+
+### English
+
+- Added PUA configuration under Settings → Plugins and a chat toolbar entry, with global defaults, per-field session overrides, inheritance reset, and per-run Loop verification parameters.
+- **Behavior change:** commands now update only the current session, never global defaults. Unmodified fields follow global changes, existing profile settings are retained, and omitted Loop arguments use effective session defaults frozen at startup.
+- Added an opt-in subagent switch, disabled by default. Enabled subagents inherit effective parent configuration, cannot override a disabled parent, and do not inherit its Loop or failure count.
+
+## 0.2.1（未发布 / Unreleased）
+
+### 中文
+
+- 新增 DSH `0.1.5-rc.1`、`0.1.5-rc.2` 支持，保留 `0.1.2-rc.1`，适配 V3 会话上下文与旧历史修复。旧插件包不支持新版宿主；已迁移的 V3 日志不能直接交给旧宿主回退读取。
+- 新版持久终端的疑似退出或超时文本触发一次待核验提示，不累计为确认失败或自动升级压力；显式 Loop 仍使用独立验收。
+- 修复工具调用与结果被 PUA 消息打断的问题，兼容结果齐全的受影响历史；运行状态 JSON 在模型上下文中显示为简短说明，并修正 Windows 验收命令的引号传递。
+
+### English
+
+- Added support for DSH `0.1.5-rc.1` and `0.1.5-rc.2`, retaining `0.1.2-rc.1`, with V3 session context support and legacy history repair. Older plugin packages do not support the newer hosts; migrated V3 logs cannot be read directly by an older host after a downgrade.
+- Suspected exit or timeout text from persistent terminals now prompts verification once, without counting confirmed failures or automatically escalating pressure. Explicit Loops continue to use independent verification.
+- Fixed PUA messages interrupting tool calls and results, with compatibility repair for affected history containing all results. Runtime JSON appears as a brief note in model context, and Windows verification commands preserve quotation marks.
 
 ## 0.2.0
 
