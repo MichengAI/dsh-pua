@@ -467,6 +467,14 @@ export class PuaRuntime {
     }
     return count;
   }
+  /** 仅返回界面需要的观察数据，不暴露验收命令、任务原文或历史 JSON。 */
+  activity(session: Session) {
+    const state = this.read(session);
+    const loop = state.loop?.status === 'active' ? state.loop : undefined;
+    return { verifying: this.activeVerifiers.has(session), failureCount: state.failureCount,
+      loop: loop ? { iteration: loop.iteration, maxIterations: loop.maxIterations, rejections: loop.rejections,
+        verification: loop.verify ? "command" as const : "model" as const, verificationTimeout: loop.verificationTimeout ?? 120 } : null };
+  }
   status(session: Session): string {
     const state = this.read(session);
     return `终端失败观察：${state.failureCount}（候选，非任务失败数）；Loop：${state.loop ? `${state.loop.status}，第 ${state.loop.iteration} 轮，Oracle 拒绝 ${state.loop.rejections} 次` : "未启动"}。`;

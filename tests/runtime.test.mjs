@@ -1,3 +1,4 @@
+import PuaRemote from '../lib/remote.js';
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync } from "node:fs";
@@ -98,6 +99,15 @@ test('Loop 使用会话默认值并冻结启动快照，全局变化不改变活
   assert.equal(runtime.read(agent.session).loop.maxIterations, 2);
   assert.equal(runtime.read(agent.session).loop.verificationTimeout, 8);
   assert.equal(ctx.puaConfiguration.store.configuration(agent.session).verificationTimeout, 30);
+  const loop = runtime.read(agent.session).loop;
+  loop.status = 'active';
+  assert.equal(runtime.activity(agent.session).loop.verificationTimeout, 8);
+  assert.equal(runtime.activity(agent.session).loop.maxIterations, 2);
+  assert.equal(runtime.activity(agent.session).loop.verification, 'model');
+  loop.verify = 'node check.js';
+  assert.equal(runtime.activity(agent.session).loop.verification, 'command');
+  loop.status = 'cancelled';
+  assert.equal(runtime.activity(agent.session).loop, null);
 });
 
 test("原版 hook 四级模板、15 风味均可展开；候选保留条件门控和锁定边界", () => {
@@ -799,4 +809,22 @@ test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复�
     );
   assert.equal(starts.length, 1);
   assert.match(JSON.stringify(starts[0]), /最新任务/);
+});
+
+
+test('真实宿主任务开始显示运行卡片，结束隐藏，状态读取不追加会话消息', async t => {
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  const { ctx, agent, say } = await setup(t, async () => { await gate; return '任务完成'; }, true);
+  const read = () => PuaRemote.prototype.getActivity.call({ ctx, agent: () => agent }, agent.id);
+  assert.equal(read().visible, false);
+  const task = say('运行卡片生命周期');
+  assert.equal(agent.status, 'running');
+  assert.equal(read().visible, true);
+  const before = [...agent.session.ownEvents()].length;
+  read(); read();
+  assert.equal([...agent.session.ownEvents()].length, before);
+  release(); await task;
+  assert.equal(agent.status, 'idle');
+  assert.equal(read().visible, false);
 });

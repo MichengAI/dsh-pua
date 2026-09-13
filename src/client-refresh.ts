@@ -1,4 +1,4 @@
-import type { ConfigurationSnapshot, PuaRemoteApi } from './remote-contract.js';
+import type { ActivitySnapshot, ConfigurationSnapshot, PuaRemoteApi } from './remote-contract.js';
 
 /** 聊天入口独立读取全局可见性；新会话未就绪时快速重试，稳定后低频同步。 */
 export function watchComposerConfiguration(
@@ -36,4 +36,20 @@ export function watchComposerConfiguration(
   };
   refresh();
   return { refresh, dispose: () => { active = false; clearTimeout(timer); } };
+}
+
+/** 当前会话的短轮询；卸载后忽略在途结果，连接失败时不保留过期运行状态。 */
+export function watchActivity(remote: Pick<PuaRemoteApi, 'getActivity'>, sessionId: string,
+  receive: (value: ActivitySnapshot | null) => void): () => void {
+  let active = true;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  async function refresh() {
+    try {
+      const result = await remote.getActivity(sessionId);
+      if (active) receive(result.ok ? result.value : null);
+    } catch { if (active) receive(null); }
+    finally { if (active) timer = setTimeout(() => void refresh(), 750); }
+  }
+  void refresh();
+  return () => { active = false; clearTimeout(timer); };
 }

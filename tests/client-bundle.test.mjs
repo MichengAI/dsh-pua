@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
 
-test('交付客户端 bundle 经宿主加载器注册两个独立入口，卸载释放远程贡献', async () => {
+test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡片，卸载释放远程贡献', async () => {
   let contribution;
   runInNewContext(readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8'), {
     window: { __ModuleLoader__: { load: value => { contribution = value; } } },
@@ -30,6 +30,7 @@ test('交付客户端 bundle 经宿主加载器注册两个独立入口，卸载
   assert.deepEqual(slots.map(({ name, id, key }) => ({ name, id, key })), [
     { name: 'settings.plugin.item', id: undefined, key: 'michengai-pua' },
     { name: 'conversation.input.left', id: 'michengai-pua', key: undefined },
+    { name: 'conversation.input.dock', id: 'michengai-pua', key: undefined },
   ]);
   assert.equal(slots[1].render({}), null, '没有会话时不显示会话写入口');
   assert.ok(slots[0].render({}));

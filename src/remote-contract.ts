@@ -4,7 +4,14 @@ import { configSchema, patchSchema, type Configuration, type ConfigurationPatch 
 
 export const snapshotSchema = z.object({ values: configSchema, defaults: configSchema, overrides: configSchema.partial(), revision: z.number().int(), child: z.boolean() });
 export type ConfigurationSnapshot = z.infer<typeof snapshotSchema>;
+export const activitySchema = z.object({
+  configuration: configSchema.pick({ mode: true, flavor: true, subagents: true }),
+  visible: z.boolean(), verifying: z.boolean(), failureCount: z.number().int().nonnegative(),
+  loop: z.object({ iteration: z.number().int(), maxIterations: z.number().int(), rejections: z.number().int(), verification: z.enum(['command', 'model']), verificationTimeout: z.number().int().positive() }).nullable(),
+});
+export type ActivitySnapshot = z.infer<typeof activitySchema>;
 export interface PuaRemoteApi {
+  getActivity(sessionId: string): Promise<RemoteResult<ActivitySnapshot>>;
   getGlobal(): Promise<RemoteResult<ConfigurationSnapshot>>;
   setGlobal(values: Configuration, revision: number): Promise<RemoteResult<ConfigurationSnapshot>>;
   getSession(sessionId: string): Promise<RemoteResult<ConfigurationSnapshot>>;
@@ -16,6 +23,7 @@ const parameter = (name: string, schema: z.ZodType): InvocationDescriptor['param
 const session = parameter('sessionId', z.string().min(1).max(256));
 const revision = parameter('revision', z.number().int().min(0));
 const methods: [string, InvocationDescriptor['parameters'], z.ZodType][] = [
+  ['getActivity', [session], activitySchema],
   ['getGlobal', [], snapshotSchema],
   ['setGlobal', [parameter('values', configSchema), revision], snapshotSchema],
   ['getSession', [session], snapshotSchema],

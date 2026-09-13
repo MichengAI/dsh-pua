@@ -2,7 +2,7 @@ import type { Context } from '@deepseek-ai/cordis';
 import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol';
 import type {} from '@deepseek-ai/dsh-typert-registry';
 import { SessionId } from '@deepseek-ai/dsh-session';
-import { DESCRIPTORS, type ConfigurationSnapshot } from './remote-contract.js';
+import { DESCRIPTORS, type ActivitySnapshot, type ConfigurationSnapshot } from './remote-contract.js';
 import { configSchema, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
 import type {} from './index.js';
 
@@ -24,6 +24,17 @@ export default class PuaRemote extends TypertRemoteService {
     if (this.ctx.get('settings') && !descriptor) throw new Error('PUA 设置服务尚未就绪。');
     const values = this.ctx.puaConfiguration.preferences.configuration();
     return { values, defaults: values, overrides: {}, revision: descriptor?.revision ?? 0, child: false };
+  }
+  @Remote('getActivity')
+  getActivity(id: string): ActivitySnapshot {
+    const agent = this.agent(id);
+    const service = this.ctx.puaConfiguration;
+    const activity = service.runtime.activity(agent.session);
+    const values = service.store.configuration(agent.session);
+    const configuration = { mode: values.mode, flavor: values.flavor, subagents: values.subagents };
+    const enabled = service.preferences.configuration().enabled && values.enabled;
+    // 历史 active Loop 不能证明宿主当前仍在执行任务。
+    return { ...activity, configuration, visible: enabled && (agent.status === 'running' || activity.verifying) };
   }
   @Remote('setGlobal')
   async setGlobal(input: Configuration, revision: number): Promise<ConfigurationSnapshot> {
