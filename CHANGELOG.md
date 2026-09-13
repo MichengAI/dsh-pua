@@ -1,5 +1,19 @@
 # 更新记录
 
+## 0.3.10
+
+### 中文
+
+- 新增仅在任务运行或验收期间显示的 PUA 状态卡片，可查看角色、风味、子代理策略和 Loop 进度；状态名称与值逐行对齐，支持展开详情和取消 Loop。
+- 优化全局与会话配置的字段间距、分隔线和覆盖操作位置，全局设置使用统一的保存与放弃修改操作。
+- 修复启动 Loop 成功后配置窗口仍保持打开的问题，启动失败时保留输入，方便重试。
+
+### English
+
+- Add a PUA status card shown only while tasks or verification are running, with role, style, subagent policy, and Loop progress. Labels and values align by row, with expandable details and Loop cancellation.
+- Improve spacing, separators, and override controls in global and session settings, with consistent Save and Discard actions for global settings.
+- Close the configuration dialog after a successful Loop start while preserving input on failure for retry.
+
 ## 0.3.9
 
 ### 中文
