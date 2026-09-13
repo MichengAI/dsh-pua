@@ -405,7 +405,8 @@ test("hook 模板结构变化时明确报错；首次失败遵循原版不注入
 
 test("真实 Windows Oracle 保留双引号、反引号、换行及带空格路径", {
   skip: process.platform !== "win32",
-  timeout: 20000,
+  // 四次独立 PowerShell 启动需要总预算；不改变单条命令的运行超时。
+  timeout: 60000,
 }, async (t) => {
   const ctx = new Context();
   t.after(() => ctx.fiber.dispose());
