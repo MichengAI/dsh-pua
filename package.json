@@ -1,6 +1,6 @@
 {
   "name": "@michengai/dsh-pua",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "PUA 的 DSH 实现：完整协议、全局与会话配置、角色风味、子代理策略与独立验收 Loop",
   "type": "module",
   "license": "Apache-2.0",
@@ -26,6 +26,8 @@
     "lib",
     "assets/pua",
     "assets/screenshots",
+    "assets/branding/dsh-pua-banner.png",
+    "assets/branding/dsh-pua-banner-zh-CN.png",
     "cordis.patch.yml",
     "README.md",
     "README.zh-CN.md",

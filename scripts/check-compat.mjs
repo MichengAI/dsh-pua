@@ -61,7 +61,8 @@ const results = await Promise.allSettled(versions.map(async version => {
     }
     const files = readdirSync(join(dir, 'tests')).filter(name => name.endsWith('.test.mjs') && (version.startsWith('0.1.5-') || !['persistent-terminal.test.mjs', 'session-migration.test.mjs'].includes(name))).map(name => join('tests', name));
     if (!files.length) throw new Error('兼容测试目录为空，拒绝报告成功。');
-    const tested = await run(dir, ['--test', '--test-timeout=20000', ...files]);
+    // 文件包含多次真实 PowerShell 启动；云端并行版本回归需要预留启动开销。
+    const tested = await run(dir, ['--test', '--test-timeout=60000', ...files]);
     if (tested.code !== 0) throw new Error(`回归失败\n${tested.output.slice(-6000)}`);
     if (!/(?:tests|pass) [1-9]\d*/u.test(tested.output)) throw new Error('未发现实际执行的测试计数。');
     console.log(`${version}：${tested.output.split(/\r?\n/u).filter(line => /(?:tests|pass|fail|skipped) \d+/u.test(line)).join('；')}`);

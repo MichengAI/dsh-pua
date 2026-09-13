@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/branding/dsh-pua-banner-zh-CN.png" alt="DSH PUA" width="100%">
+</p>
+
 <div align="center">
 
 # DSH PUA

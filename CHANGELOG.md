@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.9
+
+### 中文
+
+- 新增完整英文首页与中文切换，两种语言使用各自的品牌横幅，并补齐安装说明与配置截图。
+- 精简使用说明和项目徽章，默认通过 npm 安装；GitHub Release 仅提供版本说明。
+
+### English
+
+- Add a complete English homepage with a Chinese language switch, language-specific banners, clear installation steps, and configuration screenshots.
+- Simplify usage guidance and project badges, with npm as the default installation method and release notes only on GitHub Releases.
+
 ## 0.3.8
 
 ### 中文
