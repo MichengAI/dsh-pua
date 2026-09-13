@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Button, Menu, Switch, IconChevronDownOutline14 } from '@deepseek-ai/dsh-client-ui-primitives';
+import { Button, Menu, Switch, IconChevronDownOutline14, IconGaugeOutline16 } from '@deepseek-ai/dsh-client-ui-primitives';
 import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol';
 import { CONFIG_DEFAULTS, CONFIG_KEYS, CONFIG_MODES, configSchema, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
 import { FLAVORS } from './flavors.js';
@@ -182,7 +182,7 @@ function ComposerButton({ remote, sessionId }: { remote: PuaRemoteApi; sessionId
   const close = () => { dialog.current?.close(); setOpen(false); trigger.current?.focus(); };
   const disabled = snapshot?.values.enabled === false;
   if (!globalEnabled) return null;
-  return h('div', { className: 'pua-composer' }, h('button', { ref: trigger, className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'aria-label': !snapshot ? 'PUA（正在读取会话配置）' : disabled ? 'PUA（当前会话已关闭）' : 'PUA（当前会话已开启）', 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? '正在读取会话配置' : disabled ? 'PUA 已关闭，点击配置' : 'PUA 已开启，点击配置') }, 'PUA'),
+  return h('div', { className: 'pua-composer' }, h('button', { ref: trigger, className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'aria-label': !snapshot ? 'PUA（正在读取会话配置）' : disabled ? 'PUA（当前会话已关闭）' : 'PUA（当前会话已开启）', 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? '正在读取会话配置' : disabled ? 'PUA 已关闭，点击配置' : 'PUA 已开启，点击配置') }, h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(IconGaugeOutline16)), h('span', { className: 'pua-entry-label' }, 'PUA')),
     open && createPortal(h('dialog', { ref: dialog, className: 'pua-dialog', 'aria-label': '当前会话 PUA 配置', onKeyDownCapture: (event: React.KeyboardEvent) => { if (event.key === 'Escape' && dialog.current?.querySelector('[role=menu]')) event.preventDefault(); }, onCancel: close, onClick: (event: React.MouseEvent<HTMLDialogElement>) => { if (event.target === dialog.current) close(); } },
       h('div', { className: 'pua-dialog-content' }, h('button', { className: 'pua-close', onClick: close, 'aria-label': '关闭配置面板' }, '关闭'), h(ConfigurationPanel, { key: sessionId, remote, sessionId, onLoopStarted: close }))), document.body));
 }

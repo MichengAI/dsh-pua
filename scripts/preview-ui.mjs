@@ -14,7 +14,7 @@ await build({ entryPoints: ['tests/ui-preview.ts'], bundle: true, format: 'esm',
   jsx: 'automatic', loader: { '.module.css': 'local-css' }, plugins: [{ name: 'official-controls-preview', setup(builder) {
     builder.onResolve({ filter: /^@deepseek-ai\/dsh-client-ui-primitives$/ }, () => ({ path: 'controls', namespace: 'official-controls' }));
     builder.onLoad({ filter: /.*/, namespace: 'official-controls' }, () => ({ contents:
-      `export { Button } from ${JSON.stringify(resolve(primitivesSource, 'Button.tsx'))}; export { Menu } from ${JSON.stringify(resolve(primitivesSource, 'Menu.tsx'))}; export { Switch } from ${JSON.stringify(resolve(primitivesSource, 'Switch.tsx'))}; export { IconChevronDownOutline14 } from ${JSON.stringify(resolve(primitivesSource, 'icons/index.tsx'))};`, loader: 'ts', resolveDir: resolve('.') }));
+      `export { Button } from ${JSON.stringify(resolve(primitivesSource, 'Button.tsx'))}; export { Menu } from ${JSON.stringify(resolve(primitivesSource, 'Menu.tsx'))}; export { Switch } from ${JSON.stringify(resolve(primitivesSource, 'Switch.tsx'))}; export { IconChevronDownOutline14, IconGaugeOutline16 } from ${JSON.stringify(resolve(primitivesSource, 'icons/index.tsx'))};`, loader: 'ts', resolveDir: resolve('.') }));
     builder.onResolve({ filter: /^(react|react-dom|clsx)(\/.*)?$/ }, args => ({ path: localRequire.resolve(args.path) }));
   } }], define: { 'process.env.NODE_ENV': '"development"' } });
 

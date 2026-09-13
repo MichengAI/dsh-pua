@@ -1,5 +1,15 @@
 # 更新记录
 
+## 0.3.11
+
+### 中文
+
+- 为 PUA 会话入口和运行状态卡片添加统一的仪表盘图标，便于与相邻的专家入口区分。
+
+### English
+
+- Add a consistent gauge icon to the PUA session entry and running status card to distinguish them from the adjacent Experts entry.
+
 ## 0.3.10
 
 ### 中文
