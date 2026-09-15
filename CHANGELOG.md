@@ -1,5 +1,15 @@
 # 更新记录
 
+## 0.3.12
+
+### 中文
+
+- 统一双语首页的自研插件生态列表：桌面端与 Web 安装说明分开，并补齐 PUA、Code Review 与 Codex Pet。
+
+### English
+
+- Unify the first-party plugin listings on both homepages, separate desktop and Web install guidance, and add PUA, Code Review, and Codex Pet.
+
 ## 0.3.11
 
 ### 中文
