@@ -772,6 +772,33 @@ test("压缩生命周期保留观察，clear 清除计数且不复活旧循环",
   );
 });
 
+test("0.1.6 agent/created 压缩保留观察，clear 清除计数且不复活旧循环", async (t) => {
+  const { ctx, agent, run } = await setup(t);
+  await run("/pua on");
+  ctx.tools.register({
+    name: "bash",
+    description: "测试",
+    parameters: { type: "object" },
+    output: { schema: { type: "object" }, render: () => [] },
+    execute: async () => ({ exitCode: 1 }),
+  });
+  await ctx.tools.execute({
+    name: "bash",
+    arguments: {},
+    agent,
+    callId: "created-clear-failure",
+    signal: new AbortController().signal,
+  });
+  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  ctx.emit("agent/created", { agent, source: "compact" });
+  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  ctx.emit("agent/created", { agent, source: "clear" });
+  assert.match(
+    (await run("/pua status")).result.text,
+    /终端失败观察：0.*未启动/,
+  );
+});
+
 test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复旧配置", {
   timeout: 5000,
 }, async (t) => {

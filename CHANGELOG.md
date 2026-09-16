@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.13
+
+### 中文
+
+- 支持 DSH `0.1.6-alpha.1`，保留 `0.1.2-rc.1`、`0.1.5-rc.1` 和 `0.1.5-rc.2`。
+- 适配官方将 `agent/session-start` 改为异步串行 `agent/created`：压缩后仍恢复观察，清空上下文仍清零失败计数；旧宿主继续使用 `session-start`。
+
+### English
+
+- Add support for DSH `0.1.6-alpha.1`, keeping `0.1.2-rc.1`, `0.1.5-rc.1`, and `0.1.5-rc.2`.
+- Adapt the official `agent/session-start` to async serial `agent/created` change: compaction still restores observations, and clearing context still resets failure counts. Older hosts keep using `session-start`.
+
 ## 0.3.12
 
 ### 中文

@@ -313,7 +313,7 @@ export class PuaRuntime {
           : "记录一次有可见 PUA 输出的交付，不记录评分。";
       this.save(session, state, note);
     });
-    ctx.on("agent/session-start", ({ agent, source }) => {
+    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source: string }) => {
       if (source === "clear") {
         this.pendingCandidates.delete(agent.session);
         this.pendingTerminalReviews.delete(agent.session);
@@ -332,7 +332,11 @@ export class PuaRuntime {
           ),
         );
       }
-    });
+    };
+    // 0.1.5 发 session-start；0.1.6 改为异步串行 created。两条都挂，各宿主只发其中一个。
+    const listen = ctx.on.bind(ctx) as (event: string, listener: typeof onSessionLifecycle) => void;
+    listen("agent/session-start", onSessionLifecycle);
+    listen("agent/created", onSessionLifecycle);
     ctx.on("session/event", (session, event) => {
       if (event.type === 'turn/start') this.read(session).candidateCount = 0;
       // Session 的发布边界禁止重入 append；turn/end 本身已是可回放的取消事实。

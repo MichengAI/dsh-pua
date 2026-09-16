@@ -35,15 +35,19 @@ const results = await Promise.allSettled(versions.map(async version => {
   try {
     const manifest = structuredClone(pkg);
     delete manifest.scripts;
-    // 同一 0.1.5 预发布系列的 ^rc.1 会选到 rc.2，必须固定整条官方依赖闭包。
-    if (version.startsWith('0.1.5-')) {
+    // 同一 0.1.5 / 0.1.6 预发布系列的 ^ 范围会漂到系列内更新包，必须固定整条官方依赖闭包。
+    const pinOfficialClosure = version.startsWith('0.1.5-') || version.startsWith('0.1.6-');
+    if (pinOfficialClosure) {
+      // 0.1.6 才有的包不能钉到 0.1.5；其余闭包仍固定，避免 ^rc.1 漂到同系列更新包。
       manifest.overrides = Object.fromEntries(Object.keys(lock.packages)
         .filter(path => path.startsWith('node_modules/@deepseek-ai/dsh-'))
-        .map(path => [path.slice('node_modules/'.length), version]));
+        .map(path => path.slice('node_modules/'.length))
+        .filter(name => version.startsWith('0.1.6-') || name !== '@deepseek-ai/dsh-ptc-runtime')
+        .map(name => [name, version]));
     }
     for (const key of Object.keys(manifest.devDependencies)) {
       if (!key.startsWith('@deepseek-ai/dsh-')) continue;
-      if (!version.startsWith('0.1.5-') && ['dsh-tool-pwsh-persistent', 'dsh-tool-bash-persistent', 'dsh-terminal', 'dsh-session-format-v2-to-v3'].some(name => key.endsWith('/' + name))) delete manifest.devDependencies[key];
+      if (!pinOfficialClosure && ['dsh-tool-pwsh-persistent', 'dsh-tool-bash-persistent', 'dsh-terminal', 'dsh-session-format-v2-to-v3'].some(name => key.endsWith('/' + name))) delete manifest.devDependencies[key];
       else manifest.devDependencies[key] = version;
     }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
@@ -59,7 +63,7 @@ const results = await Promise.allSettled(versions.map(async version => {
       const resolved = isolatedRequire.resolve(name);
       if (!resolve(resolved).startsWith(resolve(dir) + sep)) throw new Error(name + ' 解析到隔离目录之外：' + resolved);
     }
-    const files = readdirSync(join(dir, 'tests')).filter(name => name.endsWith('.test.mjs') && (version.startsWith('0.1.5-') || !['persistent-terminal.test.mjs', 'session-migration.test.mjs'].includes(name))).map(name => join('tests', name));
+    const files = readdirSync(join(dir, 'tests')).filter(name => name.endsWith('.test.mjs') && (pinOfficialClosure || !['persistent-terminal.test.mjs', 'session-migration.test.mjs'].includes(name))).map(name => join('tests', name));
     if (!files.length) throw new Error('兼容测试目录为空，拒绝报告成功。');
     // 文件包含多次真实 PowerShell 启动；云端并行版本回归需要预留启动开销。
     const tested = await run(dir, ['--test', '--test-timeout=60000', ...files]);
