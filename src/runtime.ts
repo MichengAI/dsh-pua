@@ -313,28 +313,38 @@ export class PuaRuntime {
           : "记录一次有可见 PUA 输出的交付，不记录评分。";
       this.save(session, state, note);
     });
-    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source: string }) => {
-      if (source === "clear") {
-        this.pendingCandidates.delete(agent.session);
-        this.pendingTerminalReviews.delete(agent.session);
-        this.cancel(agent.session);
-        this.save(
-          agent.session,
-          { failureCount: 0, failures: [] },
-          "清空上下文，清除当前运行观察。",
-        );
-      } else if (source === "compact" && store.read(agent.session).enabled) {
-        agent.inject(
-          pluginMessage(
-            "PUA 压缩后恢复：" +
-              this.status(agent.session) +
-              " 数值仅为运行观察；不代表任务失败次数或验收结论。完整核心与风味继续由系统提示词提供。",
-          ),
-        );
+    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }) => {
+      try {
+        // 0.1.2/0.1.5 的 created 只带 agent；只有 session-start 带 source。0.1.6 起 created 才带 source。
+        if (source !== "clear" && source !== "compact") return;
+        if (source === "clear") {
+          this.pendingCandidates.delete(agent.session);
+          this.pendingTerminalReviews.delete(agent.session);
+          this.cancel(agent.session);
+          this.save(
+            agent.session,
+            { failureCount: 0, failures: [] },
+            "清空上下文，清除当前运行观察。",
+          );
+          return;
+        }
+        if (store.read(agent.session).enabled) {
+          agent.inject(
+            pluginMessage(
+              "PUA 压缩后恢复：" +
+                this.status(agent.session) +
+                " 数值仅为运行观察；不代表任务失败次数或验收结论。完整核心与风味继续由系统提示词提供。",
+            ),
+          );
+        }
+      } catch (error) {
+        ctx.logger.warn("PUA 会话生命周期处理失败，不影响宿主创建：%s", error);
       }
     };
-    // 0.1.5 发 session-start；0.1.6 改为异步串行 created。两条都挂，各宿主只发其中一个。
-    const listen = ctx.on.bind(ctx) as (event: string, listener: typeof onSessionLifecycle) => void;
+    const listen = ctx.on.bind(ctx) as (
+      event: "agent/session-start" | "agent/created",
+      listener: typeof onSessionLifecycle,
+    ) => void;
     listen("agent/session-start", onSessionLifecycle);
     listen("agent/created", onSessionLifecycle);
     ctx.on("session/event", (session, event) => {

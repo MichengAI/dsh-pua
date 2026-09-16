@@ -745,8 +745,7 @@ test("反馈只依据可见旁白，不唤醒模型；离线模式关闭提醒",
   assert.equal(requests.length, 2);
 });
 
-test("压缩生命周期保留观察，clear 清除计数且不复活旧循环", async (t) => {
-  const { ctx, agent, run } = await setup(t);
+async function seedTerminalFailure(ctx, agent, run, callId) {
   await run("/pua on");
   ctx.tools.register({
     name: "bash",
@@ -759,44 +758,54 @@ test("压缩生命周期保留观察，clear 清除计数且不复活旧循环",
     name: "bash",
     arguments: {},
     agent,
-    callId: "clear-failure",
+    callId,
     signal: new AbortController().signal,
   });
+}
+
+for (const event of ["agent/session-start", "agent/created"]) {
+  test(`${event} 压缩保留观察，clear 清除计数且不复活旧循环`, async (t) => {
+    const { ctx, agent, run } = await setup(t);
+    await seedTerminalFailure(ctx, agent, run, `${event}-clear-failure`);
+    assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+    ctx.emit(event, { agent, source: "compact" });
+    assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+    ctx.emit(event, { agent, source: "clear" });
+    assert.match(
+      (await run("/pua status")).result.text,
+      /终端失败观察：0.*未启动/,
+    );
+  });
+}
+
+test("旧宿主 agent/created 不带 source 时不处理生命周期", async (t) => {
+  const { ctx, agent, run } = await setup(t);
+  await seedTerminalFailure(ctx, agent, run, "created-nosource-failure");
+  let injected = 0;
+  const inject = agent.inject.bind(agent);
+  agent.inject = (message) => {
+    injected += 1;
+    return inject(message);
+  };
+  ctx.emit("agent/created", { agent });
   assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
-  ctx.emit("agent/session-start", { agent, source: "compact" });
-  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
-  ctx.emit("agent/session-start", { agent, source: "clear" });
-  assert.match(
-    (await run("/pua status")).result.text,
-    /终端失败观察：0.*未启动/,
-  );
+  assert.equal(injected, 0);
 });
 
-test("0.1.6 agent/created 压缩保留观察，clear 清除计数且不复活旧循环", async (t) => {
+test("会话生命周期处理失败只记日志，不向外抛出", async (t) => {
   const { ctx, agent, run } = await setup(t);
   await run("/pua on");
-  ctx.tools.register({
-    name: "bash",
-    description: "测试",
-    parameters: { type: "object" },
-    output: { schema: { type: "object" }, render: () => [] },
-    execute: async () => ({ exitCode: 1 }),
-  });
-  await ctx.tools.execute({
-    name: "bash",
-    arguments: {},
-    agent,
-    callId: "created-clear-failure",
-    signal: new AbortController().signal,
-  });
-  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  const warnings = [];
+  const warn = ctx.logger.warn.bind(ctx.logger);
+  ctx.logger.warn = (...args) => {
+    warnings.push(args);
+    return warn(...args);
+  };
+  agent.inject = () => {
+    throw new Error("inject failed");
+  };
   ctx.emit("agent/created", { agent, source: "compact" });
-  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
-  ctx.emit("agent/created", { agent, source: "clear" });
-  assert.match(
-    (await run("/pua status")).result.text,
-    /终端失败观察：0.*未启动/,
-  );
+  assert.match(String(warnings.at(-1)), /不影响宿主创建/);
 });
 
 test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复旧配置", {
