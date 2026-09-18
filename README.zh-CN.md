@@ -35,7 +35,7 @@
 
 ### 全局配置
 
-在「设置 → 插件 → PUA 配置」设置默认开关、风味、角色和子代理选项，保存后供会话使用。
+在侧边栏「插件」打开 `@michengai/dsh-pua`，设置默认开关、风味、角色和子代理选项，保存后供会话使用。更早的 DSH 仍在「设置 → 插件」展开「PUA 配置」。
 
 ![PUA 全局配置：开关、风味、角色模式和子代理选项](assets/screenshots/pua-global-settings.png)
 
@@ -89,7 +89,7 @@ dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://regist
 
 ## 使用
 
-1. 打开「设置 → 插件」，在第一个「插件配置」页签中展开「PUA 配置」。
+1. 打开侧边栏「插件」，进入 `@michengai/dsh-pua`，在包页或 `michengai-pua` 行打开配置。更早的 DSH 仍在「设置 → 插件」展开「PUA 配置」。
 2. 开启 PUA，选择喜欢的风味和角色，保存设置。
 3. 回到聊天，像平时一样提交任务。
 

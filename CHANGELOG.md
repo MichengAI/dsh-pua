@@ -1,5 +1,15 @@
 # 更新记录
 
+## 0.3.15
+
+### 中文
+
+- 全局配置回到「插件」页：打开 `@michengai/dsh-pua` 即可修改；`michengai-pua` 行也可以进入同一表单。旧宿主仍使用「设置 → 插件 → PUA 配置」。
+
+### English
+
+- Restore global settings on the Plugins page: open `@michengai/dsh-pua` to edit them, or open the same form from the `michengai-pua` row. Earlier hosts still use Settings → Plugins → PUA Configuration.
+
 ## 0.3.14
 
 ### 中文

@@ -35,7 +35,7 @@ Results depend on the model and task. The plugin does not guarantee a solution e
 
 ### Global settings
 
-Open Settings → Plugins → PUA Configuration to set default enablement, style, persona, and subagent behavior. Screenshots show the Chinese interface.
+Open Plugins in the sidebar, then `@michengai/dsh-pua`, to set default enablement, style, persona, and subagent behavior. Earlier DSH hosts still use Settings → Plugins → PUA Configuration. Screenshots show the Chinese interface.
 
 ![PUA global settings with enablement, style, persona, and subagent options](assets/screenshots/pua-global-settings.png)
 
@@ -89,7 +89,7 @@ After the current task finishes, reload DSH or restart its Web service. Refreshi
 
 ## Usage
 
-1. Open Settings → Plugins and expand PUA Configuration in the first plugin-configuration tab.
+1. Open Plugins in the sidebar, open `@michengai/dsh-pua`, and use the package page or the `michengai-pua` row. On earlier DSH hosts, expand PUA Configuration under Settings → Plugins.
 2. Enable PUA, choose a style and persona, and save.
 3. Return to chat and submit tasks as usual.
 

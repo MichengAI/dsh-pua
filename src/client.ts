@@ -10,13 +10,21 @@ import { TYPERT_REMOTE, type ConfigurationSnapshot, type PuaRemoteApi } from './
 
 const h = React.createElement;
 type Key = keyof Configuration;
+interface SlotRenderProps {
+  sessionId?: string;
+  session?: { sessionId: string };
+  view?: 'summary' | 'page';
+}
 interface ClientContext {
   slots: { inject(name: string, register: () => () => void): () => void;
-    register(options: { name: string; id?: string; key?: string; order?: number; label?: string }, render: (props: { sessionId?: string; session?: { sessionId: string } }) => React.ReactNode): () => void };
+    register(options: { name: string; id?: string; key?: string; order?: number; label?: string }, render: (props: SlotRenderProps) => React.ReactNode): () => void };
   remote: { $mount(contribution: TypertRemoteContribution): Promise<() => void> };
   get(name: string): unknown;
   effect(callback: () => () => void): void;
 }
+const BUNDLE_NAME = '@michengai/dsh-pua';
+const CLIENT_ROW = 'michengai-pua';
+const SETTINGS_SUMMARY = '全局默认、角色风味与子代理策略。';
 export const inject = ['slots', 'remote'];
 const labels: Record<Key, string> = {
   enabled: '开启 PUA', flavor: '风味', mode: '角色模式', subagents: '对子代理启用 PUA',
@@ -68,9 +76,13 @@ function PuaSettingsCard({ remote }: { remote: PuaRemoteApi }): React.ReactEleme
   const [open, setOpen] = useState(false);
   return h('li', { className: 'pua-settings-card', 'data-open': open },
     h('button', { type: 'button', className: 'pua-card-header', 'aria-expanded': open, 'aria-label': `${open ? '收起' : '展开'}：PUA 配置`, onClick: () => setOpen(!open) },
-      h('span', { className: 'pua-card-text' }, h('span', { className: 'pua-card-name' }, 'PUA 配置'), h('span', { className: 'pua-card-description' }, '全局默认、角色风味与子代理策略。')),
+      h('span', { className: 'pua-card-text' }, h('span', { className: 'pua-card-name' }, 'PUA 配置'), h('span', { className: 'pua-card-description' }, SETTINGS_SUMMARY)),
       h(IconChevronDownOutline14, { className: 'pua-card-chevron' })),
     h('div', { className: 'pua-card-body', hidden: !open }, h(ConfigurationPanel, { remote })));
+}
+/** 官方插件页自己画标题；summary 只给一行说明，page 才是带保存的表单。 */
+function PuaPluginConfig({ remote, view }: { remote: PuaRemoteApi; view?: 'summary' | 'page' | undefined }): React.ReactNode {
+  return view === 'summary' ? SETTINGS_SUMMARY : h(ConfigurationPanel, { remote });
 }
 /** 两个入口共享字段与校验；会话入口永远不调用全局写入方法。 */
 export function ConfigurationPanel({ remote, sessionId, onLoopStarted }: { remote: PuaRemoteApi; sessionId?: string | undefined; onLoopStarted?: () => void }): React.ReactElement {
@@ -145,7 +157,7 @@ export function ConfigurationPanel({ remote, sessionId, onLoopStarted }: { remot
   }
   return h('section', { className: global ? 'pua-panel pua-panel-global' : 'pua-panel', 'aria-label': global ? 'PUA 全局配置' : 'PUA 会话配置' },
     !global && h('h2', null, '当前会话 PUA'),
-    h('p', { className: 'pua-muted' }, global ? '保存为当前 DSH profile 的全局默认；已有会话自定义项保持不变。' : `仅影响当前会话 · 已自定义 ${Object.keys(snapshot?.overrides ?? {}).length} 项。全局默认只能在设置 → 插件 → 插件配置 → PUA 配置修改。`),
+    h('p', { className: 'pua-muted' }, global ? '保存为当前 DSH profile 的全局默认；已有会话自定义项保持不变。' : `仅影响当前会话 · 已自定义 ${Object.keys(snapshot?.overrides ?? {}).length} 项。全局默认只能在「插件」里打开 PUA 后修改。`),
     !global && snapshot && h('div', { className: 'pua-session-actions' },
       h(Button, { disabled: busy || !Object.keys(snapshot.overrides).length, onClick: () => void save(Object.fromEntries(CONFIG_KEYS.map(key => [key, null]))) }, '恢复全部继承'),
       h('span', { role: 'status', 'aria-live': 'polite' }, busy ? '正在保存…' : dirty ? '有未保存的修改' : status.startsWith('已保存；') ? status : '')),
@@ -194,8 +206,10 @@ export async function apply(ctx: ClientContext): Promise<() => void> {
   const remote = ctx.get('remote.puaConfig') as PuaRemoteApi | undefined;
   if (!remote) { unmount(); throw new Error('PUA 配置连接未就绪。'); }
   ctx.effect(() => { const style = document.createElement('style'); style.textContent = CSS + ACTIVITY_CSS; document.head.append(style); return () => style.remove(); });
-  ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({ name: 'settings.plugin.item', key: 'michengai-pua' }, () => h(PuaSettingsCard, { remote })));
-  ctx.slots.inject('conversation.input.left', () => ctx.slots.register({ name: 'conversation.input.left', id: 'michengai-pua', order: 10 }, props => props.sessionId ? h(ComposerButton, { key: props.sessionId, remote, sessionId: props.sessionId }) : null));
-  ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({ name: 'conversation.input.dock', id: 'michengai-pua', order: -40 }, props => props.session ? h(ActivityCard, { key: props.session.sessionId, remote, sessionId: props.session.sessionId }) : null));
+  ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({ name: 'settings.plugin.item', key: CLIENT_ROW }, () => h(PuaSettingsCard, { remote })));
+  ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({ name: 'plugins.bundle.config', key: BUNDLE_NAME }, props => h(PuaPluginConfig, { remote, view: props.view })));
+  ctx.slots.inject('plugins.row.config', () => ctx.slots.register({ name: 'plugins.row.config', key: `${BUNDLE_NAME}#${CLIENT_ROW}` }, props => h(PuaPluginConfig, { remote, view: props.view })));
+  ctx.slots.inject('conversation.input.left', () => ctx.slots.register({ name: 'conversation.input.left', id: CLIENT_ROW, order: 10 }, props => props.sessionId ? h(ComposerButton, { key: props.sessionId, remote, sessionId: props.sessionId }) : null));
+  ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({ name: 'conversation.input.dock', id: CLIENT_ROW, order: -40 }, props => props.session ? h(ActivityCard, { key: props.session.sessionId, remote, sessionId: props.session.sessionId }) : null));
   return unmount;
 }

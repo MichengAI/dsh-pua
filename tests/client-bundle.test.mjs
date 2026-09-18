@@ -29,10 +29,20 @@ test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡
   });
   assert.deepEqual(slots.map(({ name, id, key }) => ({ name, id, key })), [
     { name: 'settings.plugin.item', id: undefined, key: 'michengai-pua' },
+    { name: 'plugins.bundle.config', id: undefined, key: '@michengai/dsh-pua' },
+    { name: 'plugins.row.config', id: undefined, key: '@michengai/dsh-pua#michengai-pua' },
     { name: 'conversation.input.left', id: 'michengai-pua', key: undefined },
     { name: 'conversation.input.dock', id: 'michengai-pua', key: undefined },
   ]);
-  assert.equal(slots[1].render({}), null, '没有会话时不显示会话写入口');
+  const row = slots.find(slot => slot.name === 'plugins.row.config');
+  const bundle = slots.find(slot => slot.name === 'plugins.bundle.config');
+  const composer = slots.find(slot => slot.name === 'conversation.input.left');
+  const summary = row.render({ view: 'summary' });
+  assert.equal(summary.type(summary.props), '全局默认、角色风味与子代理策略。');
+  const page = bundle.render({ view: 'page' });
+  assert.equal(typeof page.type, 'function');
+  assert.equal(page.props.view, 'page');
+  assert.equal(composer.render({}), null, '没有会话时不显示会话写入口');
   assert.ok(slots[0].render({}));
   dispose(); assert.equal(unmounted, true);
 });

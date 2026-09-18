@@ -40,7 +40,7 @@ export class PreferencesBridge {
     const { alwaysOn, ...rest } = config;
     return { ...rest, enabled: alwaysOn };
   }
-  description(): string { return this.scope ? '仅当前会话；全局默认请在设置 → 插件 → PUA 配置中修改' : '仅当前会话（宿主未提供 settings）'; }
+  description(): string { return this.scope ? '仅当前会话；全局默认请在「插件」中打开 PUA 后修改' : '仅当前会话（宿主未提供 settings）'; }
   feedback(): { offline: boolean; frequency: number } {
     const config = this.scope?.get();
     return { offline: config?.offline ?? false, frequency: config?.feedbackFrequency ?? 5 };

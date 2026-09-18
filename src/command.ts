@@ -34,7 +34,7 @@ export const HELP = `用法：
 /pua status：查看当前配置
 /pua -- 任务描述：任务以控制命令同名单词开头时使用
 原版冒号命令对应 DSH 空格子命令，例如 /pua:p9 → /pua p9。
-设置页命名空间：michengai-pua。无 settings 时降级为当前会话，默认关闭。`;
+全局默认在「插件」中打开 PUA 修改。设置命名空间：michengai-pua。无 settings 时降级为当前会话，默认关闭。`;
 
 function actionPrompt(action: Action, templates: ReadonlyMap<QualityCommand, string>, catalog: SourceCatalog): string | undefined {
   switch (action.kind) {
