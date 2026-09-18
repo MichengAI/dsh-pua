@@ -1,7 +1,7 @@
 {
   "name": "@michengai/dsh-pua",
   "version": "0.3.15",
-  "description": "PUA 的 DSH 实现：完整协议、全局与会话配置、角色风味、子代理策略与独立验收 Loop",
+  "description": "DSH PUA — 为 DeepSeek Harness 提供 PUA 任务推进、角色风味、验收循环和运行状态卡片 · PUA task persistence, personas, verification loops, and live status cards for DeepSeek Harness",
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
