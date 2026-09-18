@@ -1,5 +1,19 @@
 # 更新记录
 
+## 0.3.16
+
+### 中文
+
+- 斜杠菜单为 `/pua` 和 `/pua-cancel-loop` 补上图标和中文标题（催办、取消循环），与审查、旁问同一套画法。
+- 独立取消指令改为 `/pua-cancel-loop`，`/pua cancel-loop` 和旧名仍可使用或回放。
+- 运行状态卡片的展开和取消改为与 BTW 相同的圆形图标按钮。
+
+### English
+
+- Paint `/pua` and `/pua-cancel-loop` with icons and Chinese titles (催办, 取消循环), matching Review and BTW.
+- Rename the standalone cancel command to `/pua-cancel-loop`; `/pua cancel-loop` and the old name still work or replay.
+- Use BTW-style circular icon buttons to expand the running card and cancel a Loop.
+
 ## 0.3.15
 
 ### 中文

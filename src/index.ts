@@ -56,9 +56,9 @@ export function apply(ctx: Context): void {
     handler: invocation => handleCommand(store, { ...invocation, signal: AbortSignal.any([invocation.signal, lifetime.signal]) }, templates, ctx.get('subprocess'), { catalog, preferences, runtime, ctx }),
   });
   ctx.commands.register({
-    name: 'cancel-pua-loop', description: '取消当前会话 PUA Loop，不中断普通模型任务',
+    name: 'pua-cancel-loop', description: '取消当前会话 PUA Loop，不中断普通模型任务',
     handler: invocation => {
-      if (invocation.rawInput.trim()) return { kind: 'error', text: 'cancel-pua-loop 不接受额外参数。' };
+      if (invocation.rawInput.trim()) return { kind: 'error', text: 'pua-cancel-loop 不接受额外参数。' };
       invocation.signal.throwIfAborted();
       runtime.cancel(invocation.agent.session);
       store.stage(invocation.agent.session, invocation.commandId, { kind: 'cancel-pua-loop' });

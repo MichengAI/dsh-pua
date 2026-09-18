@@ -114,7 +114,7 @@ export class StateStore {
       if (event.type === 'command/run' && event.data.name === 'pua' && typeof event.data.args === 'string') {
         cache.commands.set(event.data.commandId, { input: event.data.args, done: false });
         delete cache.state;
-      } else if (event.type === 'command/run' && event.data.name === 'cancel-pua-loop') {
+      } else if (event.type === 'command/run' && (event.data.name === 'pua-cancel-loop' || event.data.name === 'cancel-pua-loop')) {
         cache.commands.set(event.data.commandId, { input: 'cancel-pua-loop', done: false });
         delete cache.state;
       } else if (event.type === 'command/done' && cache.commands.has(event.data.commandId)) {

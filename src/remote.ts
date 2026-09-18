@@ -74,7 +74,7 @@ export default class PuaRemote extends TypertRemoteService {
   }
   @Remote('cancelLoop')
   async cancelLoop(id: string): Promise<{ text: string }> {
-    const result = await this.ctx.commands.execute(this.agent(id), '/cancel-pua-loop', [], new AbortController().signal);
+    const result = await this.ctx.commands.execute(this.agent(id), '/pua-cancel-loop', [], new AbortController().signal);
     if (!result) throw new Error('PUA 命令未注册，请重载后端。');
     if (result.result.kind !== 'success') throw new Error(result.result.text);
     return { text: result.result.text ?? 'Loop 已取消。' };

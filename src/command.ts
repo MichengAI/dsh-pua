@@ -23,7 +23,7 @@ export const HELP = `用法：
 /pua p7|p9|p10|pro|yes|mama|shot|pua-en|pua-ja [任务]：完整原版模式
 /pua ding [任务]：钉内/钉外味
 /pua loop "任务" --verify "npm test" --max-iterations 10：独立验收循环；省略参数使用当前会话生效默认值
-/pua cancel-pua-loop 或 /cancel-pua-loop：取消当前循环
+/pua cancel-loop 或 /pua-cancel-loop：取消当前循环
 /pua kpi / /pua survey [quick]：原版 KPI 与本地问卷
 /pua offline：保持本地模式，无上传能力
 /pua team-status：当前会话及其 DSH 子代理状态

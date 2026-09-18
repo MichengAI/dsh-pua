@@ -62,9 +62,12 @@ export function parseArgs(raw: string, loopDefaults?: { maxIterations: number; v
   switch (command) {
     case 'again': case 'done-check': case 'evidence': case 'kpi': case 'survey':
       return rest ? { kind: command, task: rest } : { kind: command };
-    case 'on': case 'off': case 'offline': case 'status': case 'help': case 'cancel-pua-loop': case 'team-status': case 'reap-orphans': case 'teardown-all':
+    case 'on': case 'off': case 'offline': case 'status': case 'help': case 'team-status': case 'reap-orphans': case 'teardown-all':
       if (rest) throw new Error(`${command} 不接受额外参数；任务以此单词开头时请使用 /pua -- 任务描述。`);
       return { kind: command };
+    case 'cancel-pua-loop': case 'cancel-loop': case 'pua-cancel-loop':
+      if (rest) throw new Error(`${command} 不接受额外参数；任务以此单词开头时请使用 /pua -- 任务描述。`);
+      return { kind: 'cancel-pua-loop' };
     default:
       return { kind: 'activate', task: input };
   }

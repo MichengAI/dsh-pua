@@ -122,7 +122,7 @@ You can also enter:
 /pua loop "Fix the failing tests and add regression coverage" --verify "npm test" --max-iterations 10
 ```
 
-Enter `/cancel-pua-loop` to stop. Disabling PUA for the current conversation also cancels its Loop, but does not undo operations already performed.
+Enter `/pua-cancel-loop` or `/pua cancel-loop` to stop. Disabling PUA for the current conversation also cancels its Loop, but does not undo operations already performed.
 
 Set a verification command and iteration limit when using a Loop. Without a verification command, completion relies on the model's report. An iteration limit of 0 means unlimited iterations.
 
@@ -139,7 +139,7 @@ Everyday switches, styles, and personas are available in the UI; memorizing comm
 | Check delivery evidence | `/pua evidence` |
 | Review current changes without editing | `/pua review` |
 | Restore global defaults for this conversation | `/pua reset` |
-| Cancel a verification Loop | `/cancel-pua-loop` |
+| Cancel a verification Loop | `/pua-cancel-loop`, `/pua cancel-loop` |
 | View status or full usage | `/pua status`, `/pua help` |
 
 ## Uninstall

@@ -122,7 +122,7 @@ dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://regist
 /pua loop "修复当前测试失败并补齐回归" --verify "npm test" --max-iterations 10
 ```
 
-需要停止时输入 `/cancel-pua-loop`。关闭当前会话 PUA 也会取消 Loop，但不会撤回已经执行的操作。
+需要停止时输入 `/pua-cancel-loop` 或 `/pua cancel-loop`。关闭当前会话 PUA 也会取消 Loop，但不会撤回已经执行的操作。
 
 建议设置验收命令和轮次上限：未设置验收命令时，只依据模型报告判断完成；轮次上限为 0 表示不限轮次。
 
@@ -139,7 +139,7 @@ dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://regist
 | 检查交付证据 | `/pua evidence` |
 | 只读审查当前改动 | `/pua review` |
 | 恢复当前会话的全局默认 | `/pua reset` |
-| 取消验收循环 | `/cancel-pua-loop` |
+| 取消验收循环 | `/pua-cancel-loop`、`/pua cancel-loop` |
 | 查看状态或完整用法 | `/pua status`、`/pua help` |
 
 ## 卸载

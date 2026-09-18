@@ -642,7 +642,7 @@ test("取消别名覆盖尚未开始的 Loop，不能由排队的旧请求复活
   await run("/pua 普通任务");
   await ready;
   await run('/pua loop "排队任务" --max-iterations 5');
-  await run("/cancel-pua-loop");
+  await run("/pua-cancel-loop");
   release();
   await agent.whenIdle();
   assert.equal(requests.length, 2);
@@ -828,7 +828,7 @@ test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复�
   await run("/pua 普通任务");
   await ready;
   await run('/pua loop "旧任务" --max-iterations 2');
-  await run("/cancel-pua-loop");
+  await run("/pua-cancel-loop");
   await run('/pua loop "最新任务" --max-iterations 2');
   release();
   await agent.whenIdle();
