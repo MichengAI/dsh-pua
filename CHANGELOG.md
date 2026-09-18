@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.14
+
+### 中文
+
+- 支持 DSH `0.1.6-alpha.2`，保留 `0.1.2-rc.1`、`0.1.5-rc.1`、`0.1.5-rc.2` 和 `0.1.6-alpha.1`。
+- 适配官方将 Typert 严格编解码从 `schema` 改为 `create()`：新宿主能注册 Remote，旧宿主继续用 `schema.parse`。
+
+### English
+
+- Add support for DSH `0.1.6-alpha.2`, keeping `0.1.2-rc.1`, `0.1.5-rc.1`, `0.1.5-rc.2`, and `0.1.6-alpha.1`.
+- Adapt the official Typert strict codec change from `schema` to `create()`: newer hosts can register the Remote, and older hosts keep using `schema.parse`.
+
 ## 0.3.13
 
 ### 中文

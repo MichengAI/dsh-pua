@@ -13,6 +13,7 @@ import { SettingsProvider } from '@deepseek-ai/dsh-settings';
 import { TypertRegistry } from '@deepseek-ai/dsh-typert-registry';
 import PuaRemote from '../lib/remote.js';
 import * as plugin from '../lib/index.js';
+import { DESCRIPTORS } from '../lib/remote-contract.js';
 
 async function setup(t, settings = true) {
   const ctx = new Context(); t.after(() => ctx.fiber.dispose());
@@ -49,6 +50,14 @@ test('真实 Host 配置服务隔离全局与会话，拒绝过期保存并保�
   assert.throws(() => remote.setSession('unknown-session', { enabled: true }, 0), /会话/);
   assert.deepEqual(agent.session.deriveMessages(), []);
   assert.ok(ctx.typert.local, 'Remote 描述符已在实际 Typert Registry 注册');
+  for (const descriptor of DESCRIPTORS) {
+    assert.equal(typeof descriptor.result.create, 'function');
+    assert.equal(typeof descriptor.result.schema.parse, 'function');
+    for (const parameter of descriptor.parameters) {
+      assert.equal(typeof parameter.codec.create, 'function');
+      assert.equal(typeof parameter.codec.schema.parse, 'function');
+    }
+  }
 });
 
 test('实际父子 Agent 的提示词开关一致，关闭子代理策略时不注入 PUA', async t => {
