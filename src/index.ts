@@ -5,7 +5,7 @@ import { handleCommand } from './command.js';
 import { DISABLED_PROMPT, renderOriginalPrompt, loadCommandPrompts } from './content.js';
 import { StateStore } from './state.js';
 import { SourceCatalog } from './source.js';
-import { PreferencesBridge } from './settings.js';
+import { Config, PreferencesBridge } from './settings.js';
 import { PuaRuntime } from './runtime.js';
 import { Service } from '@deepseek-ai/cordis';
 
@@ -17,13 +17,14 @@ declare module '@deepseek-ai/cordis' { interface Context { puaConfiguration: Pua
 
 export const name = 'michengai-pua';
 export const inject = ['commands', 'systemPrompt'];
+export { Config };
 
 /** 注册当前会话的 PUA 命令与动态行为契约；Cordis 自动随插件卸载撤销贡献。 */
-export function apply(ctx: Context): void {
+export function apply(ctx: Context, config?: unknown): void {
   const catalog = new SourceCatalog();
   const prompts = new Map<string, string>();
   const templates = loadCommandPrompts();
-  const preferences = new PreferencesBridge(ctx);
+  const preferences = new PreferencesBridge(ctx, config);
   const store = new StateStore(() => preferences.defaults(), session => {
     if ((session.header.delegationDepth ?? 0) === 0 || !session.header.parentSession) return undefined;
     return ctx.get('agents')?.get(session.header.parentSession)?.session;

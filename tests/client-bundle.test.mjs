@@ -84,6 +84,11 @@ test('斜杠菜单为 /pua 与 /pua-cancel-loop 补官方图标和中文标题�
   assert.equal(rows[2].icon, closeIcon);
   assert.equal(rows[2].label, '取消循环');
   assert.equal(rows[3].icon, undefined);
+  const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
+  assert.match(js, /IconGaugeOutlineRegular/);
+  assert.match(js, /IconGaugeOutline16/);
+  assert.match(js, /IconCloseOutlineRegular/);
+  assert.match(js, /IconCloseOutline16/);
   assert.equal(rows[3].label, undefined);
 });
 
@@ -100,6 +105,27 @@ test('斜杠菜单英文界面使用英文标题', async () => {
   const [row] = await commandUi.candidates();
   assert.equal(row.label, 'Cancel loop');
   assert.equal(row.icon, closeIcon);
+});
+
+test('全局关闭后斜杠菜单不列出 PUA 命令', async () => {
+  const { client } = loadClient();
+  const commandUi = {
+    candidates: async () => ([
+      { name: 'compact', description: '压缩' },
+      { name: 'pua', description: '开启 PUA' },
+      { name: 'pua-cancel-loop', description: '取消 Loop' },
+    ]),
+  };
+  const remote = { getGlobal: async () => ({ ok: true, value: { values: { enabled: false } } }) };
+  await client.apply({
+    remote: { $mount: async () => () => {} },
+    get: name => name === 'remote.puaConfig' ? remote : {},
+    effect: () => {},
+    inject: (_deps, callback) => callback({ get: () => commandUi }),
+    slots: { inject: (_name, register) => register(), register: () => () => {} },
+  });
+  const rows = await commandUi.candidates();
+  assert.deepEqual(rows.map(row => row.name), ['compact']);
 });
 
 test('运行卡片操作按钮与 BTW 一样用圆形图标，不用详情文字', () => {

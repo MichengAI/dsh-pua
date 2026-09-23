@@ -65,7 +65,7 @@ For a desktop workbench, download [DSH Codex Desktop](https://github.com/Micheng
 
 ## Installation
 
-Requires Node.js 22.19 or later and DSH `0.1.2-rc.1`, `0.1.5-rc.1`, `0.1.5-rc.2`, `0.1.6-alpha.1`, or `0.1.6-alpha.2`. Uses your existing DSH model configuration; no additional API key is needed.
+Requires Node.js 22.19 or later and DSH `0.1.2-rc.1`, `0.1.5-rc.1`, `0.1.5-rc.2`, or `0.1.7-rc.1`. Uses your existing DSH model configuration; no additional API key is needed.
 
 Examples use the `web` profile. Replace it with the profile you use.
 

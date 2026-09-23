@@ -1,25 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Session } from '@deepseek-ai/dsh-session';
-import { createAssistantMessage, createToolResultMessage } from '@deepseek-ai/dsh-llm';
+import { Session, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session';
+import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm';
 import { sessionFormatV2ToV3 } from '@deepseek-ai/dsh-session-format-v2-to-v3';
 import { Context } from '@deepseek-ai/cordis';
-import { PuaRuntime, pluginMessage } from '../lib/runtime.js';
+import { PuaRuntime } from '../lib/runtime.js';
 import { StateStore } from '../lib/state.js';
 import { SourceCatalog } from '../lib/source.js';
 import { repairPuaToolOrder } from '../lib/tool-order.js';
 
-test('官方 V2→V3 迁移后的 PUA 插入历史可修复，运行状态和工具证据可重载', async t => {
+const legacyRuntime = text => createUserMessage({
+  content: [{ type: 'text', text }],
+  source: { kind: 'plugin', plugin: '@michengai/dsh-pua/runtime' },
+});
+
+test('官方 V2→V3 迁移后的 PUA 插入历史可修复，运行状态和工具证据可重载', { skip: SESSION_FORMAT_VERSION >= 4 ? 'V4 宿主不直接装载 V3 迁移产物；旧日志由宿主迁移器打开' : false }, async t => {
   const header = { version: 2, id: 'migration-fixture', createdAt: 1, isSeeded: false, delegationDepth: 0 };
   const call = { type: 'tool-call', id: 'v2-call', name: 'bash', arguments: '{}' };
-  const originalResult = createToolResultMessage({ callId: call.id, content: [{ type: 'text', text: '保留工具错误证据' }], isError: true });
+  const currentResult = createToolResultMessage({ callId: call.id, content: [{ type: 'text', text: '保留工具错误证据' }], isError: true });
+  // V2 工具结果仍是 user 包装。0.1.7 的构造器直接产出 tool 角色，不能原样送进 V2 迁移。
+  const originalResult = currentResult.role === 'tool' ? {
+    role: 'user', id: currentResult.id, source: { kind: 'tool', callId: call.id },
+    content: [{ type: 'tool-result', toolCallId: call.id, content: currentResult.content, isError: true }],
+  } : currentResult;
   const rows = [
     ['turn/start', { turn: 1 }],
     ['step/start', { turn: 1, step: 1 }],
     ['assistant/message', { turn: 1, step: 1, stream: [], message: createAssistantMessage({ content: [call], source: { provider: 'fixture', model: 'fixed' } }) }, 'append'],
     ['tool/call', { turn: 1, step: 1, callId: call.id, name: call.name, arguments: call.arguments }],
-    ['user/message', pluginMessage('PUA_RUNTIME_V1 {"failureCount":2,"failures":["v2-hash"]}\n失败观察'), 'append'],
-    ['user/message', pluginMessage('失败观察'), { op: 'replace', start: 4, end: 4 }, [4]],
+    ['user/message', legacyRuntime('PUA_RUNTIME_V1 {"failureCount":2,"failures":["v2-hash"]}\n失败观察'), 'append'],
+    ['user/message', legacyRuntime('失败观察'), { op: 'replace', start: 4, end: 4 }, [4]],
     ['tool/result', { turn: 1, step: 1, message: originalResult, error: { name: 'ToolError', code: 'FAILED' }, meta: { retained: true } }, 'append', [3]],
     ['step/end', { turn: 1, step: 1 }],
     ['turn/end', { turn: 1, reason: { kind: 'error', error: { code: 'BAD_REQUEST', message: '工具顺序错误' } } }],

@@ -4,6 +4,7 @@ import type {} from '@deepseek-ai/dsh-typert-registry';
 import { SessionId } from '@deepseek-ai/dsh-session';
 import { DESCRIPTORS, type ActivitySnapshot, type ConfigurationSnapshot } from './remote-contract.js';
 import { configSchema, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
+import { SETTINGS_NAMESPACE } from './settings.js';
 import type {} from './index.js';
 
 /** 复用 DSH 已鉴权的 Typert Gateway；全局写入只由插件设置页调用。 */
@@ -20,8 +21,9 @@ export default class PuaRemote extends TypertRemoteService {
   }
   @Remote('getGlobal')
   getGlobal(): ConfigurationSnapshot {
-    const descriptor = this.ctx.get('settings')?.describe().find(item => item.ns === 'michengai-pua');
-    if (this.ctx.get('settings') && !descriptor) throw new Error('PUA 设置服务尚未就绪。');
+    const settings = this.ctx.get('settings') as { describe(): { ns: string; revision: number }[] } | undefined;
+    const descriptor = settings?.describe().find(item => item.ns === SETTINGS_NAMESPACE);
+    if (settings && !descriptor) throw new Error('PUA 设置服务尚未就绪。');
     const values = this.ctx.puaConfiguration.preferences.configuration();
     return { values, defaults: values, overrides: {}, revision: descriptor?.revision ?? 0, child: false };
   }
@@ -32,16 +34,15 @@ export default class PuaRemote extends TypertRemoteService {
     const activity = service.runtime.activity(agent.session);
     const values = service.store.configuration(agent.session);
     const configuration = { mode: values.mode, flavor: values.flavor, subagents: values.subagents };
-    const enabled = service.preferences.configuration().enabled && values.enabled;
-    // 历史 active Loop 不能证明宿主当前仍在执行任务。
-    return { ...activity, configuration, visible: enabled && (agent.status === 'running' || activity.verifying) };
+    // 气泡跟随当前会话是否在跑，不因全局默认关闭而藏掉已经生效的执行。
+    return { ...activity, configuration, visible: values.enabled && (agent.status === 'running' || activity.verifying) };
   }
   @Remote('setGlobal')
   async setGlobal(input: Configuration, revision: number): Promise<ConfigurationSnapshot> {
     const settings = this.ctx.get('settings');
     if (!settings) throw new Error('宿主未提供全局设置，仅支持会话命令配置。');
     const { enabled: alwaysOn, ...values } = configSchema.parse(input);
-    await settings.update('michengai-pua', { ...values, alwaysOn }, revision);
+    await settings.update(SETTINGS_NAMESPACE, { ...values, alwaysOn }, revision);
     return this.getGlobal();
   }
   @Remote('getSession')
@@ -56,7 +57,11 @@ export default class PuaRemote extends TypertRemoteService {
   @Remote('setSession')
   setSession(id: string, patch: ConfigurationPatch, revision: number): ConfigurationSnapshot {
     const { session } = this.agent(id);
-    this.ctx.puaConfiguration.store.configure(session, parsePatch(patch), revision);
+    const next = parsePatch(patch);
+    if (next.enabled === true && this.ctx.puaConfiguration.preferences.globallyEnabled() === false) {
+      throw new Error('全局已关闭 PUA，当前会话不能开启。请先在插件设置中开启。');
+    }
+    this.ctx.puaConfiguration.store.configure(session, next, revision);
     if (!this.ctx.puaConfiguration.store.read(session).enabled) this.ctx.puaConfiguration.runtime.cancel(session);
     return this.getSession(id);
   }

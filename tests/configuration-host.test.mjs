@@ -9,8 +9,9 @@ import { LlmRuntime } from '@deepseek-ai/dsh-llm';
 import { CommandRuntime } from '@deepseek-ai/dsh-commands';
 import { SystemPrompt, renderPrompt } from '@deepseek-ai/dsh-system-prompt';
 import { ToolRuntime } from '@deepseek-ai/dsh-tools';
-import { SettingsProvider } from '@deepseek-ai/dsh-settings';
 import { TypertRegistry } from '@deepseek-ai/dsh-typert-registry';
+import { installSettings } from './settings-host.mjs';
+import { resolveAgentLoopConfig } from './agent-loop-config.mjs';
 import PuaRemote from '../lib/remote.js';
 import * as plugin from '../lib/index.js';
 import { DESCRIPTORS } from '../lib/remote-contract.js';
@@ -19,18 +20,14 @@ async function setup(t, settings = true) {
   const ctx = new Context(); t.after(() => ctx.fiber.dispose());
   new SessionStore(ctx); new AgentRegistry(ctx); new SessionProjectionRegistry(ctx); new LlmRuntime(ctx);
   new CommandRuntime(ctx); new SystemPrompt(ctx, { includeHarnessIdentity: false }); new ToolRuntime(ctx);
-  new AgentLoop(ctx, { agents: [] }); new TypertRegistry(ctx);
-  let fail = false;
-  class MemorySettings extends SettingsProvider {
-    writable = true; async load() { return {}; }
-    async persist() { if (fail) throw new Error('模拟磁盘写入失败'); }
-  }
-  if (settings) new MemorySettings(ctx);
+  new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop)); new TypertRegistry(ctx);
+  const settingsHost = settings ? await installSettings(ctx) : undefined;
   const installed = ctx.plugin(plugin); await installed.await();
+  settingsHost?.attach(installed.config);
   const remotePlugin = ctx.plugin(PuaRemote); await remotePlugin.await();
   const handle = await ctx.agents.create({ sessionId: 'config-host', agentOptions: {} });
   t.after(() => handle.dispose());
-  return { ctx, agent: handle.agent, remote: ctx.puaConfig, fail: value => { fail = value; } };
+  return { ctx, agent: handle.agent, remote: ctx.puaConfig, fail: value => settingsHost?.fail(value) };
 }
 
 test('真实 Host 配置服务隔离全局与会话，拒绝过期保存并保留写入失败前状态', async t => {

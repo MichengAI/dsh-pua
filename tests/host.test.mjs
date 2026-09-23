@@ -38,7 +38,8 @@ test('真实命令和提示词服务：默认关闭、显式激活、选择风�
   assert.equal(a.messages.length, 0);
   assert.equal((await run(ctx, a, '/pua 修复登录')).result.kind, 'success');
   assert.equal(a.messages[0].mode, 'followup');
-  assert.equal(a.messages[0].source.plugin, '@michengai/dsh-pua');
+  const sourceName = source => source.kind === 'plugin' ? source.plugin : source.kind.slice('plugin:'.length);
+  assert.equal(sourceName(a.messages[0].source), '@michengai/dsh-pua');
   assert.match(a.messages[0].content[0].text, /修复登录/);
   const active = await prompt(ctx, a);
   assert.match(active, /华为/);

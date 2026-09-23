@@ -12,9 +12,10 @@ import { StateStore } from "./state.js";
 import type { PuaMode } from "./content.js";
 import { hasPendingToolCalls, repairPuaToolOrder } from "./tool-order.js";
 import { replacementSurface } from "./session-compat.js";
+import { isPluginSource, pluginSource, COMMAND_PLUGIN, RUNTIME_PLUGIN } from "./message-source.js";
 import { terminalTextNeedsReview, TERMINAL_REVIEW_PROMPT } from "./terminal-observation.js";
 
-const RUNTIME_SOURCE = "@michengai/dsh-pua/runtime";
+const RUNTIME_SOURCE = RUNTIME_PLUGIN;
 const RECORD = "PUA_RUNTIME_V1 ";
 export const LOOP_START = "PUA_LOOP_START ";
 type LoopAction = Extract<Action, { kind: "loop" }>;
@@ -34,7 +35,7 @@ interface RuntimeState {
 export function pluginMessage(text: string): UserMessage {
   return createUserMessage({
     content: [{ type: "text", text }],
-    source: { kind: "plugin", plugin: RUNTIME_SOURCE },
+    source: pluginSource(RUNTIME_SOURCE),
   });
 }
 const messageText = (message: {
@@ -173,8 +174,7 @@ export class PuaRuntime {
       for (const message of decision.messages) {
         const text = messageText(message);
         if (
-          message.source.kind === "plugin" &&
-          message.source.plugin === "@michengai/dsh-pua" &&
+          isPluginSource(message.source, COMMAND_PLUGIN) &&
           text.startsWith(LOOP_START) &&
           state.enabled &&
           state.mode === "pua-loop"
@@ -392,8 +392,7 @@ export class PuaRuntime {
       for (const event of session.ownEvents()) {
         if (
           event.type === "user/message" &&
-          event.data.source.kind === "plugin" &&
-          event.data.source.plugin === RUNTIME_SOURCE
+          isPluginSource(event.data.source, RUNTIME_SOURCE)
         ) {
           const text = messageText(event.data);
           if (text.startsWith(RECORD))
@@ -443,8 +442,7 @@ export class PuaRuntime {
       const event = session.eventAt(seq);
       if (
         event?.type !== "user/message" ||
-        event.data.source.kind !== "plugin" ||
-        event.data.source.plugin !== RUNTIME_SOURCE
+        !isPluginSource(event.data.source, RUNTIME_SOURCE)
       )
         continue;
       const text = messageText(event.data);

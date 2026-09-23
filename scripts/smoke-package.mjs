@@ -10,7 +10,7 @@ if (!prefix) throw new Error('请提供已安装包的隔离目录。');
 const modules = resolve(prefix, 'node_modules');
 const requireInstalled = createRequire(pathToFileURL(join(modules, '@michengai/dsh-pua/package.json')));
 const load = name => import(pathToFileURL(requireInstalled.resolve('@deepseek-ai/' + name)).href);
-const [{ Context }, { CommandRuntime }, { Session, SESSION_FORMAT_VERSION }, { SystemPrompt, renderPrompt }, { ToolRuntime }, { SettingsProvider }, plugin] = await Promise.all([
+const [{ Context, Service }, { CommandRuntime }, { Session, SESSION_FORMAT_VERSION }, { SystemPrompt, renderPrompt }, { ToolRuntime }, settingsModule, plugin] = await Promise.all([
   load('cordis'), load('dsh-commands'), load('dsh-session'), load('dsh-system-prompt'),
   load('dsh-tools'), load('dsh-settings'),
   import(pathToFileURL(join(modules, '@michengai/dsh-pua/lib/index.js')).href),
@@ -25,15 +25,37 @@ if (gitCwd) {
 new CommandRuntime(ctx);
 new SystemPrompt(ctx, { includeHarnessIdentity: false });
 new ToolRuntime(ctx);
-class MemorySettings extends SettingsProvider {
-  writable = true;
-  async load() { return {}; }
-  async persist() {}
+const configBox = { current: undefined };
+if (typeof settingsModule.SettingsProvider === 'function') {
+  class MemorySettings extends settingsModule.SettingsProvider {
+    writable = true;
+    async load() { return {}; }
+    async persist() {}
+  }
+  new MemorySettings(ctx);
+} else {
+  const write = Symbol.for('cosmokit.volatile.write');
+  class MemorySettings extends Service {
+    constructor(context) { super(context, 'settings'); }
+    configure() { return () => {}; }
+    value() {
+      const config = configBox.current;
+      return config && typeof config.get === 'function' ? config.get() : config;
+    }
+    get(ns) { return ns === 'michengai-pua' ? this.value() : undefined; }
+    describe() { return [{ ns: 'michengai-pua', revision: 0, value: this.value() }]; }
+    async update(_ns, patch) {
+      const config = configBox.current;
+      if (config && typeof config.get === 'function' && write in config) config[write]({ ...config.get(), ...patch });
+      else if (config) Object.assign(config, patch);
+    }
+  }
+  new MemorySettings(ctx);
 }
-new MemorySettings(ctx);
 const installed = ctx.plugin(plugin);
 try {
   await installed.await();
+  configBox.current = installed.config;
   const messages = [];
   const agent = {
     id: 'package-smoke',
@@ -71,7 +93,7 @@ try {
   await installed.dispose();
   assert.equal(ctx.commands.find(agent, 'pua'), undefined);
   assert.equal(ctx.tools.get('pua_reference'), undefined);
-  assert.equal(ctx.settings.describe().some(item => item.ns === 'michengai-pua'), false);
+  if (typeof settingsModule.SettingsProvider === 'function') assert.equal(ctx.settings.describe().some(item => item.ns === 'michengai-pua'), false);
   console.log(`安装包验证通过：${pkg.name}@${pkg.version}，完整核心、P9、auto、settings、资料工具、审查${gitCwd ? '及真实 Git 预检' : '降级'}、开关和卸载正常。`);
 } finally {
   await ctx.fiber.dispose();

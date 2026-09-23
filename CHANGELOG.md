@@ -1,5 +1,21 @@
 # 更新记录
 
+## 0.3.17
+
+### 中文
+
+- 支持 DSH `0.1.7-rc.1`，保留 `0.1.2-rc.1`、`0.1.5-rc.1` 和 `0.1.5-rc.2`。不再声明 alpha 宿主。
+- 旧宿主继续用 `settings.register` 和 `{ kind: 'plugin', plugin }`。新宿主把全局配置写入 Profile 的 volatile 字段，消息来源改为 `plugin:<name>`，并仍能读回迁移前的运行记录。
+- `/` 菜单图标改用 `0.1.7` 的 Regular 图标，旧宿主仍使用原来的 16/14 图标。
+- 全局关闭后，`/pua` 不能再把当前会话打开，斜杠菜单也不再列出 PUA 命令。会话正在执行时仍显示运行气泡。
+
+### English
+
+- Add support for DSH `0.1.7-rc.1`, keeping `0.1.2-rc.1`, `0.1.5-rc.1`, and `0.1.5-rc.2`. Alpha hosts are no longer declared.
+- Earlier hosts keep `settings.register` and `{ kind: 'plugin', plugin }`. The new host stores global configuration in the Profile's volatile fields, writes message sources as `plugin:<name>`, and still reads runtime records from before the migration.
+- Slash-menu icons use the `0.1.7` Regular glyphs, while earlier hosts keep the previous 16/14 icons.
+- After PUA is turned off globally, `/pua` can no longer enable the current session, and the slash menu no longer lists the PUA commands. A running session still shows the activity bubble.
+
 ## 0.3.16
 
 ### 中文

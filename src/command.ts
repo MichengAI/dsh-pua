@@ -10,6 +10,7 @@ import type { Context } from '@deepseek-ai/cordis';
 import { SourceCatalog } from './source.js';
 import type { PreferencesBridge } from './settings.js';
 import { LOOP_START, type PuaRuntime } from './runtime.js';
+import { COMMAND_PLUGIN, pluginSource } from './message-source.js';
 
 interface Services { catalog: SourceCatalog; preferences: PreferencesBridge; runtime: PuaRuntime; ctx: Context }
 
@@ -36,6 +37,10 @@ export const HELP = `用法：
 原版冒号命令对应 DSH 空格子命令，例如 /pua:p9 → /pua p9。
 全局默认在「插件」中打开 PUA 修改。设置命名空间：michengai-pua。无 settings 时降级为当前会话，默认关闭。`;
 
+const ENABLING = new Set<Action['kind']>(['on', 'activate', 'review', 'mode', 'loop', 'again', 'done-check', 'evidence', 'kpi', 'survey']);
+function enablesPua(action: Action): boolean {
+  return ENABLING.has(action.kind) || (action.kind === 'configure' && action.patch.enabled === true);
+}
 function actionPrompt(action: Action, templates: ReadonlyMap<QualityCommand, string>, catalog: SourceCatalog): string | undefined {
   switch (action.kind) {
     case 'activate':
@@ -75,6 +80,9 @@ export async function handleCommand(store: StateStore, invocation: CommandInvoca
       return { kind: 'success', text: RESULT_PREFIX + (agents.length ? agents.map(item => `${item.id} | ${item.status}`).join('\n') : '宿主未提供子代理状态。') + '\n' + (services?.runtime.status(agent.session) ?? '') + '\nDSH Agent 由宿主管理，无原版 PID/TTL 文件。' };
     }
     if (action.kind === 'reap-orphans') return { kind: 'success', text: RESULT_PREFIX + 'DSH 已在取消、异常结束和卸载时回收本插件循环；没有独立后台进程或 .claude 孤儿状态可清理。其他工具的子代理/worktree 由所属工具管理。' };
+    if (services?.preferences.globallyEnabled() === false && enablesPua(action)) {
+      return { kind: 'error', text: '全局已关闭 PUA，当前会话不能开启。请在「插件」中打开 @michengai/dsh-pua 并开启后再使用。' };
+    }
     if (action.kind === 'loop' && action.verify && (!subprocess || !agent.session.header.cwd)) throw new Error('独立验收需要宿主 subprocess 和会话工作目录；未启动循环。');
     // 只读预检完成且未取消后才暂存开关；等待期间不让其他模型请求误用未完成配置。
     const evidence = action.kind === 'review' ? await collectGitEvidence(subprocess, agent.session.header.cwd, signal) : undefined;
@@ -90,7 +98,7 @@ export async function handleCommand(store: StateStore, invocation: CommandInvoca
       signal.throwIfAborted();
       const message = createUserMessage({
         content: [{ type: 'text', text: `${action.kind === 'loop' ? LOOP_START + JSON.stringify({ ...action, id: commandId }) + '\n' : ''}这是通过 /pua 提交的用户请求。是否使用 PUA 及所选风味，以执行时的 DSH PUA 当前状态为准；如果用户已关闭模式，正常处理任务，不因这条历史请求重新启用。启用时执行完整原版核心、展示协议及当前角色，不能用摘要替代。遵循宿主权限与用户最新要求。\n\n${task}${evidence === undefined ? '' : '\n\n' + evidence}` }],
-        source: { kind: 'plugin', plugin: '@michengai/dsh-pua' },
+        source: pluginSource(COMMAND_PLUGIN),
       });
       // 明确的新任务排入后续轮次；对当前任务的纠偏在最近的步骤边界生效。
       if (action.kind === 'review' || action.kind === 'loop' || (action.kind === 'mode' && action.task) || (action.kind === 'activate' && action.task)) agent.followup(message);

@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Button, Menu, Switch, IconChevronDownOutline14, IconCloseOutline16, IconGaugeOutline16 } from '@deepseek-ai/dsh-client-ui-primitives';
+import { Button, Menu, Switch } from '@deepseek-ai/dsh-client-ui-primitives';
 import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol';
 import { CONFIG_DEFAULTS, CONFIG_KEYS, CONFIG_MODES, configSchema, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
 import { FLAVORS } from './flavors.js';
 import { watchComposerConfiguration } from './client-refresh.js';
 import { ActivityCard, ACTIVITY_CSS } from './activity-card.js';
+import { IconChevronDown, IconClose, IconGauge } from './icons.js';
 import { TYPERT_REMOTE, type ConfigurationSnapshot, type PuaRemoteApi } from './remote-contract.js';
 
 const h = React.createElement;
@@ -68,7 +69,7 @@ function PuaSelect({ id, value, options, disabled, onChange }: {
   return h(Menu, { className: 'pua-shared-menu', align: 'end', open: open && !disabled, autoFocus: true, items: options.map(option => ({ id: option.value, label: option.label })),
     selectedId: value, onClose: () => setOpen(false), onSelect: next => { setOpen(false); if (next !== value) onChange(next); },
     anchor: h(Button, { id, type: 'button', variant: 'toolbar', className: 'pua-select-trigger', disabled, 'aria-haspopup': 'menu', 'aria-expanded': open,
-      onClick: () => setOpen(!open) }, h('span', { className: 'pua-select-label' }, options.find(option => option.value === value)?.label), h(IconChevronDownOutline14)),
+      onClick: () => setOpen(!open) }, h('span', { className: 'pua-select-label' }, options.find(option => option.value === value)?.label), h(IconChevronDown)),
   });
 }
 
@@ -78,7 +79,7 @@ function PuaSettingsCard({ remote }: { remote: PuaRemoteApi }): React.ReactEleme
   return h('li', { className: 'pua-settings-card', 'data-open': open },
     h('button', { type: 'button', className: 'pua-card-header', 'aria-expanded': open, 'aria-label': `${open ? '收起' : '展开'}：PUA 配置`, onClick: () => setOpen(!open) },
       h('span', { className: 'pua-card-text' }, h('span', { className: 'pua-card-name' }, 'PUA 配置'), h('span', { className: 'pua-card-description' }, SETTINGS_SUMMARY)),
-      h(IconChevronDownOutline14, { className: 'pua-card-chevron' })),
+      h(IconChevronDown, { className: 'pua-card-chevron' })),
     h('div', { className: 'pua-card-body', hidden: !open }, h(ConfigurationPanel, { remote })));
 }
 /** 官方插件页自己画标题；summary 只给一行说明，page 才是带保存的表单。 */
@@ -195,7 +196,7 @@ function ComposerButton({ remote, sessionId }: { remote: PuaRemoteApi; sessionId
   const close = () => { dialog.current?.close(); setOpen(false); trigger.current?.focus(); };
   const disabled = snapshot?.values.enabled === false;
   if (!globalEnabled) return null;
-  return h('div', { className: 'pua-composer' }, h('button', { ref: trigger, className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'aria-label': !snapshot ? 'PUA（正在读取会话配置）' : disabled ? 'PUA（当前会话已关闭）' : 'PUA（当前会话已开启）', 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? '正在读取会话配置' : disabled ? 'PUA 已关闭，点击配置' : 'PUA 已开启，点击配置') }, h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(IconGaugeOutline16)), h('span', { className: 'pua-entry-label' }, 'PUA')),
+  return h('div', { className: 'pua-composer' }, h('button', { ref: trigger, className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'aria-label': !snapshot ? 'PUA（正在读取会话配置）' : disabled ? 'PUA（当前会话已关闭）' : 'PUA（当前会话已开启）', 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? '正在读取会话配置' : disabled ? 'PUA 已关闭，点击配置' : 'PUA 已开启，点击配置') }, h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(IconGauge)), h('span', { className: 'pua-entry-label' }, 'PUA')),
     open && createPortal(h('dialog', { ref: dialog, className: 'pua-dialog', 'aria-label': '当前会话 PUA 配置', onKeyDownCapture: (event: React.KeyboardEvent) => { if (event.key === 'Escape' && dialog.current?.querySelector('[role=menu]')) event.preventDefault(); }, onCancel: close, onClick: (event: React.MouseEvent<HTMLDialogElement>) => { if (event.target === dialog.current) close(); } },
       h('div', { className: 'pua-dialog-content' }, h('button', { className: 'pua-close', onClick: close, 'aria-label': '关闭配置面板' }, '关闭'), h(ConfigurationPanel, { key: sessionId, remote, sessionId, onLoopStarted: close }))), document.body));
 }
@@ -204,32 +205,44 @@ const CSS = `.pua-panel.pua-panel-global{max-width:none}.pua-settings-footer{dis
 
 /** Host `/` 行没有 icon/label；官方只给一等命令画脸。同名贡献会撞车，只能补 candidates。 */
 const FACES = {
-  pua: { icon: IconGaugeOutline16, zh: '催办', en: 'PUA' },
-  'pua-cancel-loop': { icon: IconCloseOutline16, zh: '取消循环', en: 'Cancel loop' },
+  pua: { icon: IconGauge, zh: '催办', en: 'PUA' },
+  'pua-cancel-loop': { icon: IconClose, zh: '取消循环', en: 'Cancel loop' },
 } as const;
+const SLASH_COMMANDS = new Set<string>(Object.keys(FACES));
 type Lookup = { get?(name: string): unknown };
 function english(ctx: Lookup): boolean {
   const locale = ctx.get?.('locale') as { snapshot?: { active?: unknown } } | undefined;
   return typeof locale?.snapshot?.active === 'string' && /^en(?:-|$)/i.test(locale.snapshot.active);
 }
-function decorateSlashFaces(commandUi: unknown, ctx: Lookup): () => void {
+async function slashVisible(remote: PuaRemoteApi | undefined): Promise<boolean> {
+  if (typeof remote?.getGlobal !== 'function') return true;
+  try {
+    const result = await remote.getGlobal();
+    return result.ok ? result.value.values.enabled : true;
+  } catch {
+    return true;
+  }
+}
+function decorateSlashFaces(commandUi: unknown, ctx: Lookup, remote: PuaRemoteApi | undefined): () => void {
   const live = commandUi as { candidates?: (...args: unknown[]) => unknown } | undefined;
   const original = live?.candidates;
   if (!live || typeof original !== 'function') return () => {};
   live.candidates = async (...args: unknown[]) => {
     const rows = await original.apply(live, args);
     if (!Array.isArray(rows)) return rows;
+    const visible = await slashVisible(remote);
     const en = english(ctx);
-    return rows.map((row: unknown) => {
-      if (!row || typeof row !== 'object' || !('name' in row) || typeof (row as { name: unknown }).name !== 'string') return row;
+    return rows.flatMap((row: unknown) => {
+      if (!row || typeof row !== 'object' || !('name' in row) || typeof (row as { name: unknown }).name !== 'string') return [row];
       const item = row as { name: string; icon?: unknown; label?: unknown };
+      if (!visible && SLASH_COMMANDS.has(item.name)) return [];
       const face = FACES[item.name as keyof typeof FACES];
-      if (!face) return item;
-      return {
+      if (!face) return [item];
+      return [{
         ...item,
         ...(item.icon === undefined ? { icon: face.icon } : {}),
         ...(item.label === undefined ? { label: en ? face.en : face.zh } : {}),
-      };
+      }];
     });
   };
   return () => { live.candidates = original; };
@@ -239,8 +252,8 @@ export async function apply(ctx: ClientContext): Promise<() => void> {
   const unmount = await ctx.remote.$mount(TYPERT_REMOTE);
   const remote = ctx.get('remote.puaConfig') as PuaRemoteApi | undefined;
   if (!remote) { unmount(); throw new Error('PUA 配置连接未就绪。'); }
-  if (typeof ctx.inject === 'function') ctx.inject(['commandUi'], scope => decorateSlashFaces(scope.get?.('commandUi'), ctx));
-  else ctx.effect(() => decorateSlashFaces(ctx.get('commandUi'), ctx));
+  if (typeof ctx.inject === 'function') ctx.inject(['commandUi'], scope => decorateSlashFaces(scope.get?.('commandUi'), ctx, remote));
+  else ctx.effect(() => decorateSlashFaces(ctx.get('commandUi'), ctx, remote));
   ctx.effect(() => { const style = document.createElement('style'); style.textContent = CSS + ACTIVITY_CSS; document.head.append(style); return () => style.remove(); });
   ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({ name: 'settings.plugin.item', key: CLIENT_ROW }, () => h(PuaSettingsCard, { remote })));
   ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({ name: 'plugins.bundle.config', key: BUNDLE_NAME }, props => h(PuaPluginConfig, { remote, view: props.view })));

@@ -18,11 +18,12 @@ import { LocalSubprocessRuntime } from "@deepseek-ai/dsh-subprocess-local";
 import { SessionProjectionRegistry } from "@deepseek-ai/dsh-session-projection";
 import { SystemPrompt } from "@deepseek-ai/dsh-system-prompt";
 import { ToolRuntime } from "@deepseek-ai/dsh-tools";
-import { SettingsProvider } from "@deepseek-ai/dsh-settings";
+import { installSettings } from "./settings-host.mjs";
+import { resolveAgentLoopConfig } from "./agent-loop-config.mjs";
 import { HookContent } from "../lib/hook-content.js";
 import { SourceCatalog } from "../lib/source.js";
 import { FLAVORS } from "../lib/flavors.js";
-import { isTerminalFailure, PuaRuntime, verifyLoop } from "../lib/runtime.js";
+import { isTerminalFailure, pluginMessage, PuaRuntime, verifyLoop } from "../lib/runtime.js";
 import { StateStore } from "../lib/state.js";
 import { parseArgs } from "../lib/args.js";
 import * as plugin from "../lib/index.js";
@@ -49,20 +50,12 @@ async function setup(t, reply = () => "离线测试回复", settings = false) {
   new SystemPrompt(ctx, { includeHarnessIdentity: false });
   new ToolRuntime(ctx);
   new CommandRuntime(ctx);
-  new AgentLoop(ctx, { agents: [] });
-  if (settings) {
-    class MemorySettings extends SettingsProvider {
-      writable = true;
-      async load() {
-        return {};
-      }
-      async persist() {}
-    }
-    new MemorySettings(ctx);
-  }
+  new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+  const settingsHost = settings ? await installSettings(ctx) : undefined;
   ctx.llm.registerAdapter(["offline-pua-test"], new OfflineAdapter());
   const installed = ctx.plugin(plugin);
   await installed.await();
+  settingsHost?.attach(installed.config);
   const create = async (id) => {
     const handle = await ctx.agents.create({
       sessionId: id,
@@ -218,6 +211,19 @@ test("settings 默认与会话覆盖分离；命令不写全局，未覆盖项�
   );
 });
 
+test("全局关闭后 /pua 不能打开当前会话，也不注入提示词", async (t) => {
+  const { ctx, agent, run, requests } = await setup(t, () => "普通回复", true);
+  await ctx.settings.update("michengai-pua", { alwaysOn: false });
+  const blocked = await run("/pua 修复登录");
+  assert.equal(blocked.result.kind, "error");
+  assert.match(blocked.result.text, /全局已关闭/);
+  assert.equal(requests.length, 0);
+  assert.equal(ctx.puaConfiguration.store.read(agent.session).enabled, false);
+  const status = await run("/pua status");
+  assert.equal(status.result.kind, "success");
+  assert.match(status.result.text, /已关闭/);
+});
+
 test("资料工具真实注册、读取完整正文、拒绝脚本与越界，卸载后消失", async (t) => {
   const { ctx, agent, installed } = await setup(t);
   const execute = (path) =>
@@ -361,14 +367,7 @@ test("旧版 RECORD 在下一次请求前替换，保留用户同名文本和历
     "PUA_RUNTIME_V1 " +
     JSON.stringify({ failureCount: 2, failures: ["legacy-call"] }) +
     "\n旧运行说明";
-  agent.session.append(
-    "user/message",
-    createUserMessage({
-      content: [{ type: "text", text: record }],
-      source: { kind: "plugin", plugin: "@michengai/dsh-pua/runtime" },
-    }),
-    { surfaceOp: "append" },
-  );
+  agent.session.append("user/message", pluginMessage(record), { surfaceOp: "append" });
   await say("普通任务");
   assert.doesNotMatch(
     JSON.stringify(requests.at(-1).messages),

@@ -36,14 +36,22 @@ const results = await Promise.allSettled(versions.map(async version => {
     const manifest = structuredClone(pkg);
     delete manifest.scripts;
     // 同一 0.1.5 / 0.1.6 预发布系列的 ^ 范围会漂到系列内更新包，必须固定整条官方依赖闭包。
-    const pinOfficialClosure = version.startsWith('0.1.5-') || version.startsWith('0.1.6-');
+    const pinOfficialClosure = version.startsWith('0.1.5-') || version.startsWith('0.1.6-') || version.startsWith('0.1.7-');
     if (pinOfficialClosure) {
       // 0.1.6 才有的包不能钉到 0.1.5；其余闭包仍固定，避免 ^rc.1 漂到同系列更新包。
       manifest.overrides = Object.fromEntries(Object.keys(lock.packages)
         .filter(path => path.startsWith('node_modules/@deepseek-ai/dsh-'))
         .map(path => path.slice('node_modules/'.length))
-        .filter(name => version.startsWith('0.1.6-') || name !== '@deepseek-ai/dsh-ptc-runtime')
+        .filter(name => version.startsWith('0.1.6-') || version.startsWith('0.1.7-') || name !== '@deepseek-ai/dsh-ptc-runtime')
         .map(name => [name, version]));
+    }
+    if (version.startsWith('0.1.7-')) {
+      manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.4';
+      manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.4';
+    } else {
+      // 开发基线已钉到 0.1.7 的 cordis / schemastery。旧 RC 的传递依赖仍精确要求上一档。
+      manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.2';
+      manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.2';
     }
     for (const key of Object.keys(manifest.devDependencies)) {
       if (!key.startsWith('@deepseek-ai/dsh-')) continue;
@@ -67,7 +75,10 @@ const results = await Promise.allSettled(versions.map(async version => {
     if (!files.length) throw new Error('兼容测试目录为空，拒绝报告成功。');
     // 文件包含多次真实 PowerShell 启动；云端并行版本回归需要预留启动开销。
     const tested = await run(dir, ['--test', '--test-timeout=60000', ...files]);
-    if (tested.code !== 0) throw new Error(`回归失败\n${tested.output.slice(-6000)}`);
+    if (tested.code !== 0) {
+      writeFileSync(join(tmpBase, 'last-failure.txt'), tested.output);
+      throw new Error(`回归失败\n${tested.output.slice(-6000)}`);
+    }
     if (!/(?:tests|pass) [1-9]\d*/u.test(tested.output)) throw new Error('未发现实际执行的测试计数。');
     console.log(`${version}：${tested.output.split(/\r?\n/u).filter(line => /(?:tests|pass|fail|skipped) \d+/u.test(line)).join('；')}`);
     return version;

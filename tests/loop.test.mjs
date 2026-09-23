@@ -11,6 +11,7 @@ import { SystemPrompt } from '@deepseek-ai/dsh-system-prompt';
 import { ToolRuntime } from '@deepseek-ai/dsh-tools';
 import * as plugin from '../lib/index.js';
 import { requestSystem } from './request-context.mjs';
+import { resolveAgentLoopConfig } from './agent-loop-config.mjs';
 
 test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移除风味', { timeout: 10000 }, async t => {
   const requests = [];
@@ -32,7 +33,7 @@ test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移�
   new SystemPrompt(ctx, { includeHarnessIdentity: false });
   new ToolRuntime(ctx);
   new CommandRuntime(ctx);
-  new AgentLoop(ctx, { agents: [] });
+  new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
   ctx.llm.registerAdapter(['offline-pua-test'], new OfflineAdapter());
   const installed = ctx.plugin(plugin);
   await installed.await();

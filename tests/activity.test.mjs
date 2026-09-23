@@ -20,7 +20,7 @@ test('状态卡片只反映当前运行任务，历史 Loop 不唤起卡片，�
   assert.deepEqual(read().loop, activity.loop);
   assert.deepEqual(read().configuration, { mode: 'p9', flavor: 'auto', subagents: false });
   enabled = false; assert.equal(read().visible, false);
-  enabled = true; global = false; assert.equal(read().visible, false);
+  enabled = true; global = false; assert.equal(read().visible, true, '会话已开启且正在执行时显示气泡');
   global = true; status = 'idle'; assert.equal(read().visible, false);
   activity.verifying = true; assert.equal(read().visible, true);
 });

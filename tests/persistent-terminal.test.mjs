@@ -13,6 +13,7 @@ import { TerminalSessionService } from '@deepseek-ai/dsh-terminal';
 import * as pwsh from '@deepseek-ai/dsh-tool-pwsh-persistent';
 import * as bash from '@deepseek-ai/dsh-tool-bash-persistent';
 import { isTerminalFailure } from '../lib/runtime.js';
+import { resolveAgentLoopConfig } from './agent-loop-config.mjs';
 import { terminalTextNeedsReview } from '../lib/terminal-observation.js';
 
 // 执行官方工具的包装和渲染；PTY 后端提供确定输出，不启动真实终端或调用模型。
@@ -23,7 +24,7 @@ for (const [name, plugin] of [['pwsh', pwsh], ['bash', bash]]) {
     new SessionStore(ctx); new AgentRegistry(ctx); new LlmRuntime(ctx);
     new SessionProjectionRegistry(ctx); new CommandRuntime(ctx);
     new SystemPrompt(ctx, { includeHarnessIdentity: false }); new ToolRuntime(ctx);
-    new AgentLoop(ctx, { agents: [] });
+    new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
     const terminals = new TerminalSessionService(ctx);
     let scenario = { text: '诊断输出', exitCode: 1 };
     terminals.registerBackend({ type: 'fixture', async spawn() {

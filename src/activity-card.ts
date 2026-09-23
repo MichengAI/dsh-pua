@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IconChevronDownOutline14, IconChevronUpOutline14, IconCloseOutline16, IconGaugeOutline16 } from '@deepseek-ai/dsh-client-ui-primitives';
+import { IconChevronDown, IconChevronUp, IconClose, IconGauge } from './icons.js';
 import type { ActivitySnapshot, PuaRemoteApi } from './remote-contract.js';
 
 import { watchActivity } from './client-refresh.js';
@@ -51,12 +51,12 @@ export function ActivityCard({ remote, sessionId }: { remote: PuaRemoteApi; sess
   }
   return h('div', { className: 'pua-activity-dock' }, h('section', { className: 'pua-activity', 'aria-label': 'PUA 运行状态' },
     h('div', { className: 'pua-activity-header' },
-      h('span', { className: 'pua-activity-symbol', 'aria-hidden': true }, h(IconGaugeOutline16)),
+      h('span', { className: 'pua-activity-symbol', 'aria-hidden': true }, h(IconGauge)),
       h('span', { className: 'pua-activity-summary', role: 'status' }, title),
       h('div', { className: 'pua-activity-actions' },
         iconButton(expanded ? '收起' : '展开', () => setExpanded(value => !value),
-          expanded ? h(IconChevronDownOutline14) : h(IconChevronUpOutline14), { 'aria-expanded': expanded }),
-        loop && iconButton(busy ? '正在取消…' : '取消 Loop', () => void cancel(), h(IconCloseOutline16), { disabled: busy }))),
+          h(expanded ? IconChevronDown : IconChevronUp), { 'aria-expanded': expanded }),
+        loop && iconButton(busy ? '正在取消…' : '取消 Loop', () => void cancel(), h(IconClose), { disabled: busy }))),
     expanded && h('dl', { className: 'pua-activity-body pua-activity-fields' }, fields.map(([name, value]) =>
       h('div', { key: name }, h('dt', null, name), h('dd', null, value)))),
     error && h('p', { className: 'pua-error', role: 'alert' }, error)));
