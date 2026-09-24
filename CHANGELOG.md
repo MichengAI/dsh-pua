@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.18
+
+### 中文
+
+- 新增支持 DSH `0.1.7-rc.2`，保留 `0.1.7-rc.1`、`0.1.5-rc.2`、`0.1.5-rc.1` 和 `0.1.2-rc.1`。
+- 开发依赖同步到 `0.1.7-rc.2`，与官方 `next` 通道的最新 RC 一致。
+
+### English
+
+- Add support for DSH `0.1.7-rc.2`, keeping `0.1.7-rc.1`, `0.1.5-rc.2`, `0.1.5-rc.1`, and `0.1.2-rc.1`.
+- Move development dependencies to `0.1.7-rc.2`, matching the latest official RC on the `next` channel.
+
 ## 0.3.17
 
 ### 中文
