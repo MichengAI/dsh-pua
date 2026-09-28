@@ -36,20 +36,20 @@ const results = await Promise.allSettled(versions.map(async version => {
     const manifest = structuredClone(pkg);
     delete manifest.scripts;
     // 同一 0.1.5 / 0.1.6 预发布系列的 ^ 范围会漂到系列内更新包，必须固定整条官方依赖闭包。
-    const pinOfficialClosure = version.startsWith('0.1.5-') || version.startsWith('0.1.6-') || version.startsWith('0.1.7-');
+    const pinOfficialClosure = version.startsWith('0.1.5-') || version.startsWith('0.1.6-') || version.startsWith('0.1.7-') || version.startsWith('0.2.0-');
     if (pinOfficialClosure) {
       // 0.1.6 才有的包不能钉到 0.1.5；其余闭包仍固定，避免 ^rc.1 漂到同系列更新包。
       manifest.overrides = Object.fromEntries(Object.keys(lock.packages)
-        .filter(path => path.startsWith('node_modules/@deepseek-ai/dsh-'))
+        .filter(path => path.startsWith('node_modules/@deepseek-ai/dsh-') && !path.slice('node_modules/'.length).includes('/node_modules/'))
         .map(path => path.slice('node_modules/'.length))
-        .filter(name => version.startsWith('0.1.6-') || version.startsWith('0.1.7-') || name !== '@deepseek-ai/dsh-ptc-runtime')
+        .filter(name => version.startsWith('0.1.6-') || version.startsWith('0.1.7-') || version.startsWith('0.2.0-') || name !== '@deepseek-ai/dsh-ptc-runtime')
         .map(name => [name, version]));
     }
-    if (version.startsWith('0.1.7-')) {
+    if (version.startsWith('0.1.7-') || version.startsWith('0.2.0-')) {
       manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.4';
       manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.4';
     } else {
-      // 开发基线已钉到 0.1.7 的 cordis / schemastery。旧 RC 的传递依赖仍精确要求上一档。
+      // 开发基线已钉到 0.2.0 的 cordis / schemastery。旧 RC 的传递依赖仍精确要求上一档。
       manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.2';
       manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.2';
     }
