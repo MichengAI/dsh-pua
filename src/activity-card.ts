@@ -4,8 +4,8 @@ import type { ActivitySnapshot, PuaRemoteApi } from './remote-contract.js';
 
 import { watchActivity } from './client-refresh.js';
 
-import { modeNames } from './display.js';
-import { FLAVORS } from './flavors.js';
+import { modeName } from './display.js';
+import { ACTIVITY, flavorLabel, resolveUiLang } from './i18n.js';
 
 const h = React.createElement;
 
@@ -14,7 +14,7 @@ function iconButton(label: string, onClick: () => void, icon: React.ReactElement
 }
 
 /** 沿用官方输入区 dock；任务结束后卸下卡片，折叠只影响显示。操作按钮跟 BTW 气泡同一套圆形图标。 */
-export function ActivityCard({ remote, sessionId }: { remote: PuaRemoteApi; sessionId: string }): React.ReactElement | null {
+export function ActivityCard({ remote, sessionId, hostLocale }: { remote: PuaRemoteApi; sessionId: string; hostLocale?: string | undefined }): React.ReactElement | null {
   const [snapshot, setSnapshot] = useState<ActivitySnapshot | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -25,38 +25,40 @@ export function ActivityCard({ remote, sessionId }: { remote: PuaRemoteApi; sess
   }), [remote, sessionId]);
   if (!snapshot?.visible) return null;
   const loop = snapshot.loop;
-  const label = snapshot.verifying ? '正在验收' : loop ? 'Loop 运行中' : '任务执行中';
-  const iteration = loop ? `第 ${loop.iteration} 轮${loop.maxIterations > 0 ? ` / ${loop.maxIterations} 轮` : ''}` : '';
-  const title = ['PUA', label, iteration].filter(Boolean).join(' · ');
   const config = snapshot.configuration;
+  const lang = resolveUiLang(config.language, hostLocale);
+  const copy = ACTIVITY[lang];
+  const label = snapshot.verifying ? copy.statusVerifying : loop ? copy.statusLoop : copy.statusTask;
+  const iteration = loop ? copy.iteration(loop.iteration, loop.maxIterations) : '';
+  const title = ['PUA', label, iteration].filter(Boolean).join(' · ');
   const fields: [string, string][] = [
-    ['角色模式', modeNames[config.mode] ?? config.mode],
-    ['风味', config.flavor === 'auto' ? '自动' : FLAVORS.find(item => item.id === config.flavor)?.label ?? config.flavor],
-    ['对子代理启用', config.subagents ? '开启' : '关闭'],
+    [copy.fields.mode, modeName(config.mode, lang)],
+    [copy.fields.flavor, config.flavor === 'auto' ? copy.auto : flavorLabel(config.flavor, lang)],
+    [copy.fields.subagents, config.subagents ? copy.on : copy.off],
     ...(loop ? [
-      ['Loop 轮次', `${loop.iteration} / ${loop.maxIterations > 0 ? loop.maxIterations : '不限'}`],
-      ['验收方式', loop.verification === 'command' ? '独立验收命令' : '模型报告'],
-      ['验收超时', loop.verification === 'command' ? `${loop.verificationTimeout} 秒` : '不适用'],
+      [copy.fields.loopIterations, `${loop.iteration} / ${loop.maxIterations > 0 ? loop.maxIterations : copy.unlimited}`],
+      [copy.fields.verification, loop.verification === 'command' ? copy.byCommand : copy.byModel],
+      [copy.fields.timeout, loop.verification === 'command' ? copy.seconds(loop.verificationTimeout) : copy.timeoutNA],
     ] as [string, string][] : []),
-    ['连续终端失败观察', String(snapshot.failureCount)],
-    ...(loop ? [['验收未通过', `${loop.rejections} 次`]] as [string, string][] : []),
+    [copy.fields.failures, String(snapshot.failureCount)],
+    ...(loop ? [[copy.fields.rejections, copy.times(loop.rejections)]] as [string, string][] : []),
   ];
   async function cancel() {
     setBusy(true); setError('');
     try {
       const result = await remote.cancelLoop(sessionId);
       if (!result.ok) throw new Error(result.error.message);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : '取消失败，请重试。'); }
+    } catch (reason) { setError(reason instanceof Error ? reason.message : copy.cancelFailed); }
     finally { setBusy(false); }
   }
-  return h('div', { className: 'pua-activity-dock' }, h('section', { className: 'pua-activity', 'aria-label': 'PUA 运行状态' },
+  return h('div', { className: 'pua-activity-dock' }, h('section', { className: 'pua-activity', 'aria-label': copy.ariaLabel },
     h('div', { className: 'pua-activity-header' },
       h('span', { className: 'pua-activity-symbol', 'aria-hidden': true }, h(IconGauge)),
       h('span', { className: 'pua-activity-summary', role: 'status' }, title),
       h('div', { className: 'pua-activity-actions' },
-        iconButton(expanded ? '收起' : '展开', () => setExpanded(value => !value),
+        iconButton(copy.toggle(expanded), () => setExpanded(value => !value),
           h(expanded ? IconChevronDown : IconChevronUp), { 'aria-expanded': expanded }),
-        loop && iconButton(busy ? '正在取消…' : '取消 Loop', () => void cancel(), h(IconClose), { disabled: busy }))),
+        loop && iconButton(busy ? copy.cancelBusy : copy.cancel, () => void cancel(), h(IconClose), { disabled: busy }))),
     expanded && h('dl', { className: 'pua-activity-body pua-activity-fields' }, fields.map(([name, value]) =>
       h('div', { key: name }, h('dt', null, name), h('dd', null, value)))),
     error && h('p', { className: 'pua-error', role: 'alert' }, error)));

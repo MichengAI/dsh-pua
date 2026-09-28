@@ -105,6 +105,7 @@ Unchanged options follow global defaults. Editing an option overrides just that 
 | --- | --- |
 | Enable PUA | Enabled by default; can be disabled for an individual conversation |
 | Style and persona | Select a style automatically or choose a specific style and persona |
+| UI language | Follow the host language automatically, or pin Chinese / English |
 | Enable for subagents | Off by default; enable when specialists and other subagents should also use PUA |
 | Correction reminders | Adjust terminal checks, failure escalation, and quality reminders |
 | Feedback reminders | Change reminder frequency or turn reminders off; feedback is not uploaded |
