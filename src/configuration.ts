@@ -11,6 +11,7 @@ export const configSchema = z.object({
   terminalReview: z.boolean(),
   failureCandidates: z.boolean(),
   qualityTriggers: z.boolean(),
+  integrityGuard: z.boolean(),
   offline: z.boolean(),
   feedbackFrequency: z.number().int().min(0).max(9999),
   maxIterations: z.number().int().min(0).max(10000),
@@ -23,7 +24,7 @@ export const patchSchema = configSchema.partial().extend({
 }).strict();
 export type ConfigurationPatch = { [K in keyof Configuration]?: Configuration[K] | null };
 export const CONFIG_DEFAULTS: Configuration = { enabled: true, flavor: 'auto', mode: 'pua', subagents: false,
-  terminalReview: true, failureCandidates: true, qualityTriggers: true, offline: false,
+  terminalReview: true, failureCandidates: true, qualityTriggers: true, integrityGuard: true, offline: false,
   feedbackFrequency: 5, maxIterations: 0, verify: '', verificationTimeout: 120 };
 export const CONFIG_KEYS = Object.keys(CONFIG_DEFAULTS) as (keyof Configuration)[];
 export const loopStartSchema = z.object({ task: z.string().trim().min(1).max(4096), maxIterations: configSchema.shape.maxIterations,

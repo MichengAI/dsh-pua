@@ -19,6 +19,7 @@ function preferenceFields() {
     terminalReview: Schema.boolean().default(true).description('终端异常文本核验提醒。'),
     failureCandidates: Schema.boolean().default(true).description('失败后的升级候选提示，仍须核验任务失败。'),
     qualityTriggers: Schema.boolean().default(true).description('用户不满或要求证据时的质量纠偏提示。'),
+    integrityGuard: Schema.boolean().default(true).description('防作弊门：拦截基准污染目标，变更测试、评分或 CI 资产时向模型注入提醒。'),
     maxIterations: Schema.number().min(0).max(10000).step(1).default(0).description('Loop 默认轮次上限；0 不限。保存不启动循环。'),
     verify: Schema.string().max(8192).default('').description('默认验收命令；空白使用模型报告。启动时可按项目修改。'),
     verificationTimeout: Schema.number().min(1).max(3600).step(1).default(120).description('独立验收超时（秒），已启动 Loop 不随设置变化。'),

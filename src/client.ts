@@ -31,6 +31,7 @@ export const inject = ['slots', 'remote'];
 const labels: Record<Key, string> = {
   enabled: '开启 PUA', flavor: '风味', mode: '角色模式', subagents: '对子代理启用 PUA',
   terminalReview: '终端异常核验提醒', failureCandidates: '失败升级候选提示', qualityTriggers: '质量纠偏提示',
+  integrityGuard: '防作弊门',
   offline: '反馈提醒', feedbackFrequency: '反馈提醒频率', maxIterations: 'Loop 轮次上限', verify: '默认验收命令', verificationTimeout: '验收超时（秒）',
 };
 import { modeNames } from './display.js';
@@ -44,6 +45,7 @@ const descriptions: Partial<Record<Key, string>> = {
   verify: '留空使用模型报告，不代表独立验收通过。命令在会话工作目录执行，启动时可修改。',
   verificationTimeout: '已启动的 Loop 保持启动时确认的参数。',
   feedbackFrequency: '每多少次有 PUA 可见输出的交付提醒一次，0 关闭。插件不上传反馈。',
+  integrityGuard: '拦截访问基准答案类路径，变更测试、评分或 CI 资产时向模型注入提醒；关闭后仅保留其余功能。',
 };
 async function unwrap<T>(result: Promise<RemoteResult<T>>): Promise<T> {
   const response = await result;

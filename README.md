@@ -28,6 +28,7 @@
 - **Choose a style**: 15 company-inspired styles, plus P7, P9, P10, encouragement, motherly, and other persona modes.
 - **Configure through the UI**: save global defaults in plugin settings and adjust individual conversations from chat.
 - **Continue based on verification**: start a Loop to keep working until verification passes, the iteration limit is reached, or you cancel.
+- **Integrity guard**: deny reads of hidden benchmark answers, including web searches for them, and remind before edits touch test, scoring, or CI assets.
 
 Results depend on the model and task. The plugin does not guarantee a solution every time.
 
@@ -107,6 +108,7 @@ Unchanged options follow global defaults. Editing an option overrides just that 
 | Style and persona | Select a style automatically or choose a specific style and persona |
 | Enable for subagents | Off by default; enable when specialists and other subagents should also use PUA |
 | Correction reminders | Adjust terminal checks, failure escalation, and quality reminders |
+| Integrity guard | On by default; deny reads of hidden benchmark answers and remind before edits touch test, scoring, or CI assets |
 | Feedback reminders | Change reminder frequency or turn reminders off; feedback is not uploaded |
 | Loop defaults | Set a verification command, timeout, and iteration limit |
 
