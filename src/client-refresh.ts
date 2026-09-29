@@ -7,7 +7,7 @@ export function watchComposerConfiguration(
   onGlobal: (enabled: boolean) => void,
   onSession: (snapshot: ConfigurationSnapshot) => void,
   onError: (message: string) => void = () => {},
-  errorText = '无法读取全局配置，请检查连接或打开插件配置页重试。',
+  errorText: string,
 ): { refresh: () => void; dispose: () => void } {
   let active = true;
   let pending = false;

@@ -19,6 +19,7 @@ function strings(value) {
 test('resolveUiLang：手动覆盖优先，auto 跟随宿主 locale', () => {
   assert.equal(resolveUiLang('auto', 'en'), 'en');
   assert.equal(resolveUiLang('auto', 'en-US'), 'en');
+  assert.equal(resolveUiLang('auto', 'en_US'), 'en');
   assert.equal(resolveUiLang('auto', 'zh-CN'), 'zh');
   assert.equal(resolveUiLang('auto', undefined), 'zh');
   assert.equal(resolveUiLang(undefined, 'en-GB'), 'en');

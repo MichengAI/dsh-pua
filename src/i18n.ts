@@ -10,7 +10,7 @@ type ConfigKey = keyof Configuration;
 export function resolveUiLang(pref: LanguagePref | undefined, hostLocale: string | undefined): UiLang {
   if (pref === 'en') return 'en';
   if (pref === 'zh-CN') return 'zh';
-  return typeof hostLocale === 'string' && /^en(?:-|$)/i.test(hostLocale) ? 'en' : 'zh';
+  return typeof hostLocale === 'string' && /^en(?:[-_]|$)/i.test(hostLocale) ? 'en' : 'zh';
 }
 
 type Lookup = { get?(name: string): unknown };
