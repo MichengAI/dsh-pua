@@ -29,6 +29,7 @@
 - **Configure through the UI**: save global defaults in plugin settings and adjust individual conversations from chat.
 - **Continue based on verification**: start a Loop to keep working until verification passes, the iteration limit is reached, or you cancel.
 - **Integrity guard**: deny reads of hidden benchmark answers, including web searches for them, and remind before edits touch test, scoring, or CI assets.
+- **Markdown tables**: status, progress, and KPI panels use GFM pipe tables that DSH can render, instead of Unicode box drawings.
 
 Results depend on the model and task. The plugin does not guarantee a solution every time.
 

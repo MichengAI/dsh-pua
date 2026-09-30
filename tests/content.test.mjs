@@ -27,6 +27,18 @@ test('主模式保留原版人格、展示协议、认知换框和 Owner 行为�
   }
 });
 
+test('DSH 表格覆盖写在原版方框要求之后，并要求 GFM 管道表', () => {
+  const text = loadPrompts().get('alibaba');
+  const ban = text.indexOf('不用 markdown `| |` 表格');
+  const override = text.indexOf('## DSH 表格渲染（覆盖原版方框表格）');
+  assert.ok(ban > 0, '原版禁用管道表的句子应仍在素材中');
+  assert.ok(override > ban, 'DSH 覆盖必须晚于原版方框要求');
+  assert.match(text.slice(override), /GFM 管道表/);
+  assert.match(text.slice(override), /不要放进代码块/);
+  assert.match(text.slice(override), /\| --- \|/);
+  assert.equal(text.includes('方框面板和 Owner'), false);
+});
+
 test('所有模式完整包含原版核心及对应技能正文，资料工具输入不能任意读取磁盘', () => {
   const catalog = new SourceCatalog();
   for (const mode of MODES) {
