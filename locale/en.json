@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "PUA task mode",
+    "description": "Encourages an agent that is stuck, giving up early, or claiming completion without evidence to change approach, investigate, and verify its work."
+  }
+}

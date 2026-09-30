@@ -2,12 +2,13 @@ import type { Context } from '@deepseek-ai/cordis';
 import type {} from '@deepseek-ai/dsh-agent';
 import type {} from '@deepseek-ai/dsh-system-prompt';
 import { handleCommand } from './command.js';
-import { DISABLED_PROMPT, renderOriginalPrompt, loadCommandPrompts } from './content.js';
+import { disabledPrompt, renderOriginalPrompt, loadCommandPrompts } from './content.js';
 import { StateStore } from './state.js';
 import { SourceCatalog } from './source.js';
 import { Config, PreferencesBridge } from './settings.js';
 import { PuaRuntime } from './runtime.js';
 import { Service } from '@deepseek-ai/cordis';
+import { serverCopy } from './server-copy.js';
 
 /** Web Remote 仅访问此插件提供的配置能力，不持有其他插件的运行状态。 */
 export class PuaConfigurationService extends Service {
@@ -42,28 +43,47 @@ export function apply(ctx: Context, config?: unknown): void {
       if (state.enabled) {
         const flavor = state.flavorLocked ? state.flavor : 'auto';
         const mode = runtime.effectiveMode(agent.session, state.mode);
-        const key = `${mode}/${flavor}`;
+        const key = `${mode}/${flavor}/${preferences.language()}`;
         if (!prompts.has(key)) prompts.set(key, renderOriginalPrompt(catalog, flavor, mode));
         return prompts.get(key)!;
       }
       if ((agent.session.header.delegationDepth ?? 0) > 0) return '';
-      return state.configured || agent.session.header.parentSession !== undefined ? DISABLED_PROMPT : '';
+      return state.configured || agent.session.header.parentSession !== undefined ? disabledPrompt() : '';
     },
   });
-  ctx.commands.register({
-    name: 'pua',
-    description: '开启 PUA 任务模式、切换风味、换方法或核查验收证据',
-    input: { hint: '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|任务描述]' },
-    handler: invocation => handleCommand(store, { ...invocation, signal: AbortSignal.any([invocation.signal, lifetime.signal]) }, templates, ctx.get('subprocess'), { catalog, preferences, runtime, ctx }),
-  });
-  ctx.commands.register({
-    name: 'pua-cancel-loop', description: '取消当前会话 PUA Loop，不中断普通模型任务',
-    handler: invocation => {
-      if (invocation.rawInput.trim()) return { kind: 'error', text: 'pua-cancel-loop 不接受额外参数。' };
-      invocation.signal.throwIfAborted();
-      runtime.cancel(invocation.agent.session);
-      store.stage(invocation.agent.session, invocation.commandId, { kind: 'cancel-pua-loop' });
-      return { kind: 'success', text: 'PUA · 当前 Loop 已取消。' };
-    },
-  });
+  // 命令描述与 hint 被宿主断言为普通字符串，无法用文案映射；语言变化时重注册。
+  const registerCommands = (): (() => void) => {
+    const copy = serverCopy().commands;
+    const disposePua = ctx.commands.register({
+      name: 'pua',
+      description: copy.pua,
+      input: { hint: copy.puaHint },
+      handler: invocation => handleCommand(store, { ...invocation, signal: AbortSignal.any([invocation.signal, lifetime.signal]) }, templates, ctx.get('subprocess'), { catalog, preferences, runtime, ctx }),
+    });
+    const disposeCancel = ctx.commands.register({
+      name: 'pua-cancel-loop', description: copy.cancelLoop,
+      handler: invocation => {
+        if (invocation.rawInput.trim()) return { kind: 'error', text: serverCopy().commands.cancelLoopExtra };
+        invocation.signal.throwIfAborted();
+        runtime.cancel(invocation.agent.session);
+        store.stage(invocation.agent.session, invocation.commandId, { kind: 'cancel-pua-loop' });
+        return { kind: 'success', text: serverCopy().commands.cancelLoopDone };
+      },
+    });
+    return () => { disposePua(); disposeCancel(); };
+  };
+  let appliedLanguage = preferences.language();
+  let disposeCommands = registerCommands();
+  /** 设置页或 volatile 配置改变语言后立即换用新文案，并刷新命令元数据。 */
+  const onLanguageChange = () => {
+    const next = preferences.language();
+    if (next === appliedLanguage) return;
+    appliedLanguage = next;
+    disposeCommands();
+    disposeCommands = registerCommands();
+  };
+  // 宿主 Events 未声明这两个事件名；沿用本插件已有的绑定式断言（见 runtime.ts）。
+  const listen = ctx.on.bind(ctx) as (event: 'loader/volatile-update' | 'settings/document-updated', listener: () => void) => () => void;
+  listen('loader/volatile-update', onLanguageChange);
+  listen('settings/document-updated', onLanguageChange);
 }

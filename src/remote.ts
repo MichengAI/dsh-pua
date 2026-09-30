@@ -5,6 +5,7 @@ import { SessionId } from '@deepseek-ai/dsh-session';
 import { DESCRIPTORS, type ActivitySnapshot, type ConfigurationSnapshot } from './remote-contract.js';
 import { configSchema, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
 import { SETTINGS_NAMESPACE } from './settings.js';
+import { serverCopy } from './server-copy.js';
 import type {} from './index.js';
 
 /** 复用 DSH 已鉴权的 Typert Gateway；全局写入只由插件设置页调用。 */
@@ -16,14 +17,14 @@ export default class PuaRemote extends TypertRemoteService {
   }
   private agent(id: string) {
     const agent = this.ctx.agents.get(SessionId(id));
-    if (!agent) throw new Error('会话尚未加载或已关闭，请重新打开会话后重试。');
+    if (!agent) throw new Error(serverCopy().remote.sessionGone);
     return agent;
   }
   @Remote('getGlobal')
   getGlobal(): ConfigurationSnapshot {
     const settings = this.ctx.get('settings') as { describe(): { ns: string; revision: number }[] } | undefined;
     const descriptor = settings?.describe().find(item => item.ns === SETTINGS_NAMESPACE);
-    if (settings && !descriptor) throw new Error('PUA 设置服务尚未就绪。');
+    if (settings && !descriptor) throw new Error(serverCopy().remote.settingsNotReady);
     const values = this.ctx.puaConfiguration.preferences.configuration();
     return { values, defaults: values, overrides: {}, revision: descriptor?.revision ?? 0, child: false };
   }
@@ -40,7 +41,7 @@ export default class PuaRemote extends TypertRemoteService {
   @Remote('setGlobal')
   async setGlobal(input: Configuration, revision: number): Promise<ConfigurationSnapshot> {
     const settings = this.ctx.get('settings');
-    if (!settings) throw new Error('宿主未提供全局设置，仅支持会话命令配置。');
+    if (!settings) throw new Error(serverCopy().remote.noGlobalSettings);
     const { enabled: alwaysOn, ...values } = configSchema.parse(input);
     await settings.update(SETTINGS_NAMESPACE, { ...values, alwaysOn }, revision);
     return this.getGlobal();
@@ -59,7 +60,7 @@ export default class PuaRemote extends TypertRemoteService {
     const { session } = this.agent(id);
     const next = parsePatch(patch);
     if (next.enabled === true && this.ctx.puaConfiguration.preferences.globallyEnabled() === false) {
-      throw new Error('全局已关闭 PUA，当前会话不能开启。请先在插件设置中开启。');
+      throw new Error(serverCopy().remote.globallyOff);
     }
     this.ctx.puaConfiguration.store.configure(session, next, revision);
     if (!this.ctx.puaConfiguration.store.read(session).enabled) this.ctx.puaConfiguration.runtime.cancel(session);
@@ -69,19 +70,19 @@ export default class PuaRemote extends TypertRemoteService {
   async startLoop(id: string, task: string, input: Configuration): Promise<{ text: string }> {
     const agent = this.agent(id);
     const values = configSchema.parse(input);
-    if (!task.trim() || task.length > 4096) throw new Error('请输入 1–4096 字符的任务。');
+    if (!task.trim() || task.length > 4096) throw new Error(serverCopy().remote.taskRange);
     // 表单用结构化参数进入同一个原生命令处理器，启动不改写全局或会话默认值。
     const payload = { task, maxIterations: values.maxIterations, verify: values.verify, verificationTimeout: values.verificationTimeout };
     const result = await this.ctx.commands.execute(agent, '/pua loop-json ' + JSON.stringify(payload), [], new AbortController().signal);
-    if (!result) throw new Error('PUA 命令未注册，请重载后端。');
+    if (!result) throw new Error(serverCopy().remote.commandMissing);
     if (result.result.kind !== 'success') throw new Error(result.result.text);
-    return { text: result.result.text ?? 'Loop 已提交。' };
+    return { text: result.result.text ?? serverCopy().remote.loopSubmitted };
   }
   @Remote('cancelLoop')
   async cancelLoop(id: string): Promise<{ text: string }> {
     const result = await this.ctx.commands.execute(this.agent(id), '/pua-cancel-loop', [], new AbortController().signal);
-    if (!result) throw new Error('PUA 命令未注册，请重载后端。');
+    if (!result) throw new Error(serverCopy().remote.commandMissing);
     if (result.result.kind !== 'success') throw new Error(result.result.text);
-    return { text: result.result.text ?? 'Loop 已取消。' };
+    return { text: result.result.text ?? serverCopy().remote.loopCancelled };
   }
 }

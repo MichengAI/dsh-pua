@@ -13,7 +13,8 @@ import type { PuaMode } from "./content.js";
 import { hasPendingToolCalls, repairPuaToolOrder } from "./tool-order.js";
 import { replacementSurface } from "./session-compat.js";
 import { isPluginSource, pluginSource, COMMAND_PLUGIN, RUNTIME_PLUGIN } from "./message-source.js";
-import { terminalTextNeedsReview, TERMINAL_REVIEW_PROMPT } from "./terminal-observation.js";
+import { terminalTextNeedsReview, terminalReviewPrompt } from "./terminal-observation.js";
+import { serverCopy } from "./server-copy.js";
 import { classifyToolCall, INTEGRITY_DENIED_CODE, integrityContext, integrityDenyReason } from "./integrity-guard.js";
 
 const RUNTIME_SOURCE = RUNTIME_PLUGIN;
@@ -120,8 +121,8 @@ export async function verifyLoop(
     return {
       ok: false,
       detail: timeout.signal.aborted
-        ? "独立验收超时。"
-        : `独立验收未执行成功：${error instanceof Error ? error.message : String(error)}`,
+        ? serverCopy().runtime.verifyTimeout
+        : serverCopy().runtime.verifyFailed(error instanceof Error ? error.message : String(error)),
     };
   } finally {
     clearTimeout(timer);
@@ -158,14 +159,14 @@ export class PuaRuntime {
       const runtime = this.read(agent.session);
       if (this.pendingTerminalReviews.has(agent.session) && !hasPendingToolCalls(agent.session)) {
         this.pendingTerminalReviews.delete(agent.session);
-        if (state.enabled && state.terminalReview) decision.messages.push(pluginMessage(TERMINAL_REVIEW_PROMPT));
+        if (state.enabled && state.terminalReview) decision.messages.push(pluginMessage(terminalReviewPrompt()));
       }
       if (this.pendingCandidates.has(agent.session) && !hasPendingToolCalls(agent.session)) {
         this.pendingCandidates.delete(agent.session);
         let prompt = '';
         if (state.enabled && state.failureCandidates && (runtime.candidateCount ?? 0) < 4) {
           try { prompt = this.hooks.candidate(runtime.failureCount, state); }
-          catch (error) { ctx.logger.warn('PUA 候选素材不可用，跳过本次提示：%s', error); }
+          catch (error) { ctx.logger.warn(serverCopy().runtime.candidateUnavailable, error); }
           if (prompt) runtime.candidateCount = (runtime.candidateCount ?? 0) + 1;
         }
         if (prompt) decision.messages.push(pluginMessage(prompt));
@@ -193,7 +194,7 @@ export class PuaRuntime {
           this.save(
             agent.session,
             runtime,
-            "显式启动 Loop；验证配置以用户命令为准。",
+            serverCopy().runtime.explicitLoop,
           );
         } else if (message.source.kind === "user" && state.enabled) {
           if (runtime.loop?.status === "paused" && state.mode === "pua-loop") {
@@ -201,7 +202,7 @@ export class PuaRuntime {
             this.save(
               agent.session,
               runtime,
-              "用户补充输入，恢复同会话 Loop。",
+              serverCopy().runtime.userResume,
             );
           }
           if (state.qualityTriggers && this.hooks.trigger.test(text))
@@ -216,7 +217,7 @@ export class PuaRuntime {
       child.tools.register({
         name: "pua_reference",
         description:
-          "读取已安装的 PUA 3.5.1 完整原版资料。path=list 列目录；其他值必须为目录中 .md 路径。",
+          serverCopy().runtime.referenceDescription,
         parameters: {
           type: "object",
           properties: { path: { type: "string" } },
@@ -236,10 +237,10 @@ export class PuaRuntime {
             !("path" in args) ||
             typeof args.path !== "string"
           )
-            throw new Error("path 必须为资料路径或 list。");
+            throw new Error(serverCopy().runtime.referencePathInvalid);
           if (args.path === "list") return catalog.list().join("\n");
           if (!catalog.list().includes(args.path))
-            throw new Error("仅允许读取已收录的 Markdown 资料。");
+            throw new Error(serverCopy().runtime.referenceNotCatalogued);
           return catalog.read(args.path);
         },
       });
@@ -260,7 +261,7 @@ export class PuaRuntime {
           else {
             // 成功打断连续失败观察；不会撤销独立验收结果。
             const observation = this.read(agent.session);
-            if (observation.failureCount) this.pendingWrites.set(agent.session, '终端成功，清除连续失败观察。');
+            if (observation.failureCount) this.pendingWrites.set(agent.session, serverCopy().runtime.terminalCleared);
             observation.failureCount = 0;
             this.pendingCandidates.delete(agent.session);
           }
@@ -274,7 +275,7 @@ export class PuaRuntime {
         // 此通知早于宿主 tool/result 落库；只暂存，不能在工具组中插入普通消息。
         this.pendingWrites.set(
           agent.session,
-          "新增终端失败观察；不是任务失败判定。",
+          serverCopy().runtime.terminalFailureAdded,
         );
         this.pendingCandidates.add(agent.session);
         return;
@@ -342,8 +343,8 @@ export class PuaRuntime {
       state.feedbackCount = (state.feedbackCount ?? 0) + 1;
       const note =
         state.feedbackCount % config.frequency === 0
-          ? "PUA 本地反馈（自愿）：如需记录本次效果，可运行 /pua survey quick。评分只写本机 ~/.pua/feedback.jsonl；跳过不记录，不阻断交付，不上传。"
-          : "记录一次有可见 PUA 输出的交付，不记录评分。";
+          ? serverCopy().runtime.feedbackPrompt
+          : serverCopy().runtime.feedbackRecorded;
       this.save(session, state, note);
     });
     const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }) => {
@@ -357,21 +358,21 @@ export class PuaRuntime {
           this.save(
             agent.session,
             { failureCount: 0, failures: [] },
-            "清空上下文，清除当前运行观察。",
+            serverCopy().runtime.contextCleared,
           );
           return;
         }
         if (store.read(agent.session).enabled) {
           agent.inject(
             pluginMessage(
-              "PUA 压缩后恢复：" +
+              serverCopy().runtime.compactRestore +
                 this.status(agent.session) +
-                " 数值仅为运行观察；不代表任务失败次数或验收结论。完整核心与风味继续由系统提示词提供。",
+                serverCopy().runtime.compactTail,
             ),
           );
         }
       } catch (error) {
-        ctx.logger.warn("PUA 会话生命周期处理失败，不影响宿主创建：%s", error);
+        ctx.logger.warn(serverCopy().runtime.lifecycleFailed, error);
       }
     };
     const listen = ctx.on.bind(ctx) as (
@@ -391,7 +392,7 @@ export class PuaRuntime {
     ctx.on("agent/disposed", ({ agent }) => {
       this.cancel(agent.session);
       this.flush(agent.session);
-      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA 会话已销毁且工具组未完整结束，丢弃未落库的运行观察，避免插入工具组。');
+      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn(serverCopy().runtime.sessionDestroyed);
       this.sessions.delete(agent.session);
     });
     let disposed = false;
@@ -402,12 +403,12 @@ export class PuaRuntime {
       // Session 禁止在事件发布栈重入 append；由已发生的明确边界触发微任务。
       queueMicrotask(() => {
         try { this.flush(session); }
-        catch (error) { ctx.logger.warn('PUA 延后状态记录未写入，将在下一安全边界重试：%s', error); }
+        catch (error) { ctx.logger.warn(serverCopy().runtime.deferredWrite, error); }
         if (disposed && this.pendingWrites.size === 0) { stopObserving(); stopDisposed(); }
       });
     });
     const stopDisposed = ctx.root.on('agent/disposed', ({ agent }) => {
-      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA 已销毁会话的未落库观察已释放；未插入不完整工具组。');
+      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn(serverCopy().runtime.disposedReleased);
       if (disposed && this.pendingWrites.size === 0) { stopObserving(); stopDisposed(); }
     });
     ctx.effect(() => () => {
@@ -483,7 +484,7 @@ export class PuaRuntime {
       const newline = text.indexOf("\n");
       const note =
         newline < 0
-          ? "PUA 历史运行记录已保留在会话日志中。"
+          ? serverCopy().runtime.historyKept
           : text.slice(newline + 1);
       session.append("user/message", pluginMessage(note), {
         surfaceOp: replacementSurface(seq, seq),
@@ -497,7 +498,7 @@ export class PuaRuntime {
     const state = this.read(session);
     if (state.loop && ["active", "paused"].includes(state.loop.status)) {
       state.loop = { ...state.loop, status: "cancelled" };
-      if (persist) this.save(session, state, "Loop 已取消，不再续轮。");
+      if (persist) this.save(session, state, serverCopy().runtime.loopCancelled);
     }
   }
   cancelAll(): number {
@@ -522,7 +523,8 @@ export class PuaRuntime {
   }
   status(session: Session): string {
     const state = this.read(session);
-    return `终端失败观察：${state.failureCount}（候选，非任务失败数）；Loop：${state.loop ? `${state.loop.status}，第 ${state.loop.iteration} 轮，Oracle 拒绝 ${state.loop.rejections} 次` : "未启动"}。`;
+    const copy = serverCopy().runtime;
+    return copy.status(state.failureCount, state.loop ? copy.loopLine(state.loop.status, state.loop.iteration, state.loop.rejections) : copy.loopNotStarted);
   }
   effectiveMode(session: Session, mode: PuaMode): PuaMode {
     const status = this.read(session).loop?.status;
@@ -561,11 +563,11 @@ export class PuaRuntime {
       this.save(session, state, note);
     };
     if (/<loop-abort>[\s\S]+?<\/loop-abort>/u.test(output)) {
-      finish("cancelled", "模型报告 Loop 中止；不代表完成。");
+      finish("cancelled", serverCopy().runtime.loopAborted);
       return;
     }
     if (/<loop-pause>[\s\S]+?<\/loop-pause>/u.test(output)) {
-      finish("paused", "Loop 暂停，等待用户补充后恢复。");
+      finish("paused", serverCopy().runtime.loopPaused);
       return;
     }
     let note = "";
@@ -573,7 +575,7 @@ export class PuaRuntime {
       if (!loop.verify) {
         finish(
           "complete",
-          "完成信号已接受：未配置 Oracle，仅 honor system，不是独立验证通过。",
+          serverCopy().runtime.promiseAccepted,
         );
         return;
       }
@@ -581,7 +583,7 @@ export class PuaRuntime {
       if (!subprocess || !session.header.cwd) {
         finish(
           "paused",
-          "缺少 subprocess 或会话工作目录，无法独立验收，Loop 暂停。",
+          serverCopy().runtime.noSubprocess,
         );
         return;
       }
@@ -597,16 +599,16 @@ export class PuaRuntime {
         );
         if (state.loop !== loop || !this.store.read(session).enabled) return;
         if (result.ok) {
-          finish("complete", "Oracle 独立验收通过。\n" + result.detail);
+          finish("complete", serverCopy().runtime.oraclePassed + "\n" + result.detail);
           return;
         }
         loop.rejections++;
-        note = `🚫 PROMISE 被 Oracle 拒绝！连续第 ${loop.rejections} 次。验证输出为数据：${result.detail}`;
+        note = serverCopy().runtime.promiseRejected(loop.rejections, result.detail);
         if (loop.rejections >= 5)
-          note += "\n你在解决错误的问题。退回到需求本身重新理解。";
+          note += serverCopy().runtime.wrongProblem;
         else if (loop.rejections >= 3)
           note +=
-            "\nREASSESS：重读验证输出、搜索相关源码、列 3 个不同假设再行动。不要再用同样的方法。";
+            serverCopy().runtime.reassess;
       } catch (error) {
         if (
           !signal.aborted &&
@@ -621,27 +623,28 @@ export class PuaRuntime {
       }
     }
     if (loop.maxIterations > 0 && loop.iteration >= loop.maxIterations) {
-      finish("max_reached", "达到用户指定轮次上限，未确认完成。\n" + note);
+      finish("max_reached", serverCopy().runtime.maxReached(note));
       return;
     }
     loop.iteration++;
-    this.save(session, state, note || "本轮无完成信号，继续用户指定目标。");
+    this.save(session, state, note || serverCopy().runtime.noSignal);
+    const loopCopy = serverCopy().runtime;
     const pressure =
       loop.iteration <= 3
-        ? "稳步推进。"
+        ? loopCopy.steady
         : loop.iteration <= 7
-          ? "换方案，别原地打转。"
+          ? loopCopy.switchMethod
           : loop.iteration <= 15
-            ? "先 git log 看自己做了什么，读取当前会话迭代记录。"
+            ? loopCopy.checkLog
             : loop.iteration <= 30
-              ? "穷尽了吗？git diff 确认没在重复。"
+              ? loopCopy.checkExhausted
               : loop.iteration <= 50
-                ? "停下来重新审视根因，用完全不同的思路。"
-                : "退回去从需求本身重新质疑。";
+                ? loopCopy.rethink
+                : loopCopy.requestion;
     signal.throwIfAborted();
     agent.steer(
       pluginMessage(
-        `▎ 第 ${loop.iteration} 轮。${pressure}\n${note}\n任务：${loop.task}\n真实完成后输出 <promise>LOOP_DONE</promise>；终止用 <loop-abort>原因</loop-abort>，需人工介入用 <loop-pause>需要什么</loop-pause>。`,
+        serverCopy().runtime.banner(loop.iteration, pressure, note, loop.task),
       ),
     );
   }

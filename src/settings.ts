@@ -4,10 +4,51 @@ import Schema from '@deepseek-ai/schemastery';
 import { FLAVORS } from './flavors.js';
 import type { PuaState } from './state.js';
 import { CONFIG_DEFAULTS, CONFIG_MODES, LANGUAGE_PREFS, type Configuration } from './configuration.js';
+import { hostLocaleOf, resolveUiLang } from './i18n.js';
+import { serverCopy, setServerLang } from './server-copy.js';
 
 export interface Preferences extends Omit<Configuration, 'enabled'> { alwaysOn: boolean }
 export const SETTINGS_NAMESPACE = 'michengai-pua';
 
+/** 设置页字段说明；中文是既有原文，英文供宿主按 locale 解析。 */
+const FIELD_TEXT: Record<string, { zh: string; en: string }> = {
+  alwaysOn: { zh: '默认开启 PUA（与原版一致）；会话内显式 on/off 优先。',
+    en: 'Turn PUA on by default (same as the original); an explicit on/off in a session takes priority.' },
+  flavor: { zh: '默认风味；auto 按原版任务路由，指定风味则锁定。',
+    en: 'Default flavor; auto routes by task as in the original, a named flavor locks it.' },
+  offline: { zh: '离线模式：关闭自愿反馈提醒。本移植始终不包含联网刷新或上报能力。',
+    en: 'Offline mode: turns off the voluntary feedback prompt. This port never includes network refresh or reporting.' },
+  feedbackFrequency: { zh: '每多少次有 PUA 可见输出的交付显示本地反馈入口；0 关闭，不自动记录评分。',
+    en: 'Show the local feedback prompt every N deliverables with visible PUA output; 0 turns it off and never records a score.' },
+  mode: { zh: '默认角色模式。', en: 'Default role mode.' },
+  language: { zh: '界面语言：auto 跟随宿主，可固定为中文或 English。',
+    en: 'Interface language: auto follows the host; can be pinned to Chinese or English.' },
+  subagents: { zh: '对子代理启用 PUA；使用父会话生效配置，不继承 Loop 和失败计数。',
+    en: 'Enable PUA for subagents; they use the parent session configuration and inherit neither the Loop nor the failure count.' },
+  terminalReview: { zh: '终端异常文本核验提醒。',
+    en: 'Reminder to review terminal text that looks like a failure.' },
+  failureCandidates: { zh: '失败后的升级候选提示，仍须核验任务失败。',
+    en: 'Escalation-candidate hints after a failure; the task failure itself still has to be verified.' },
+  qualityTriggers: { zh: '用户不满或要求证据时的质量纠偏提示。',
+    en: 'Quality-correction hints for when the user is dissatisfied or asks for evidence.' },
+  integrityGuard: { zh: '防作弊门，默认关闭。开启后拦截基准污染目标，变更测试、评分或 CI 资产时向模型注入提醒。',
+    en: 'Anti-cheat gate, off by default. When on it blocks benchmark-poisoning goals and injects a reminder whenever tests, scoring, or CI assets change.' },
+  maxIterations: { zh: 'Loop 默认轮次上限；0 不限。保存不启动循环。',
+    en: 'Default Loop iteration cap; 0 means unlimited. Saving does not start a loop.' },
+  verify: { zh: '默认验收命令；空白使用模型报告。启动时可按项目修改。',
+    en: 'Default verification command; blank falls back to the model report. Can be changed per project at start.' },
+  verificationTimeout: { zh: '独立验收超时（秒），已启动 Loop 不随设置变化。',
+    en: 'Independent verification timeout in seconds; a Loop that already started does not follow later changes.' },
+};
+
+/** 同一份字段说明按 locale 注入；宿主按 locale 解析，缺省回落到英文。 */
+function preferenceSchema() {
+  const fields = preferenceFields();
+  return Schema.object(fields).i18n({
+    zh: Object.fromEntries(Object.entries(FIELD_TEXT).map(([key, text]) => [key, text.zh])),
+    en: Object.fromEntries(Object.entries(FIELD_TEXT).map(([key, text]) => [key, text.en])),
+  });
+}
 function preferenceFields() {
   return {
     alwaysOn: Schema.boolean().default(true).description('默认开启 PUA（与原版一致）；会话内显式 on/off 优先。'),
@@ -28,7 +69,7 @@ function preferenceFields() {
 }
 
 /** 0.1.6 及更早的设置页仍注册这份普通 schema。 */
-export const SETTINGS_SCHEMA = Schema.object(preferenceFields());
+export const SETTINGS_SCHEMA = preferenceSchema();
 
 function live<T>(schema: T): T {
   const candidate = schema as T & { volatile?: () => T };
@@ -39,7 +80,7 @@ function live<T>(schema: T): T {
  * 0.1.7 起全局配置是当前 Profile 条目的 volatile Config。
  * 旧 schemastery 没有 volatile()，这份 schema 保持普通对象，避免旧宿主加载失败。
  */
-export const Config = live(Schema.object(preferenceFields()));
+export const Config = live(preferenceSchema());
 
 /** 0.1.6 及更早的 settings.register 返回值；0.1.7 已不再导出该类型。 */
 interface LegacySettingsScope<T> {
@@ -71,7 +112,8 @@ export function materializePreferences(config: unknown): Preferences | undefined
 export class PreferencesBridge {
   private scope: LegacySettingsScope<Preferences> | undefined;
   private mode: 'unknown' | 'legacy' | 'volatile' = 'unknown';
-  constructor(ctx: Context, private readonly config: unknown) {
+  constructor(private readonly ctx: Context, private readonly config: unknown) {
+    setServerLang(resolveUiLang(materializePreferences(config)?.language, hostLocaleOf(ctx)));
     ctx.inject(['settings'], child => {
       const settings = child.settings as SettingsHost;
       if (typeof settings.register === 'function') {
@@ -107,7 +149,14 @@ export class PreferencesBridge {
     const config = this.current();
     return config ? config.alwaysOn : undefined;
   }
-  description(): string { return this.current() ? '仅当前会话；全局默认请在「插件」中打开 PUA 后修改' : '仅当前会话（宿主未提供 settings）'; }
+  /** 服务端与模型侧文案的语言；宿主 locale 与设置里的 language 一起决定。 */
+  language(): 'zh' | 'en' {
+    return resolveUiLang(this.current()?.language, hostLocaleOf(this.ctx));
+  }
+  description(): string {
+    const copy = serverCopy().settings;
+    return this.current() ? copy.sessionOnly : copy.sessionOnlyNoHost;
+  }
   feedback(): { offline: boolean; frequency: number } {
     const config = this.current();
     return { offline: config?.offline ?? false, frequency: config?.feedbackFrequency ?? 5 };

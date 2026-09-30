@@ -1,7 +1,7 @@
 import { FLAVORS } from './flavors.js';
 import type { Configuration, LanguagePref } from './configuration.js';
 
-/** 操作者可见界面文案的语言；模型侧 prompt 与服务端回复不在本地化范围。 */
+/** 界面文案与模型侧、服务端回复共用的语言；zh 保持既有输出逐字一致，en 为新增翻译。 */
 export type UiLang = 'zh' | 'en';
 
 type ConfigKey = keyof Configuration;
@@ -32,6 +32,11 @@ const EN_FLAVOR_LABELS: Record<string, string> = {
 export function flavorLabel(id: string, lang: UiLang): string {
   if (lang === 'en') return EN_FLAVOR_LABELS[id] ?? id;
   return FLAVORS.find(item => item.id === id)?.label ?? id;
+}
+
+/** 风味清单；按当前语言渲染标签，保持既有中文顺序。 */
+export function listFlavors(lang: UiLang): string {
+  return FLAVORS.map(item => `${item.id}（${flavorLabel(item.id, lang)}）`).join('、');
 }
 
 export interface LoopCopy {
