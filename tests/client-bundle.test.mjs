@@ -95,8 +95,12 @@ test('斜杠菜单为 /pua 与 /pua-cancel-loop 补官方图标和中文标题�
   assert.equal(rows[0].label, '压缩');
   assert.equal(rows[1].icon, gaugeIcon);
   assert.equal(rows[1].label, '催办');
+  assert.equal(rows[1].description, '开启 PUA 任务模式、切换风味、换方法或核查验收证据');
+  assert.equal(rows[1].hint, '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|任务描述]');
   assert.equal(rows[2].icon, closeIcon);
   assert.equal(rows[2].label, '取消循环');
+  assert.equal(rows[2].description, '取消当前会话 PUA Loop，不中断普通模型任务');
+  assert.equal(rows[0].description, '压缩');
   assert.equal(rows[3].icon, undefined);
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
   assert.match(js, /IconGaugeOutlineRegular/);
@@ -118,7 +122,27 @@ test('斜杠菜单英文界面使用英文标题', async () => {
   });
   const [row] = await commandUi.candidates();
   assert.equal(row.label, 'Cancel loop');
+  assert.equal(row.description, 'Cancel the current session PUA Loop without interrupting an ordinary model task');
   assert.equal(row.icon, closeIcon);
+});
+
+test('斜杠菜单描述跟随界面语言，覆盖宿主目录里的中文说明', async () => {
+  const { client } = loadClient();
+  const commandUi = {
+    candidates: async () => ([{ name: 'pua', description: '开启 PUA 任务模式、切换风味、换方法或核查验收证据', hint: '任务描述' }]),
+  };
+  const remote = { getGlobal: async () => ({ ok: true, value: { values: { enabled: true, language: 'en' } } }) };
+  await client.apply({
+    remote: { $mount: async () => () => {} },
+    get: name => name === 'remote.puaConfig' ? remote : name === 'locale' ? { snapshot: { active: 'zh-CN' } } : {},
+    effect: () => {},
+    inject: (_deps, callback) => callback({ get: () => commandUi }),
+    slots: { inject: (_name, register) => register(), register: () => () => {} },
+  });
+  const [row] = await commandUi.candidates();
+  assert.equal(row.label, 'PUA');
+  assert.equal(row.description, 'Turn on PUA task mode, switch flavor, change approach, or check verification evidence');
+  assert.equal(row.hint, '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|task]');
 });
 
 test('全局关闭后斜杠菜单不列出 PUA 命令', async () => {

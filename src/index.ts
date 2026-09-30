@@ -7,6 +7,7 @@ import { StateStore } from './state.js';
 import { SourceCatalog } from './source.js';
 import { Config, PreferencesBridge } from './settings.js';
 import { PuaRuntime } from './runtime.js';
+import { UI } from './i18n.js';
 import { Service } from '@deepseek-ai/cordis';
 
 /** Web Remote 仅访问此插件提供的配置能力，不持有其他插件的运行状态。 */
@@ -50,14 +51,15 @@ export function apply(ctx: Context, config?: unknown): void {
       return state.configured || agent.session.header.parentSession !== undefined ? DISABLED_PROMPT : '';
     },
   });
+  // 注册表只能存普通字符串；斜杠菜单按界面语言覆盖这两项，不在这里做文案映射。
   ctx.commands.register({
     name: 'pua',
-    description: '开启 PUA 任务模式、切换风味、换方法或核查验收证据',
-    input: { hint: '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|任务描述]' },
+    description: UI.zh.slash.pua.description,
+    input: { hint: UI.zh.slash.pua.hint },
     handler: invocation => handleCommand(store, { ...invocation, signal: AbortSignal.any([invocation.signal, lifetime.signal]) }, templates, ctx.get('subprocess'), { catalog, preferences, runtime, ctx }),
   });
   ctx.commands.register({
-    name: 'pua-cancel-loop', description: '取消当前会话 PUA Loop，不中断普通模型任务',
+    name: 'pua-cancel-loop', description: UI.zh.slash.cancelLoop.description,
     handler: invocation => {
       if (invocation.rawInput.trim()) return { kind: 'error', text: 'pua-cancel-loop 不接受额外参数。' };
       invocation.signal.throwIfAborted();

@@ -207,21 +207,27 @@ function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteAp
 // 全局页脚沿用官方 PluginCard 的按钮样式与布局，公共 Button 用于其余操作。
 const CSS = `.pua-panel.pua-panel-global{max-width:none}.pua-settings-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 0 4px;border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-settings-discard,.pua-settings-save{appearance:none;border:1px solid transparent;border-radius:8px;padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer}.pua-settings-discard{border-color:var(--dsw-alias-border-l2);background:none;color:var(--dsw-alias-label-secondary)}.pua-settings-discard:hover:not(:disabled){color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-label-dimmed)}.pua-settings-save{background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}.pua-settings-discard:disabled,.pua-settings-save:disabled{opacity:.4;cursor:default}.pua-settings-discard:focus-visible,.pua-settings-save:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}.pua-settings-card{list-style:none;border:0.5px solid var(--dsw-alias-border-l4);border-radius:16px;background:var(--dsw-alias-bg-layer-3);transition:border-color .16s,background .16s}.pua-settings-card:hover{border-color:var(--dsw-alias-label-dimmed)}.pua-settings-card[data-open=true]{background:var(--dsw-alias-bg-layer-2);border-color:var(--dsw-alias-label-dimmed)}.pua-card-header{width:100%;appearance:none;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px}.pua-card-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.pua-card-name{font-size:15px;font-weight:600;line-height:1.4;color:var(--dsw-alias-label-primary)}.pua-card-description{font-size:13px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}.pua-card-chevron{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform .16s}.pua-settings-card[data-open=true] .pua-card-chevron{transform:rotate(180deg)}.pua-card-body{border-top:0.5px solid var(--dsw-alias-border-l2);margin:0 16px;padding-bottom:8px}.pua-select-trigger{gap:12px;max-width:100%}.pua-select-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pua-select-trigger svg{flex:none}.pua-shared-menu{max-width:min(260px,55vw)}.pua-trigger[data-disabled=true]{position:relative}.pua-trigger[data-disabled=true]::after{content:'';position:absolute;left:6px;right:6px;top:50%;height:1px;background:currentColor;transform:rotate(-25deg);pointer-events:none}.pua-shared-menu [role=menu]{max-height:240px;overflow-y:auto}.pua-field[data-inline=true]{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px}.pua-field[data-inline=true]>.pua-field-head{margin:0}.pua-field[data-inline=true]>small{grid-column:1/-1}.pua-card-header:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px}.pua-composer{display:inline-flex;order:2;flex:none}.pua-trigger{border:0;border-radius:20px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;min-height:28px;padding:0 8px;cursor:pointer;white-space:nowrap}.pua-trigger:hover{background:var(--dsw-alias-interactive-bg-hover)}.pua-dialog{width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 48px);padding:0;border:1px solid var(--dsw-alias-border-l2);border-radius:14px;background:var(--dsw-alias-bg-layer-2,#fff);color:var(--dsw-alias-label-primary,#222)}.pua-dialog::backdrop{background:#0005}.pua-dialog-content{position:relative;padding:22px}.pua-close{position:absolute;right:16px;top:16px}.pua-panel{max-width:700px;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px}.pua-panel h2{font-size:19px;margin:0 60px 8px 0}.pua-muted,.pua-panel small,.pua-status{color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}.pua-field{margin:0;padding:12px 0}.pua-field+.pua-field{border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-field[data-inline=true]>.pua-override{grid-column:1/-1}.pua-session-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px;padding-bottom:12px;border-bottom:0.5px solid var(--dsw-alias-border-l2)}.pua-session-actions span{font-size:12px;color:var(--dsw-alias-label-secondary)}.pua-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}.pua-field-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}.pua-override{display:flex;align-items:center;gap:8px;flex:none}.pua-override small{margin:0}.pua-panel input,.pua-panel select,.pua-panel textarea{box-sizing:border-box;width:100%;min-height:34px;padding:7px 9px;border:1px solid var(--dsw-alias-border-l2,#ccc);border-radius:7px;background:var(--dsw-alias-bg-layer-2,#fff);color:inherit;font:inherit}.pua-panel textarea{resize:vertical}.pua-panel small{display:block;margin-top:5px}.pua-close{min-height:28px;cursor:pointer}.pua-panel input:disabled,.pua-panel textarea:disabled{opacity:.65;cursor:default}.pua-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.pua-panel summary{cursor:pointer;padding:12px 0;border-top:1px solid var(--dsw-alias-border-l2,#ddd)}.pua-error{padding:10px;border:1px solid var(--dsw-alias-state-error-primary,#b33);border-radius:6px;overflow-wrap:anywhere}.pua-panel :focus-visible,.pua-trigger:focus-visible,.pua-close:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#527dcc);outline-offset:2px}.pua-panel details>label{display:block;margin:12px 0}.pua-panel details>label>input,.pua-panel details>label>textarea{margin-top:6px}`;
 
-/** Host `/` 行没有 icon/label；官方只给一等命令画脸。同名贡献会撞车，只能补 candidates。 */
-const FACES: Record<string, { icon: unknown; zh: string; en: string; enDesc?: string; enHint?: string }> = {
-  pua: { icon: IconGauge, zh: '催办', en: 'PUA', enDesc: 'Turn on PUA task mode, switch flavor, change approach, or check verification evidence', enHint: '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|task]' },
-  'pua-cancel-loop': { icon: IconClose, zh: '取消循环', en: 'Cancel loop' },
+/** 宿主 `/` 行没有 icon/label；一等命令按 definitionId 换脸。同名贡献会撞车，只能在候选项上覆盖文案。 */
+const FACES: Record<string, { icon: unknown; copy: 'pua' | 'cancelLoop' }> = {
+  pua: { icon: IconGauge, copy: 'pua' },
+  'pua-cancel-loop': { icon: IconClose, copy: 'cancelLoop' },
 };
 const SLASH_COMMANDS = new Set<string>(Object.keys(FACES));
 type Lookup = { get?(name: string): unknown };
-async function slashVisible(remote: PuaRemoteApi | undefined): Promise<boolean> {
-  if (typeof remote?.getGlobal !== 'function') return true;
-  try {
-    const result = await remote.getGlobal();
-    return result.ok ? result.value.values.enabled : true;
-  } catch {
-    return true;
+/** 可见性与菜单语言同一次读取；语言跟随设置里的 language，不是注册表里的中文字符串。 */
+async function slashMenu(remote: PuaRemoteApi | undefined, ctx: Lookup): Promise<{ visible: boolean; lang: UiLang }> {
+  let pref: LanguagePref | undefined;
+  let visible = true;
+  if (typeof remote?.getGlobal === 'function') {
+    try {
+      const result = await remote.getGlobal();
+      if (result.ok) {
+        visible = result.value.values.enabled;
+        pref = result.value.values.language;
+      }
+    } catch { /* 读取失败时保持列出，语言跟随宿主。 */ }
   }
+  return { visible, lang: resolveUiLang(pref, hostLocaleOf(ctx)) };
 }
 function decorateSlashFaces(commandUi: unknown, ctx: Lookup, remote: PuaRemoteApi | undefined): () => void {
   const live = commandUi as { candidates?: (...args: unknown[]) => unknown } | undefined;
@@ -230,20 +236,21 @@ function decorateSlashFaces(commandUi: unknown, ctx: Lookup, remote: PuaRemoteAp
   live.candidates = async (...args: unknown[]) => {
     const rows = await original.apply(live, args);
     if (!Array.isArray(rows)) return rows;
-    const visible = await slashVisible(remote);
-    const en = resolveUiLang('auto', hostLocaleOf(ctx)) === 'en';
+    const menu = await slashMenu(remote, ctx);
+    const slash = UI[menu.lang].slash;
     return rows.flatMap((row: unknown) => {
       if (!row || typeof row !== 'object' || !('name' in row) || typeof (row as { name: unknown }).name !== 'string') return [row];
       const item = row as { name: string; icon?: unknown; label?: unknown; description?: unknown; hint?: unknown };
-      if (!visible && SLASH_COMMANDS.has(item.name)) return [];
+      if (!menu.visible && SLASH_COMMANDS.has(item.name)) return [];
       const face = FACES[item.name as keyof typeof FACES];
       if (!face) return [item];
+      const text = slash[face.copy];
       return [{
         ...item,
         ...(item.icon === undefined ? { icon: face.icon } : {}),
-        ...(item.label === undefined ? { label: en ? face.en : face.zh } : {}),
-        ...(en && face.enDesc !== undefined && item.description === undefined ? { description: face.enDesc } : {}),
-        ...(en && face.enHint !== undefined && item.hint === undefined ? { hint: face.enHint } : {}),
+        label: text.label,
+        description: text.description,
+        ...(text.hint === undefined ? {} : { hint: text.hint }),
       }];
     });
   };

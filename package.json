@@ -21,9 +21,11 @@
       "types": "./lib/remote.d.ts",
       "default": "./lib/remote.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "locale",
     "lib",
     "assets/pua",
     "assets/screenshots",

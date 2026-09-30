@@ -55,6 +55,13 @@ export interface ComposerCopy {
   dialogAria: string; closePanel: string; close: string; readError: string;
 }
 
+/** 斜杠菜单行。宿主命令注册表只接受普通字符串，菜单文案在每次生成候选项时按界面语言覆盖。 */
+export interface SlashCommandCopy {
+  label: string;
+  description: string;
+  hint?: string;
+}
+
 export interface UiCopy {
   settingsSummary: string;
   cardTitle: string;
@@ -70,6 +77,7 @@ export interface UiCopy {
   };
   panel: PanelCopy;
   composer: ComposerCopy;
+  slash: { pua: SlashCommandCopy & { hint: string }; cancelLoop: SlashCommandCopy };
 }
 
 export const UI: Record<UiLang, UiCopy> = {
@@ -126,6 +134,14 @@ export const UI: Record<UiLang, UiCopy> = {
       dialogAria: '当前会话 PUA 配置', closePanel: '关闭配置面板', close: '关闭',
       readError: '无法读取全局配置，请检查连接或打开插件配置页重试。',
     },
+    slash: {
+      pua: {
+        label: '催办',
+        description: '开启 PUA 任务模式、切换风味、换方法或核查验收证据',
+        hint: '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|任务描述]',
+      },
+      cancelLoop: { label: '取消循环', description: '取消当前会话 PUA Loop，不中断普通模型任务' },
+    },
   },
   en: {
     settingsSummary: 'Global defaults, persona flavor, and subagent policy.',
@@ -179,6 +195,14 @@ export const UI: Record<UiLang, UiCopy> = {
       readingTitle: 'Loading session settings', offTitle: 'PUA is off — click to configure', onTitle: 'PUA is on — click to configure',
       dialogAria: 'PUA settings for this session', closePanel: 'Close settings panel', close: 'Close',
       readError: 'Could not read global settings. Check the connection or open the plugin settings page and retry.',
+    },
+    slash: {
+      pua: {
+        label: 'PUA',
+        description: 'Turn on PUA task mode, switch flavor, change approach, or check verification evidence',
+        hint: '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|task]',
+      },
+      cancelLoop: { label: 'Cancel loop', description: 'Cancel the current session PUA Loop without interrupting an ordinary model task' },
     },
   },
 };
