@@ -5,7 +5,7 @@ import { configSchema, patchSchema, type Configuration, type ConfigurationPatch 
 export const snapshotSchema = z.object({ values: configSchema, defaults: configSchema, overrides: configSchema.partial(), revision: z.number().int(), child: z.boolean() });
 export type ConfigurationSnapshot = z.infer<typeof snapshotSchema>;
 export const activitySchema = z.object({
-  configuration: configSchema.pick({ mode: true, flavor: true, subagents: true }),
+  configuration: configSchema.pick({ mode: true, flavor: true, subagents: true, language: true }),
   visible: z.boolean(), verifying: z.boolean(), failureCount: z.number().int().nonnegative(),
   loop: z.object({ iteration: z.number().int(), maxIterations: z.number().int(), rejections: z.number().int(), verification: z.enum(['command', 'model']), verificationTimeout: z.number().int().positive() }).nullable(),
 });

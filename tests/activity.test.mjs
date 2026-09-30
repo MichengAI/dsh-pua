@@ -10,7 +10,7 @@ test('状态卡片只反映当前运行任务，历史 Loop 不唤起卡片，�
     agent: () => ({ session, get status() { return status; } }),
     ctx: { puaConfiguration: {
       preferences: { configuration: () => ({ enabled: global }) },
-      store: { configuration: () => ({ enabled, mode: 'p9', flavor: 'auto', subagents: false }) },
+      store: { configuration: () => ({ enabled, mode: 'p9', flavor: 'auto', language: 'auto', subagents: false }) },
       runtime: { activity: () => activity },
     } },
   };
@@ -18,7 +18,7 @@ test('状态卡片只反映当前运行任务，历史 Loop 不唤起卡片，�
   assert.equal(read().visible, false);
   status = 'running'; assert.equal(read().visible, true);
   assert.deepEqual(read().loop, activity.loop);
-  assert.deepEqual(read().configuration, { mode: 'p9', flavor: 'auto', subagents: false });
+  assert.deepEqual(read().configuration, { mode: 'p9', flavor: 'auto', language: 'auto', subagents: false });
   enabled = false; assert.equal(read().visible, false);
   enabled = true; global = false; assert.equal(read().visible, true, '会话已开启且正在执行时显示气泡');
   global = true; status = 'idle'; assert.equal(read().visible, false);

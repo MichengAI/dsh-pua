@@ -7,6 +7,7 @@ export function watchComposerConfiguration(
   onGlobal: (enabled: boolean) => void,
   onSession: (snapshot: ConfigurationSnapshot) => void,
   onError: (message: string) => void = () => {},
+  errorText: string,
 ): { refresh: () => void; dispose: () => void } {
   let active = true;
   let pending = false;
@@ -21,7 +22,7 @@ export function watchComposerConfiguration(
     const global = Promise.resolve().then(() => remote.getGlobal()).then(result => {
       if (!result.ok) throw new Error(result.error.message);
       if (active) { onGlobal(result.value.values.enabled); onError(''); }
-    }).catch(() => { failed = true; if (active) onError('无法读取全局配置，请检查连接或打开插件配置页重试。'); });
+    }).catch(() => { failed = true; if (active) onError(errorText); });
     const session = Promise.resolve().then(() => remote.getSession(sessionId)).then(result => {
       if (!result.ok) throw new Error(result.error.message);
       if (active) onSession(result.value);

@@ -3,10 +3,14 @@ import { FLAVORS } from './flavors.js';
 
 /** 全局默认与会话覆盖共用的参数契约；null 仅在覆盖补丁中表示恢复继承。 */
 export const CONFIG_MODES = ['pua', 'p7', 'p9', 'p10', 'pro', 'yes', 'mama', 'shot', 'pua-en', 'pua-ja'] as const;
+/** 操作者界面语言：auto 跟随宿主 locale，手动覆盖为 zh-CN 或 en。 */
+export const LANGUAGE_PREFS = ['auto', 'zh-CN', 'en'] as const;
+export type LanguagePref = (typeof LANGUAGE_PREFS)[number];
 export const configSchema = z.object({
   enabled: z.boolean(),
   flavor: z.enum(['auto', ...FLAVORS.map(item => item.id)]),
   mode: z.enum(CONFIG_MODES),
+  language: z.enum(LANGUAGE_PREFS),
   subagents: z.boolean(),
   terminalReview: z.boolean(),
   failureCandidates: z.boolean(),
@@ -22,7 +26,7 @@ export const patchSchema = configSchema.partial().extend({
   ...Object.fromEntries(Object.entries(configSchema.shape).map(([key, schema]) => [key, schema.nullable().optional()])),
 }).strict();
 export type ConfigurationPatch = { [K in keyof Configuration]?: Configuration[K] | null };
-export const CONFIG_DEFAULTS: Configuration = { enabled: true, flavor: 'auto', mode: 'pua', subagents: false,
+export const CONFIG_DEFAULTS: Configuration = { enabled: true, flavor: 'auto', mode: 'pua', language: 'auto', subagents: false,
   terminalReview: true, failureCandidates: true, qualityTriggers: true, offline: false,
   feedbackFrequency: 5, maxIterations: 0, verify: '', verificationTimeout: 120 };
 export const CONFIG_KEYS = Object.keys(CONFIG_DEFAULTS) as (keyof Configuration)[];

@@ -3,7 +3,7 @@ import type {} from '@deepseek-ai/dsh-settings';
 import Schema from '@deepseek-ai/schemastery';
 import { FLAVORS } from './flavors.js';
 import type { PuaState } from './state.js';
-import { CONFIG_DEFAULTS, CONFIG_MODES, type Configuration } from './configuration.js';
+import { CONFIG_DEFAULTS, CONFIG_MODES, LANGUAGE_PREFS, type Configuration } from './configuration.js';
 
 export interface Preferences extends Omit<Configuration, 'enabled'> { alwaysOn: boolean }
 export const SETTINGS_NAMESPACE = 'michengai-pua';
@@ -15,6 +15,7 @@ function preferenceFields() {
     offline: Schema.boolean().default(false).description('离线模式：关闭自愿反馈提醒。本移植始终不包含联网刷新或上报能力。'),
     feedbackFrequency: Schema.number().min(0).max(9999).step(1).default(5).description('每多少次有 PUA 可见输出的交付显示本地反馈入口；0 关闭，不自动记录评分。'),
     mode: Schema.union(CONFIG_MODES.map(value => Schema.const(value))).default('pua').description('默认角色模式。'),
+    language: Schema.union(LANGUAGE_PREFS.map(value => Schema.const(value))).default('auto').description('界面语言：auto 跟随宿主，可固定为中文或 English。'),
     subagents: Schema.boolean().default(false).description('对子代理启用 PUA；使用父会话生效配置，不继承 Loop 和失败计数。'),
     terminalReview: Schema.boolean().default(true).description('终端异常文本核验提醒。'),
     failureCandidates: Schema.boolean().default(true).description('失败后的升级候选提示，仍须核验任务失败。'),

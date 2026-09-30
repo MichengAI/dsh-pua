@@ -33,7 +33,7 @@ export default class PuaRemote extends TypertRemoteService {
     const service = this.ctx.puaConfiguration;
     const activity = service.runtime.activity(agent.session);
     const values = service.store.configuration(agent.session);
-    const configuration = { mode: values.mode, flavor: values.flavor, subagents: values.subagents };
+    const configuration = { mode: values.mode, flavor: values.flavor, language: values.language, subagents: values.subagents };
     // 气泡跟随当前会话是否在跑，不因全局默认关闭而藏掉已经生效的执行。
     return { ...activity, configuration, visible: values.enabled && (agent.status === 'running' || activity.verifying) };
   }

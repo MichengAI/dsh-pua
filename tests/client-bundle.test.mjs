@@ -58,6 +58,20 @@ test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡
   dispose(); assert.equal(unmounted, true);
 });
 
+test('英文宿主的插件摘要使用英文说明', async () => {
+  const { client } = loadClient();
+  const slots = [];
+  await client.apply({
+    remote: { $mount: async () => () => {} },
+    get: name => name === 'locale' ? { snapshot: { active: 'en' } } : {},
+    effect: () => {},
+    slots: { inject: (_name, register) => register(), register: (options, render) => { slots.push({ ...options, render }); return () => {}; } },
+  });
+  const row = slots.find(slot => slot.name === 'plugins.row.config');
+  const summary = row.render({ view: 'summary' });
+  assert.equal(summary.type(summary.props), 'Global defaults, persona flavor, and subagent policy.');
+});
+
 test('斜杠菜单为 /pua 与 /pua-cancel-loop 补官方图标和中文标题，不覆盖已有图标', async () => {
   const { client } = loadClient();
   const keep = () => null;
