@@ -20,7 +20,8 @@
     "./remote": {
       "types": "./lib/remote.d.ts",
       "default": "./lib/remote.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "lib",
