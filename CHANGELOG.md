@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.22
+
+### 中文
+
+- 斜杠菜单的标题、说明和输入提示跟随界面语言，不再沿用注册表里的中文。
+- 插件列表按宿主语言读取 `locale/en.json` 和 `locale/zh.json`。
+
+### English
+
+- Slash-menu titles, descriptions, and input hints follow the UI language instead of the Chinese registry strings.
+- The plugin list reads `locale/en.json` and `locale/zh.json` for the host language.
+
 ## 0.3.21
 
 ### 中文
