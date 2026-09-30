@@ -1,5 +1,21 @@
 # 更新记录
 
+## 0.3.21
+
+### 中文
+
+- 操作者界面增加语言设置，可选 `auto`、`zh-CN`、`en`，默认跟随宿主。
+- 移植上游防作弊门，默认关闭；开启后拒绝读取隐藏基准答案。
+- 状态表、进度表和 KPI 卡改用 DSH 能渲染的 GFM 管道表。
+- 导出 `package.json`，插件列表可以显示介绍。
+
+### English
+
+- Add an operator-facing language setting: `auto`, `zh-CN`, or `en`, following the host by default.
+- Port the upstream integrity guard, off by default. When enabled, it denies reads of hidden benchmark answers.
+- Render status, progress, and KPI panels as GFM pipe tables that DSH can display.
+- Export `package.json` so the plugin list can show the description.
+
 ## 0.3.20
 
 ### 中文
