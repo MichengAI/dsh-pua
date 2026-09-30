@@ -80,6 +80,7 @@ export const UI: Record<UiLang, UiCopy> = {
     fields: {
       enabled: '开启 PUA', flavor: '风味', mode: '角色模式', subagents: '对子代理启用 PUA',
       terminalReview: '终端异常核验提醒', failureCandidates: '失败升级候选提示', qualityTriggers: '质量纠偏提示',
+      integrityGuard: '防作弊门',
       offline: '反馈提醒', feedbackFrequency: '反馈提醒频率', maxIterations: 'Loop 轮次上限', verify: '默认验收命令', verificationTimeout: '验收超时（秒）',
       language: '界面语言',
     },
@@ -92,6 +93,7 @@ export const UI: Record<UiLang, UiCopy> = {
       verificationTimeout: '已启动的 Loop 保持启动时确认的参数。',
       feedbackFrequency: '每多少次有 PUA 可见输出的交付提醒一次，0 关闭。插件不上传反馈。',
       language: 'auto 跟随宿主界面语言。',
+      integrityGuard: '默认关闭。开启后拦截隐藏基准答案，变更测试、评分或 CI 资产时向模型注入提醒。',
     },
     validation: {
       fallback: '保存失败，请重试。', invalid: '的值无效，请检查输入',
@@ -132,6 +134,7 @@ export const UI: Record<UiLang, UiCopy> = {
     fields: {
       enabled: 'Enable PUA', flavor: 'Persona flavor', mode: 'Role mode', subagents: 'Enable for subagents',
       terminalReview: 'Terminal anomaly review reminders', failureCandidates: 'Failure escalation hints', qualityTriggers: 'Quality correction prompts',
+      integrityGuard: 'Integrity guard',
       offline: 'Feedback reminders', feedbackFrequency: 'Feedback reminder frequency', maxIterations: 'Loop iteration cap', verify: 'Default verify command', verificationTimeout: 'Verify timeout (s)',
       language: 'UI language',
     },
@@ -144,6 +147,7 @@ export const UI: Record<UiLang, UiCopy> = {
       verificationTimeout: 'Running loops keep the parameters confirmed at start.',
       feedbackFrequency: 'Remind once every N delivered outputs with visible PUA activity; 0 disables. Nothing is uploaded.',
       language: 'auto follows the host UI language.',
+      integrityGuard: 'Off by default. When on, deny hidden benchmark answers and remind when edits touch test, scoring, or CI assets.',
     },
     validation: {
       fallback: 'Save failed, please retry.', invalid: ' has an invalid value',

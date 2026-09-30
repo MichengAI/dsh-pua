@@ -14,6 +14,7 @@ import { hasPendingToolCalls, repairPuaToolOrder } from "./tool-order.js";
 import { replacementSurface } from "./session-compat.js";
 import { isPluginSource, pluginSource, COMMAND_PLUGIN, RUNTIME_PLUGIN } from "./message-source.js";
 import { terminalTextNeedsReview, TERMINAL_REVIEW_PROMPT } from "./terminal-observation.js";
+import { classifyToolCall, INTEGRITY_DENIED_CODE, integrityContext, integrityDenyReason } from "./integrity-guard.js";
 
 const RUNTIME_SOURCE = RUNTIME_PLUGIN;
 const RECORD = "PUA_RUNTIME_V1 ";
@@ -277,6 +278,38 @@ export class PuaRuntime {
         );
         this.pendingCandidates.add(agent.session);
         return;
+      });
+      // 防作弊门（上游 integrity-guard 移植）：污染类目标在执行前拒绝；
+      // 打分相邻资产的读、变更以附加上下文在下轮注入提醒。
+      child.on("tools/pre-execute", async (exec, next) => {
+        const agent = exec.agent;
+        const preferences = agent ? store.read(agent.session) : undefined;
+        if (!agent || !preferences?.enabled || !preferences.integrityGuard)
+          return next();
+        const hit = classifyToolCall(exec.name, exec.arguments);
+        if (!hit || hit.decision !== "deny") return next();
+        return {
+          kind: "deny",
+          reason: integrityDenyReason(hit),
+          info: { name: exec.name, code: INTEGRITY_DENIED_CODE },
+        };
+      });
+      child.on("tools/post-execute", async (exec, _result, next) => {
+        const agent = exec.agent;
+        const preferences = agent ? store.read(agent.session) : undefined;
+        if (!agent || !preferences?.enabled || !preferences.integrityGuard)
+          return next();
+        const hit = classifyToolCall(exec.name, exec.arguments);
+        if (!hit || hit.decision !== "advisory") return next();
+        const decision = await next();
+        if (decision.kind !== "accept") return decision;
+        return {
+          ...decision,
+          additionalContexts: [
+            ...(decision.additionalContexts ?? []),
+            pluginMessage(integrityContext(hit)),
+          ],
+        };
       });
     });
     ctx.on("agent/turn-stopping", async (payload) => {
