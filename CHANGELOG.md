@@ -1,5 +1,15 @@
 # 更新记录
 
+## Unreleased / 未发布
+
+### 中文
+
+- 从 GitHub 安装时已包含编译后的运行文件，不必再手动构建。
+
+### English
+
+- Installing from GitHub now includes the compiled runtime, so no manual build is required.
+
 ## 0.3.22
 
 ### 中文

@@ -1,0 +1,18 @@
+import type { CommandInvocation, CommandResult } from '@deepseek-ai/dsh-commands';
+import { StateStore } from './state.js';
+import type { SubprocessRuntime } from '@deepseek-ai/dsh-subprocess';
+import type { QualityCommand } from './content.js';
+import type { Context } from '@deepseek-ai/cordis';
+import { SourceCatalog } from './source.js';
+import type { PreferencesBridge } from './settings.js';
+import { type PuaRuntime } from './runtime.js';
+interface Services {
+    catalog: SourceCatalog;
+    preferences: PreferencesBridge;
+    runtime: PuaRuntime;
+    ctx: Context;
+}
+export declare const HELP = "\u7528\u6CD5\uFF1A\n/pua [\u4EFB\u52A1\u63CF\u8FF0]\uFF1A\u5F00\u542F PUA\uFF1B\u65E0\u63CF\u8FF0\u65F6\u7EE7\u7EED\u5F53\u524D\u4EFB\u52A1\n/pua review [\u8303\u56F4]\uFF1A\u53EA\u8BFB\u5BA1\u67E5\uFF0C\u9644\u5E26\u5F53\u524D\u4ED3\u5E93 Git \u7D22\u5F15\u8BC1\u636E\uFF08\u5BBF\u4E3B\u53EF\u7528\u65F6\uFF09\n/pua on / /pua off\uFF1A\u53EA\u4FEE\u6539\u5F53\u524D\u4F1A\u8BDD\uFF1B\u4E0D\u6539\u53D8\u5168\u5C40\u9ED8\u8BA4\u3001\u4E0D\u53D1\u8D77\u6A21\u578B\u8BF7\u6C42\n/pua config {\"subagents\":true}\uFF1A\u4FEE\u6539\u5F53\u524D\u4F1A\u8BDD\u53C2\u6570\n/pua reset [\u53C2\u6570\u540D]\uFF1A\u6062\u590D\u5355\u9879\u6216\u5168\u90E8\u8DDF\u968F\u5168\u5C40\n/pua flavor [\u540D\u79F0|auto]\uFF1A\u5217\u51FA\u3001\u9501\u5B9A\u6216\u6062\u590D\u81EA\u52A8\u9009\u5473\uFF0C\u4E0D\u81EA\u52A8\u5F00\u542F\n/pua p7|p9|p10|pro|yes|mama|shot|pua-en|pua-ja [\u4EFB\u52A1]\uFF1A\u5B8C\u6574\u539F\u7248\u6A21\u5F0F\n/pua ding [\u4EFB\u52A1]\uFF1A\u9489\u5185/\u9489\u5916\u5473\n/pua loop \"\u4EFB\u52A1\" --verify \"npm test\" --max-iterations 10\uFF1A\u72EC\u7ACB\u9A8C\u6536\u5FAA\u73AF\uFF1B\u7701\u7565\u53C2\u6570\u4F7F\u7528\u5F53\u524D\u4F1A\u8BDD\u751F\u6548\u9ED8\u8BA4\u503C\n/pua cancel-loop \u6216 /pua-cancel-loop\uFF1A\u53D6\u6D88\u5F53\u524D\u5FAA\u73AF\n/pua kpi / /pua survey [quick]\uFF1A\u539F\u7248 KPI \u4E0E\u672C\u5730\u95EE\u5377\n/pua offline\uFF1A\u4FDD\u6301\u672C\u5730\u6A21\u5F0F\uFF0C\u65E0\u4E0A\u4F20\u80FD\u529B\n/pua team-status\uFF1A\u5F53\u524D\u4F1A\u8BDD\u53CA\u5176 DSH \u5B50\u4EE3\u7406\u72B6\u6001\n/pua reap-orphans / /pua teardown-all\uFF1A\u56DE\u6536\u672C\u63D2\u4EF6\u5FAA\u73AF\uFF1B\u4E0D\u5220\u9664\u5176\u4ED6\u5DE5\u5177\u7BA1\u7406\u7684 worktree\n/pua again\uFF1A\u9488\u5BF9\u5F53\u524D\u76EE\u6807\u6362\u4E00\u79CD\u5B9E\u8D28\u4E0D\u540C\u7684\u65B9\u6CD5\n/pua done-check\uFF1A\u6838\u5BF9\u9700\u6C42\u3001\u4EA4\u4ED8\u7ED3\u679C\u3001\u9A8C\u6536\u8BC1\u636E\u548C\u7F3A\u53E3\n/pua evidence\uFF1A\u6838\u5BF9\u5DF2\u5B58\u5728\u8BC1\u636E\uFF0C\u6307\u51FA\u672A\u8BC1\u660E\u7684\u7ED3\u8BBA\n/pua status\uFF1A\u67E5\u770B\u5F53\u524D\u914D\u7F6E\n/pua -- \u4EFB\u52A1\u63CF\u8FF0\uFF1A\u4EFB\u52A1\u4EE5\u63A7\u5236\u547D\u4EE4\u540C\u540D\u5355\u8BCD\u5F00\u5934\u65F6\u4F7F\u7528\n\u539F\u7248\u5192\u53F7\u547D\u4EE4\u5BF9\u5E94 DSH \u7A7A\u683C\u5B50\u547D\u4EE4\uFF0C\u4F8B\u5982 /pua:p9 \u2192 /pua p9\u3002\n\u5168\u5C40\u9ED8\u8BA4\u5728\u300C\u63D2\u4EF6\u300D\u4E2D\u6253\u5F00 PUA \u4FEE\u6539\u3002\u8BBE\u7F6E\u547D\u540D\u7A7A\u95F4\uFF1Amichengai-pua\u3002\u65E0 settings \u65F6\u964D\u7EA7\u4E3A\u5F53\u524D\u4F1A\u8BDD\uFF0C\u9ED8\u8BA4\u5173\u95ED\u3002";
+/** 执行原生命令；投递失败撤销临时状态，成功状态由宿主 command/done 日志恢复。 */
+export declare function handleCommand(store: StateStore, invocation: CommandInvocation, templates: ReadonlyMap<QualityCommand, string>, subprocess?: Pick<SubprocessRuntime, 'spawn'>, services?: Services): Promise<CommandResult>;
+export {};

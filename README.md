@@ -69,6 +69,8 @@ For a desktop workbench, download [DSH Codex Desktop](https://github.com/Micheng
 
 Requires Node.js 22.19 or later and DSH `0.1.2-rc.1`, `0.1.5-rc.1`, `0.1.5-rc.2`, `0.1.5-rc.3`, `0.1.7-rc.1`, `0.1.7-rc.2`, `0.2.0-rc.1`, or `0.2.0-rc.2`. Uses your existing DSH model configuration; no additional API key is needed.
 
+GitHub and npm both include a ready-to-run `lib`. After changing source, run `npm run build` before committing.
+
 Examples use the `web` profile. Replace it with the profile you use.
 
 ### Ask an agent to install it
