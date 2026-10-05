@@ -8,7 +8,7 @@
 
 **Help your agent try another approach and verify its work before calling it done.**
 
-[简体中文](README.zh-CN.md) · [Features](#features) · [Screenshots](#screenshots) · [Installation](#installation) · [Usage](#usage) · [Configuration](#configuration) · [Commands](#common-commands) · [Changelog](CHANGELOG.md)
+[简体中文](README.zh-CN.md) · [Features](#features) · [Screenshots](#screenshots) · [Installation](#installation) · [Usage](#usage) · [Configuration](#configuration) · [Commands](#common-commands) · [Session events](#session-events) · [Changelog](CHANGELOG.md)
 
 [![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=downloads)](https://www.npmjs.com/package/@michengai/dsh-pua)
@@ -145,6 +145,21 @@ Everyday switches, styles, and personas are available in the UI; memorizing comm
 | Restore global defaults for this conversation | `/pua reset` |
 | Cancel a verification Loop | `/pua-cancel-loop`, `/pua cancel-loop` |
 | View status or full usage | `/pua status`, `/pua help` |
+
+## Session events
+
+This plugin does not add a custom event type. The host rejects unknown required events on replay, and append has no ignorable flag. Notes written by the plugin are ordinary `user/message` events with `role: "user"`. Do not count a user turn from `type` alone.
+
+Tell them apart with `data.source`:
+
+| Origin | Current hosts (session format 4 or newer) | Older hosts |
+| --- | --- | --- |
+| Runtime notes and saved observations | `kind` is `plugin:@michengai/dsh-pua/runtime` | `kind` is `plugin` and `plugin` is `@michengai/dsh-pua/runtime` |
+| Text submitted with `/pua` and then queued as a follow-up or steer | `kind` is `plugin:@michengai/dsh-pua` | `kind` is `plugin` and `plugin` is `@michengai/dsh-pua` |
+
+A real user message has `source.kind === "user"`.
+
+Each saved runtime observation leaves two `user/message` events in the raw log. The first carries the `PUA_RUNTIME_V1` prefix and JSON so recovery can read it. The second is a surface replace of that same sequence; the model-visible text is only the short note. The second event is not another user turn. The raw JSON stays in the log and is not part of the replaced model surface.
 
 ## Uninstall
 

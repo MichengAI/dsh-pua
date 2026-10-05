@@ -8,7 +8,7 @@
 
 **让 Agent 少一点敷衍，多一点尝试和验证**
 
-[English](README.md) · [功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [更新日志](CHANGELOG.md)
+[English](README.md) · [功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [会话事件](#会话事件) · [更新日志](CHANGELOG.md)
 
 [![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://www.npmjs.com/package/@michengai/dsh-pua)
@@ -145,6 +145,21 @@ dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://regist
 | 恢复当前会话的全局默认 | `/pua reset` |
 | 取消验收循环 | `/pua-cancel-loop`、`/pua cancel-loop` |
 | 查看状态或完整用法 | `/pua status`、`/pua help` |
+
+## 会话事件
+
+本插件不新增事件类型。宿主回放会拒绝未知的必需事件，append 也没有 ignorable 标记。插件写入的说明因此仍是普通 `user/message`，`role` 为 `user`。统计用户轮次时不要只看 `type`。
+
+用 `data.source` 区分：
+
+| 来源 | 当前宿主（会话格式 4 及以上） | 更早宿主 |
+| --- | --- | --- |
+| 运行说明和保存的观察 | `kind` 为 `plugin:@michengai/dsh-pua/runtime` | `kind` 为 `plugin`，且 `plugin` 为 `@michengai/dsh-pua/runtime` |
+| 通过 `/pua` 提交、随后进入后续轮次或当前步骤的文本 | `kind` 为 `plugin:@michengai/dsh-pua` | `kind` 为 `plugin`，且 `plugin` 为 `@michengai/dsh-pua` |
+
+真实用户消息的 `source.kind` 是 `user`。
+
+每次保存运行观察，原始日志里会有两条 `user/message`。第一条带 `PUA_RUNTIME_V1` 前缀和 JSON，供恢复读取。第二条是对同一序号的 surface replace，模型可见文本只剩简短说明。第二条不是新的用户轮次。原始 JSON 留在日志里，不进入替换后的模型表面。
 
 ## 卸载
 
