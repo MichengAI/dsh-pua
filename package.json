@@ -1,6 +1,6 @@
 {
   "name": "@michengai/dsh-pua",
-  "version": "0.3.22",
+  "version": "0.3.23",
   "description": "DSH PUA — 为 DeepSeek Harness 提供 PUA 任务推进、角色风味、验收循环和运行状态卡片 · PUA task persistence, personas, verification loops, and live status cards for DeepSeek Harness",
   "type": "module",
   "license": "Apache-2.0",
@@ -22,7 +22,8 @@
       "default": "./lib/remote.js"
     },
     "./package.json": "./package.json",
-    "./locale/*.json": "./locale/*.json"
+    "./locale/*.json": "./locale/*.json",
+    "./remote/locale/*.json": "./locale/remote/*.json"
   },
   "files": [
     "locale",

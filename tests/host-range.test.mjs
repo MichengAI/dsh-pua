@@ -27,10 +27,17 @@ test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? f
   assert.equal(pkg.files.includes('locale'), true);
   const en = JSON.parse(read('locale/en.json')).meta;
   const zh = JSON.parse(read('locale/zh.json')).meta;
-  assert.equal(en.title, 'DSH PUA');
-  assert.equal(zh.title, 'DSH PUA');
+  assert.equal(en.title, 'PUA settings');
+  assert.equal(zh.title, 'PUA 配置');
   assert.equal(en.description, 'Help your agent try another approach and verify its work before calling it done.');
   assert.equal(zh.description, '让 Agent 少一点敷衍，多一点尝试和验证');
+  assert.equal(pkg.exports['./remote/locale/*.json'], './locale/remote/*.json');
+  const remoteEn = JSON.parse(read('locale/remote/en.json')).meta;
+  const remoteZh = JSON.parse(read('locale/remote/zh.json')).meta;
+  assert.equal(remoteEn.title, 'PUA remote');
+  assert.equal(remoteZh.title, 'PUA 接口');
+  assert.equal(typeof remoteEn.description, 'string');
+  assert.equal(typeof remoteZh.description, 'string');
 });
 
 test('CI 与说明中的兼容列表和 peer 一致', { skip: sourceTree ? false : '隔离兼容目录不复制 CI 和说明' }, () => {

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "PUA 接口",
+    "description": "供网关发现 PUA 的远程接口。"
+  }
+}

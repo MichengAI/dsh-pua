@@ -2,12 +2,16 @@
 
 ## Unreleased / 未发布
 
+## 0.3.23
+
 ### 中文
 
+- 已安装插件列表把带设置页的入口显示为「PUA 配置」，不再只用「DSH PUA」。远程入口显示「PUA 接口」。
 - 从 GitHub 安装时已包含编译后的运行文件，不必再手动构建。
 
 ### English
 
+- The installed-plugin list names the settings entry “PUA settings” instead of “DSH PUA”. The remote entry shows “PUA remote”.
 - Installing from GitHub now includes the compiled runtime, so no manual build is required.
 
 ## 0.3.22
