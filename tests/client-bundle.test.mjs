@@ -49,7 +49,7 @@ test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡
   const bundle = slots.find(slot => slot.name === 'plugins.bundle.config');
   const composer = slots.find(slot => slot.name === 'conversation.input.left');
   const summary = row.render({ view: 'summary' });
-  assert.equal(summary.type(summary.props), '全局默认、角色风味与子代理策略。');
+  assert.equal(summary.type(summary.props), '命令与聊天入口、角色风味和子代理策略。');
   const page = bundle.render({ view: 'page' });
   assert.equal(typeof page.type, 'function');
   assert.equal(page.props.view, 'page');
@@ -69,7 +69,7 @@ test('英文宿主的插件摘要使用英文说明', async () => {
   });
   const row = slots.find(slot => slot.name === 'plugins.row.config');
   const summary = row.render({ view: 'summary' });
-  assert.equal(summary.type(summary.props), 'Global defaults, persona flavor, and subagent policy.');
+  assert.equal(summary.type(summary.props), 'Command and chat entry, persona flavor, and subagent policy.');
 });
 
 test('斜杠菜单为 /pua 与 /pua-cancel-loop 补官方图标和中文标题，不覆盖已有图标', async () => {

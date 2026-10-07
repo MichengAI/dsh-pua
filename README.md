@@ -94,20 +94,21 @@ After the current task finishes, reload DSH or restart its Web service. Refreshi
 ## Usage
 
 1. Open Plugins in the sidebar, open `@michengai/dsh-pua`, and use the package page or the `michengai-pua` row. On earlier DSH hosts, expand PUA Configuration under Settings → Plugins.
-2. Enable PUA, choose a style and persona, and save.
-3. Return to chat and submit tasks as usual.
+2. Turn on Allow PUA, choose a style and persona, and save. This only shows `/pua` and the chat entry. It does not inject by itself.
+3. Return to chat, turn the current conversation on with `/pua` or the chat entry, then submit the task.
 
-**PUA** appears to the right of Experts in the composer. Click it to view or adjust the current conversation. The label has a diagonal strike when PUA is disabled for that conversation; disabling it globally hides the entry.
+**PUA** appears to the right of Experts in the composer. Click it to view or adjust the current conversation. When that conversation is off, the icon is a power symbol and the label is not struck through; disabling it globally hides the entry.
 
 ## Configuration
 
-**Change global defaults only in plugin settings. Chat controls and commands affect only the current conversation.**
+**The global switch only controls whether `/pua` and the chat entry are available. Chat controls and commands affect only the current conversation, which starts off.**
 
 Unchanged options follow global defaults. Editing an option overrides just that option. Choose Restore default to follow the global value again, or restore all options at once.
 
 | Option | What it does |
 | --- | --- |
-| Enable PUA | Enabled by default; can be disabled for an individual conversation |
+| Allow PUA | Controls the command and chat entry. Allowed by default; turning it off hides both and blocks this conversation from being turned on. It does not inject by itself |
+| Conversation switch | Off by default. `/pua` or the chat entry turns injection on for this conversation only |
 | Style and persona | Select a style automatically or choose a specific style and persona |
 | UI language | Follow the host language automatically, or pin Chinese / English |
 | Enable for subagents | Off by default; enable when specialists and other subagents should also use PUA |

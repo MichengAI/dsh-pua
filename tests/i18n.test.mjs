@@ -48,8 +48,9 @@ test('UI 文案表：zh 与 en 结构一致，字段覆盖全部配置键', () =
 });
 
 test('UI 中文文案保持现状，不因本地化改动既有界面', () => {
-  assert.equal(UI.zh.settingsSummary, '全局默认、角色风味与子代理策略。');
+  assert.equal(UI.zh.settingsSummary, '命令与聊天入口、角色风味和子代理策略。');
   assert.equal(UI.zh.cardTitle, 'PUA 配置');
+  assert.equal(UI.zh.allow.label, '允许使用 PUA');
   assert.equal(UI.zh.fields.enabled, '开启 PUA');
   assert.equal(UI.zh.fields.verificationTimeout, '验收超时（秒）');
   assert.equal(UI.zh.fields.language, '界面语言');
@@ -66,7 +67,8 @@ test('UI 英文文案完整存在且不含中文字符', () => {
   assert.ok(en.length > 60, `英文文案条目过少：${en.length}`);
   for (const text of en) assert.ok(text.length > 0);
   for (const text of en) assert.ok(!CJK.test(text), `英文文案混入中文：${text}`);
-  assert.equal(UI.en.settingsSummary, 'Global defaults, persona flavor, and subagent policy.');
+  assert.equal(UI.en.settingsSummary, 'Command and chat entry, persona flavor, and subagent policy.');
+  assert.equal(UI.en.allow.label, 'Allow PUA');
   assert.equal(UI.en.fields.enabled, 'Enable PUA');
   assert.equal(UI.en.fields.language, 'UI language');
 });

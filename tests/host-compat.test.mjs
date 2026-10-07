@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Context, Service } from '@deepseek-ai/cordis';
+import { Session } from '@deepseek-ai/dsh-session';
 import { isPluginSource, pluginSource, COMMAND_PLUGIN, RUNTIME_PLUGIN } from '../lib/message-source.js';
 import { PreferencesBridge } from '../lib/settings.js';
 import { PuaRuntime } from '../lib/runtime.js';
@@ -52,4 +53,20 @@ test('没有 register 的设置服务读取 volatile 配置', async () => {
   assert.deepEqual(bridge.feedback(), { offline: true, frequency: 2 });
   assert.match(bridge.description(), /插件/);
   assert.equal(bridge.defaults().flavorLocked, true);
+});
+
+test('全局允许使用时，新会话默认不注入', async () => {
+  const ctx = new Context();
+  class FakeSettings extends Service {
+    constructor(context) { super(context, 'settings'); }
+    configure() { return () => {}; }
+  }
+  new FakeSettings(ctx);
+  const bridge = new PreferencesBridge(ctx, { get: () => ({ ...PREFERENCES, alwaysOn: true }) });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(bridge.globallyEnabled(), true);
+  assert.equal(bridge.configuration().enabled, true);
+  assert.notEqual(bridge.defaults().enabled, true);
+  const store = new StateStore(() => bridge.defaults());
+  assert.equal(store.read(Session.create('fresh')).enabled, false);
 });

@@ -2,6 +2,16 @@
 
 ## Unreleased / 未发布
 
+### 中文
+
+- 全局开关只控制 `/pua` 和聊天入口，不再让新会话自动注入。会话默认关闭，用 `/pua` 或聊天入口打开后才注入。已经在会话里单独打开的开关保持不变。
+- 未开启的聊天入口用淡灰电源符号；开启后图标和文字改用宿主强调色，并带浅色底。
+
+### English
+
+- The global switch only controls `/pua` and the chat entry. New conversations no longer inject automatically. A conversation starts off and injects only after `/pua` or the chat entry turns it on. Switches already turned on in a conversation stay on.
+- The off-state chat entry is a dim power symbol. When on, the icon and label use the host accent color with a light tint.
+
 ## 0.3.23
 
 ### 中文

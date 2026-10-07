@@ -68,6 +68,11 @@ export interface UiCopy {
     settingsSummary: string;
     cardTitle: string;
     cardToggle: (open: boolean) => string;
+    /** 全局开关只控制命令和聊天入口，不代表会话已注入。 */
+    allow: {
+        label: string;
+        description: string;
+    };
     fields: Record<ConfigKey, string>;
     languageChoices: Record<LanguagePref, string>;
     autoFlavor: string;

@@ -64,7 +64,7 @@ test('实际父子 Agent 的提示词开关一致，关闭子代理策略时不�
   t.after(() => childHandle.dispose());
   const prompt = async () => renderPrompt(await ctx.systemPrompt.assemble({ agent: childHandle.agent }));
   assert.doesNotMatch(await prompt(), /PUA/);
-  remote.setSession(agent.id, { subagents: true, flavor: 'huawei', mode: 'p9' }, 0);
+  remote.setSession(agent.id, { enabled: true, subagents: true, flavor: 'huawei', mode: 'p9' }, 0);
   assert.match(await prompt(), /用户锁定风味：huawei/);
   assert.match(await prompt(), /当前 DSH 模式：p9/);
   ctx.puaConfiguration.runtime.read(agent.session).failureCount = 4;

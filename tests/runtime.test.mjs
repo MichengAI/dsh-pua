@@ -175,12 +175,18 @@ test("settings 默认与会话覆盖分离；命令不写全局，未覆盖项�
     true,
   );
   await say("初始任务");
+  assert.equal(ctx.puaConfiguration.store.read(agent.session).enabled, false);
+  assert.doesNotMatch(JSON.stringify(requests.at(-1)), /风味未锁定/);
+  await run("/pua on");
+  await say("开启后才注入");
   assert.match(requestSystem(requests.at(-1)), /风味未锁定/);
   await run("/pua flavor huawei");
   assert.equal(ctx.settings.get("michengai-pua").flavor, "auto");
   const second = await create("new-session");
   await say("另一个任务", second);
-  assert.match(requestSystem(requests.at(-1)), /风味未锁定/);
+  assert.equal(ctx.puaConfiguration.store.read(second.session).enabled, false);
+  assert.doesNotMatch(JSON.stringify(requests.at(-1)), /风味未锁定/);
+  await run("/pua on", second);
   await ctx.settings.update('michengai-pua', { flavor: 'tencent', mode: 'p9' });
   await say('读取全局变化', second);
   assert.match(requestSystem(requests.at(-1)), /用户锁定风味：tencent/);
@@ -729,6 +735,7 @@ test("反馈只依据可见旁白，不唤醒模型；离线模式关闭提醒",
     true,
   );
   await ctx.settings.update("michengai-pua", { feedbackFrequency: 1 });
+  await run("/pua on");
   await say("完成任务");
   const reminders = () =>
     agent.session
@@ -850,8 +857,9 @@ test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复�
 test('真实宿主任务开始显示运行卡片，结束隐藏，状态读取不追加会话消息', async t => {
   let release;
   const gate = new Promise(resolve => { release = resolve; });
-  const { ctx, agent, say } = await setup(t, async () => { await gate; return '任务完成'; }, true);
+  const { ctx, agent, say, run } = await setup(t, async () => { await gate; return '任务完成'; }, true);
   const read = () => PuaRemote.prototype.getActivity.call({ ctx, agent: () => agent }, agent.id);
+  await run('/pua on');
   assert.equal(read().visible, false);
   const task = say('运行卡片生命周期');
   assert.equal(agent.status, 'running');

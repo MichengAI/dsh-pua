@@ -66,6 +66,8 @@ export interface UiCopy {
   settingsSummary: string;
   cardTitle: string;
   cardToggle: (open: boolean) => string;
+  /** 全局开关只控制命令和聊天入口，不代表会话已注入。 */
+  allow: { label: string; description: string };
   fields: Record<ConfigKey, string>;
   languageChoices: Record<LanguagePref, string>;
   autoFlavor: string;
@@ -82,9 +84,13 @@ export interface UiCopy {
 
 export const UI: Record<UiLang, UiCopy> = {
   zh: {
-    settingsSummary: '全局默认、角色风味与子代理策略。',
+    settingsSummary: '命令与聊天入口、角色风味和子代理策略。',
     cardTitle: 'PUA 配置',
     cardToggle: open => `${open ? '收起' : '展开'}：PUA 配置`,
+    allow: {
+      label: '允许使用 PUA',
+      description: '开启后显示 /pua 和聊天入口。关闭后这两处隐藏，当前会话也不能打开。不会自动注入。',
+    },
     fields: {
       enabled: '开启 PUA', flavor: '风味', mode: '角色模式', subagents: '对子代理启用 PUA',
       terminalReview: '终端异常核验提醒', failureCandidates: '失败升级候选提示', qualityTriggers: '质量纠偏提示',
@@ -96,6 +102,7 @@ export const UI: Record<UiLang, UiCopy> = {
     autoFlavor: '自动选味',
     descriptions: {
       subagents: '默认关闭，避免干扰专家插件。开启后继承父会话生效配置，不继承循环或失败计数。',
+      enabled: '默认关闭。用 /pua 或聊天入口打开后，只注入当前会话。',
       maxIterations: '0 表示不限轮次。保存配置不会启动 Loop。',
       verify: '留空使用模型报告，不代表独立验收通过。命令在会话工作目录执行，启动时可修改。',
       verificationTimeout: '已启动的 Loop 保持启动时确认的参数。',
@@ -110,8 +117,8 @@ export const UI: Record<UiLang, UiCopy> = {
     },
     panel: {
       globalAria: 'PUA 全局配置', sessionAria: 'PUA 会话配置', sessionHeading: '当前会话 PUA',
-      globalNote: '保存为当前 DSH profile 的全局默认；已有会话自定义项保持不变。',
-      sessionNote: n => `仅影响当前会话 · 已自定义 ${n} 项。全局默认只能在「插件」里打开 PUA 后修改。`,
+      globalNote: '控制 /pua 和聊天入口是否可用。已经在会话里单独打开的开关保持不变。',
+      sessionNote: n => `仅影响当前会话 · 已自定义 ${n} 项。会话默认关闭；全局开关只决定命令和入口是否可用。`,
       restoreAll: '恢复全部继承',
       childNote: '子代理的未覆盖项继承父会话生效值；父会话关闭或不允许对子代理启用时，本会话不能强制开启。',
       reload: '重新读取配置',
@@ -144,9 +151,13 @@ export const UI: Record<UiLang, UiCopy> = {
     },
   },
   en: {
-    settingsSummary: 'Global defaults, persona flavor, and subagent policy.',
+    settingsSummary: 'Command and chat entry, persona flavor, and subagent policy.',
     cardTitle: 'PUA settings',
     cardToggle: open => `${open ? 'Collapse' : 'Expand'}: PUA settings`,
+    allow: {
+      label: 'Allow PUA',
+      description: 'Shows /pua and the chat entry. When off, both are hidden and this conversation cannot be turned on. It does not inject by itself.',
+    },
     fields: {
       enabled: 'Enable PUA', flavor: 'Persona flavor', mode: 'Role mode', subagents: 'Enable for subagents',
       terminalReview: 'Terminal anomaly review reminders', failureCandidates: 'Failure escalation hints', qualityTriggers: 'Quality correction prompts',
@@ -157,7 +168,8 @@ export const UI: Record<UiLang, UiCopy> = {
     languageChoices: { auto: 'Auto (follow host)', 'zh-CN': 'Chinese', en: 'English' },
     autoFlavor: 'Auto',
     descriptions: {
-      subagents: 'Off by default to avoid interfering with expert plugins. When enabled, subagents inherit the parent session\'s effective config, not loops or failure counts.',
+      subagents: "Off by default to avoid interfering with expert plugins. When enabled, subagents inherit the parent session's effective config, not loops or failure counts.",
+      enabled: 'Off by default. /pua or the chat entry turns injection on for this conversation only.',
       maxIterations: '0 means unlimited. Saving settings does not start a loop.',
       verify: 'Leave empty to use the model report, which is not an independent check. The command runs in the session working directory and can be changed at loop start.',
       verificationTimeout: 'Running loops keep the parameters confirmed at start.',
@@ -172,8 +184,8 @@ export const UI: Record<UiLang, UiCopy> = {
     },
     panel: {
       globalAria: 'PUA global settings', sessionAria: 'PUA session settings', sessionHeading: 'PUA for this session',
-      globalNote: 'Saved as global defaults for the current DSH profile; existing session overrides are kept.',
-      sessionNote: n => `Affects this session only · ${n} overridden. Global defaults can only be changed from Plugins after enabling PUA.`,
+      globalNote: 'Controls whether /pua and the chat entry are available. Switches already turned on in a conversation stay on.',
+      sessionNote: n => `Affects this conversation only · ${n} overridden. Conversations start off; the global switch only controls the command and chat entry.`,
       restoreAll: 'Restore all inheritance',
       childNote: 'A subagent inherits the parent session for keys it has not overridden; when the parent session is off or disallows subagents, this session cannot force enablement.',
       reload: 'Reload settings',
