@@ -103,6 +103,8 @@ After the current task finishes, reload DSH or restart its Web service. Refreshi
 
 **The global switch only controls whether `/pua` and the chat entry are available. Chat controls and commands affect only the current conversation, which starts off.**
 
+After upgrading, older conversations that were never explicitly turned on or off also return to off. They do not keep injecting. Conversations changed with `/pua on`, `/pua off`, or the chat entry keep their saved switch.
+
 Unchanged options follow global defaults. Editing an option overrides just that option. Choose Restore default to follow the global value again, or restore all options at once.
 
 | Option | What it does |

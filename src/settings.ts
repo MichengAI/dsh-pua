@@ -95,8 +95,8 @@ export class PreferencesBridge {
   defaults(): Partial<PuaState> {
     const config = this.current();
     if (!config) return {};
-    const { alwaysOn: _allowed, ...rest } = config;
-    return { ...rest, flavor: config.flavor === 'auto' ? 'alibaba' : config.flavor, flavorLocked: config.flavor !== 'auto' };
+    const inherited = Object.fromEntries(Object.entries(config).filter(([key]) => key !== 'alwaysOn'));
+    return { ...inherited, flavor: config.flavor === 'auto' ? 'alibaba' : config.flavor, flavorLocked: config.flavor !== 'auto' };
   }
   configuration(): Configuration {
     const config = this.current();
@@ -109,7 +109,7 @@ export class PreferencesBridge {
     const config = this.current();
     return config ? config.alwaysOn : undefined;
   }
-  description(): string { return this.current() ? '仅当前会话；全局默认请在「插件」中打开 PUA 后修改' : '仅当前会话（宿主未提供 settings）'; }
+  description(): string { return this.current() ? '仅当前会话；全局开关请在「插件」中打开「允许使用 PUA」后修改' : '仅当前会话（宿主未提供 settings）'; }
   feedback(): { offline: boolean; frequency: number } {
     const config = this.current();
     return { offline: config?.offline ?? false, frequency: config?.feedbackFrequency ?? 5 };

@@ -222,7 +222,8 @@ test("全局关闭后 /pua 不能打开当前会话，也不注入提示词", as
   await ctx.settings.update("michengai-pua", { alwaysOn: false });
   const blocked = await run("/pua 修复登录");
   assert.equal(blocked.result.kind, "error");
-  assert.match(blocked.result.text, /全局已关闭/);
+  assert.match(blocked.result.text, /允许使用 PUA/);
+  assert.doesNotMatch(blocked.result.text, /打开 PUA 并开启/);
   assert.equal(requests.length, 0);
   assert.equal(ctx.puaConfiguration.store.read(agent.session).enabled, false);
   const status = await run("/pua status");

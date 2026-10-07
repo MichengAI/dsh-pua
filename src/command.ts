@@ -35,7 +35,7 @@ export const HELP = `用法：
 /pua status：查看当前配置
 /pua -- 任务描述：任务以控制命令同名单词开头时使用
 原版冒号命令对应 DSH 空格子命令，例如 /pua:p9 → /pua p9。
-全局默认在「插件」中打开 PUA 修改。设置命名空间：michengai-pua。无 settings 时降级为当前会话，默认关闭。`;
+全局开关在「插件」中打开「允许使用 PUA」修改，只控制命令和聊天入口，不自动注入。设置命名空间：michengai-pua。无 settings 时降级为当前会话，默认关闭。`;
 
 const ENABLING = new Set<Action['kind']>(['on', 'activate', 'review', 'mode', 'loop', 'again', 'done-check', 'evidence', 'kpi', 'survey']);
 function enablesPua(action: Action): boolean {
@@ -81,7 +81,7 @@ export async function handleCommand(store: StateStore, invocation: CommandInvoca
     }
     if (action.kind === 'reap-orphans') return { kind: 'success', text: RESULT_PREFIX + 'DSH 已在取消、异常结束和卸载时回收本插件循环；没有独立后台进程或 .claude 孤儿状态可清理。其他工具的子代理/worktree 由所属工具管理。' };
     if (services?.preferences.globallyEnabled() === false && enablesPua(action)) {
-      return { kind: 'error', text: '全局已关闭 PUA，当前会话不能开启。请在「插件」中打开 @michengai/dsh-pua 并开启后再使用。' };
+      return { kind: 'error', text: '已关闭「允许使用 PUA」，当前会话不能开启。请在「插件」中打开 @michengai/dsh-pua，打开「允许使用 PUA」后再使用。' };
     }
     if (action.kind === 'loop' && action.verify && (!subprocess || !agent.session.header.cwd)) throw new Error('独立验收需要宿主 subprocess 和会话工作目录；未启动循环。');
     // 只读预检完成且未取消后才暂存开关；等待期间不让其他模型请求误用未完成配置。
