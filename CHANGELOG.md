@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.25
+
+### 中文
+
+- 与 dsh-tui 装在同一 profile 时，`/pua` 会被插件接住，不再把命令发给模型。
+- 在拒绝根事件的宿主上，如果卸载正好发生在工具组中途，尚未保存的运行观察可能丢失。官方宿主仍会在下一安全边界保存。
+
+### English
+
+- When dsh-tui is installed in the same profile, `/pua` is handled by the plugin instead of being sent to the model.
+- On a host that denies root events, an observation that has not been saved yet can be dropped if the plugin unloads in the middle of a tool group. Official hosts still save it at the next safe boundary.
+
 ## 0.3.24
 
 ### 中文
