@@ -397,7 +397,20 @@ export class PuaRuntime {
     let disposed = false;
     // 卸载发生在工具组中途时，只保留待写状态的边界监听，写完即撤销。
     // 根上下文监听不注入候选或唤醒模型，也不接管工具生命周期。
-    const stopObserving = ctx.root.on('session/event', (session, event) => {
+    // dsh-tui 会拒绝插件激活期间的 root.events。官方宿主仍保留延后落库；被拒绝时降级为卸载当场尝试写入。
+    let rootEventsDenied = false;
+    const listenAfterUnload = (event: 'session/event' | 'agent/disposed', listener: (...args: any[]) => void): (() => void) => {
+      if (rootEventsDenied) return () => {};
+      try {
+        return ctx.root.on(event, listener as never);
+      } catch (error) {
+        if (!(error instanceof Error) || !/unavailable from a plugin activation/u.test(error.message)) throw error;
+        rootEventsDenied = true;
+        ctx.logger.warn('PUA 当前宿主拒绝激活期根事件监听，卸载中途的待写观察无法延后落库：%s', error.message);
+        return () => {};
+      }
+    };
+    const stopObserving = listenAfterUnload('session/event', (session: Session, event: { type: string }) => {
       if (!this.pendingWrites.has(session) || !['step/end', 'turn/end'].includes(event.type)) return;
       // Session 禁止在事件发布栈重入 append；由已发生的明确边界触发微任务。
       queueMicrotask(() => {
@@ -406,7 +419,7 @@ export class PuaRuntime {
         if (disposed && this.pendingWrites.size === 0) { stopObserving(); stopDisposed(); }
       });
     });
-    const stopDisposed = ctx.root.on('agent/disposed', ({ agent }) => {
+    const stopDisposed = listenAfterUnload('agent/disposed', ({ agent }: { agent: Agent }) => {
       if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA 已销毁会话的未落库观察已释放；未插入不完整工具组。');
       if (disposed && this.pendingWrites.size === 0) { stopObserving(); stopDisposed(); }
     });

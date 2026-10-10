@@ -183,6 +183,67 @@ test('审查预检等待期间不激活；晚到的 off 在审查完成及重建
   assert.match(await prompt(ctx, agent('restored', a.session.snapshotEvents())), /已关闭/);
 });
 
+test('宿主拒绝激活期根事件时仍注册 /pua', async t => {
+  const ctx = new Context();
+  new CommandRuntime(ctx);
+  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  const originalSymbol = Symbol.for('cordis.original');
+  let events = ctx.root.events;
+  const seen = new WeakSet();
+  while (events && typeof events === 'object' && !seen.has(events)) {
+    seen.add(events);
+    const next = events[originalSymbol];
+    if (!next || next === events) break;
+    events = next;
+  }
+  const original = events.on;
+  let denied = 0;
+  Object.defineProperty(events, 'on', {
+    configurable: true,
+    writable: true,
+    value: function (...args) {
+      if (this?.ctx === ctx.root && (args[0] === 'session/event' || args[0] === 'agent/disposed')) {
+        denied += 1;
+        throw new Error('dsh-tui: root.events.on is unavailable from a plugin activation');
+      }
+      return original.apply(this, args);
+    },
+  });
+  t.after(() => { delete events.on; return ctx.fiber.dispose(); });
+  const installed = ctx.plugin(plugin);
+  await installed.await();
+  assert.ok(denied >= 1);
+  const a = agent();
+  assert.equal(ctx.commands.find(a, 'pua')?.name, 'pua');
+  assert.equal((await run(ctx, a, '/pua help')).result.kind, 'success');
+});
+
+test('根事件的其他错误仍阻止激活', async t => {
+  const ctx = new Context();
+  new CommandRuntime(ctx);
+  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  const originalSymbol = Symbol.for('cordis.original');
+  let events = ctx.root.events;
+  const seen = new WeakSet();
+  while (events && typeof events === 'object' && !seen.has(events)) {
+    seen.add(events);
+    const next = events[originalSymbol];
+    if (!next || next === events) break;
+    events = next;
+  }
+  const original = events.on;
+  Object.defineProperty(events, 'on', {
+    configurable: true,
+    writable: true,
+    value: function (...args) {
+      if (this?.ctx === ctx.root && args[0] === 'session/event') throw new Error('root listener failed');
+      return original.apply(this, args);
+    },
+  });
+  t.after(() => { delete events.on; return ctx.fiber.dispose(); });
+  await assert.rejects(ctx.plugin(plugin).await(), /root listener failed/);
+});
+
 test('预检期间取消或卸载，不投递任务且不恢复开启状态', async t => {
   for (const mode of ['cancel', 'unload']) {
     const { ctx, installed } = await setup(t);
