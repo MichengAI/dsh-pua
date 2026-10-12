@@ -1,6 +1,6 @@
 import type { Configuration, LanguagePref } from './configuration.js';
 /** 操作者可见界面文案的语言；模型侧 prompt 与服务端回复不在本地化范围。 */
-export type UiLang = 'zh' | 'en';
+export type UiLang = 'zh' | 'en' | 'ru';
 type ConfigKey = keyof Configuration;
 /** 手动覆盖时才与宿主 locale 解耦；auto 表示跟随宿主。 */
 export declare function resolveUiLang(pref: LanguagePref | undefined, hostLocale: string | undefined): UiLang;
@@ -9,7 +9,7 @@ type Lookup = {
 };
 /** 读取宿主 locale 服务当前 active 值；缺失或形态不符时返回 undefined。 */
 export declare function hostLocaleOf(lookup: Lookup): string | undefined;
-/** 风味显示名；en 无映射或 zh 未登记时回退原 id。 */
+/** 风味显示名；en/ru 无映射或 zh 未登记时回退原 id。 */
 export declare function flavorLabel(id: string, lang: UiLang): string;
 export interface LoopCopy {
     summary: string;

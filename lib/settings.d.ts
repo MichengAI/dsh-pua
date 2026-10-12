@@ -13,7 +13,7 @@ export declare const SETTINGS_SCHEMA: Schema<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en", "auto" | "zh-CN" | "en", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -28,7 +28,7 @@ export declare const SETTINGS_SCHEMA: Schema<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en", "auto" | "zh-CN" | "en", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -48,7 +48,7 @@ export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en", "auto" | "zh-CN" | "en", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -63,7 +63,7 @@ export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en", "auto" | "zh-CN" | "en", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;

@@ -38,6 +38,7 @@ export declare const snapshotSchema: z.ZodObject<{
             auto: "auto";
             "zh-CN": "zh-CN";
             en: "en";
+            ru: "ru";
         }>;
         subagents: z.ZodBoolean;
         terminalReview: z.ZodBoolean;
@@ -86,6 +87,7 @@ export declare const snapshotSchema: z.ZodObject<{
             auto: "auto";
             "zh-CN": "zh-CN";
             en: "en";
+            ru: "ru";
         }>;
         subagents: z.ZodBoolean;
         terminalReview: z.ZodBoolean;
@@ -134,6 +136,7 @@ export declare const snapshotSchema: z.ZodObject<{
             auto: "auto";
             "zh-CN": "zh-CN";
             en: "en";
+            ru: "ru";
         }>>;
         subagents: z.ZodOptional<z.ZodBoolean>;
         terminalReview: z.ZodOptional<z.ZodBoolean>;
@@ -186,6 +189,7 @@ export declare const activitySchema: z.ZodObject<{
             auto: "auto";
             "zh-CN": "zh-CN";
             en: "en";
+            ru: "ru";
         }>;
         subagents: z.ZodBoolean;
     }, z.core.$strict>;

@@ -3,8 +3,8 @@ import { FLAVORS } from './flavors.js';
 
 /** 全局默认与会话覆盖共用的参数契约；null 仅在覆盖补丁中表示恢复继承。 */
 export const CONFIG_MODES = ['pua', 'p7', 'p9', 'p10', 'pro', 'yes', 'mama', 'shot', 'pua-en', 'pua-ja'] as const;
-/** 操作者界面语言：auto 跟随宿主 locale，手动覆盖为 zh-CN 或 en。 */
-export const LANGUAGE_PREFS = ['auto', 'zh-CN', 'en'] as const;
+/** 操作者界面语言：auto 跟随宿主 locale，手动覆盖为 zh-CN、en 或 ru。 */
+export const LANGUAGE_PREFS = ['auto', 'zh-CN', 'en', 'ru'] as const;
 export type LanguagePref = (typeof LANGUAGE_PREFS)[number];
 export const configSchema = z.object({
   enabled: z.boolean(),

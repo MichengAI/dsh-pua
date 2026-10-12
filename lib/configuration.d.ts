@@ -1,8 +1,8 @@
 import { z } from 'zod';
 /** 全局默认与会话覆盖共用的参数契约；null 仅在覆盖补丁中表示恢复继承。 */
 export declare const CONFIG_MODES: readonly ["pua", "p7", "p9", "p10", "pro", "yes", "mama", "shot", "pua-en", "pua-ja"];
-/** 操作者界面语言：auto 跟随宿主 locale，手动覆盖为 zh-CN 或 en。 */
-export declare const LANGUAGE_PREFS: readonly ["auto", "zh-CN", "en"];
+/** 操作者界面语言：auto 跟随宿主 locale，手动覆盖为 zh-CN、en 或 ru。 */
+export declare const LANGUAGE_PREFS: readonly ["auto", "zh-CN", "en", "ru"];
 export type LanguagePref = (typeof LANGUAGE_PREFS)[number];
 export declare const configSchema: z.ZodObject<{
     enabled: z.ZodBoolean;
@@ -40,6 +40,7 @@ export declare const configSchema: z.ZodObject<{
         auto: "auto";
         "zh-CN": "zh-CN";
         en: "en";
+        ru: "ru";
     }>;
     subagents: z.ZodBoolean;
     terminalReview: z.ZodBoolean;
@@ -86,6 +87,7 @@ export declare const patchSchema: z.ZodObject<{
         auto: "auto";
         "zh-CN": "zh-CN";
         en: "en";
+        ru: "ru";
     }>>> | z.ZodOptional<z.ZodNullable<z.ZodNumber>> | z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, z.core.$strict>;
 export type ConfigurationPatch = {

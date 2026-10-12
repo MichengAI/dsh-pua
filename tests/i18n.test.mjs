@@ -41,10 +41,10 @@ test('UI 文案表：zh 与 en 结构一致，字段覆盖全部配置键', () =
   assert.deepEqual(Object.keys(UI.en.panel).sort(), Object.keys(UI.zh.panel).sort());
   assert.deepEqual(Object.keys(UI.en.panel.loop).sort(), Object.keys(UI.zh.panel.loop).sort());
   assert.deepEqual(Object.keys(UI.en.composer).sort(), Object.keys(UI.zh.composer).sort());
-  for (const lang of ['zh', 'en']) {
+  for (const lang of ['zh', 'en', 'ru']) {
     for (const key of CONFIG_KEYS) assert.ok(UI[lang].fields[key], `${lang} 缺少字段标签：${key}`);
   }
-  assert.deepEqual(Object.keys(UI.zh.languageChoices), ['auto', 'zh-CN', 'en']);
+  assert.deepEqual(Object.keys(UI.zh.languageChoices), ['auto', 'zh-CN', 'en', 'ru']);
 });
 
 test('UI 中文文案保持现状，不因本地化改动既有界面', () => {
@@ -71,6 +71,25 @@ test('UI 英文文案完整存在且不含中文字符', () => {
   assert.equal(UI.en.allow.label, 'Allow PUA');
   assert.equal(UI.en.fields.enabled, 'Enable PUA');
   assert.equal(UI.en.fields.language, 'UI language');
+});
+
+test('UI 俄语文案完整存在且不含中文字符', () => {
+  const ru = strings(UI.ru);
+  assert.ok(ru.length > 60, `俄语文案条目过少：${ru.length}`);
+  for (const text of ru) assert.ok(text.length > 0);
+  for (const text of ru) assert.ok(!CJK.test(text), `俄语文案混入中文：${text}`);
+  assert.equal(UI.ru.settingsSummary, 'Команды и чат-вход, персона-вкус и политика для под-агентов.');
+  assert.equal(UI.ru.allow.label, 'Разрешить PUA');
+  assert.equal(UI.ru.fields.enabled, 'Включить PUA');
+  assert.equal(UI.ru.fields.language, 'Язык интерфейса');
+  assert.equal(UI.ru.panel.sessionHeading, 'PUA для этой сессии');
+});
+
+test('resolveUiLang：俄语宿主 locale 走 ru', () => {
+  assert.equal(resolveUiLang('auto', 'ru'), 'ru');
+  assert.equal(resolveUiLang('auto', 'ru-RU'), 'ru');
+  assert.equal(resolveUiLang('ru', 'en-US'), 'ru');
+  assert.equal(resolveUiLang(undefined, 'ru'), 'ru');
 });
 
 test('flavorLabel：en 用英文名，zh 用原表，未知 id 原样返回', () => {
@@ -106,10 +125,11 @@ test('ACTIVITY 文案表：结构一致、中文保持现状、英文不含中�
   assert.equal(ACTIVITY.en.iteration(3, 0), 'Round 3');
 });
 
-test('配置契约：language 默认 auto，可覆盖为 zh-CN / en，拒绝未知值', () => {
+test('配置契约：language 默认 auto，可覆盖为 zh-CN / en / ru，拒绝未知值', () => {
   assert.equal(CONFIG_DEFAULTS.language, 'auto');
   assert.ok(CONFIG_KEYS.includes('language'));
   assert.deepEqual(parsePatch({ language: 'en' }), { language: 'en' });
+  assert.deepEqual(parsePatch({ language: 'ru' }), { language: 'ru' });
   assert.equal(parsePatch({ language: null }).language, null);
   assert.equal(configSchema.safeParse({ ...CONFIG_DEFAULTS, language: 'fr' }).success, false);
 });
