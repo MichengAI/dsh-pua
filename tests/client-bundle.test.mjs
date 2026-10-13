@@ -186,11 +186,12 @@ test('运行卡片操作按钮与 BTW 一样用圆形图标，不用详情文字
   assert.doesNotMatch(js, /\\u8BE6\\u60C5/);
 });
 
-test('弹窗关闭按钮带 pua-close 样式与图标，且会话面板不暴露语言选择', () => {
+test('弹窗关闭按钮带 pua-close 样式与图标，且会话面板不暴露语言选择并透传 hostLocale', () => {
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
   assert.match(js, /\.pua-close\{position:absolute;right:16px;top:16px;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px/);
   assert.match(js, /\.pua-close svg\{width:16px;height:16px;flex:none\}/);
   assert.ok(js.includes('["enabled","flavor","mode","subagents"]'));
+  assert.match(js, /sessionId:[a-z],hostLocale:[a-z],onLoopStarted:/);
 });
 
 test('客户端 sourcemap 来自最终 bundle 并包含依赖模块映射', () => {
