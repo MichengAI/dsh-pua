@@ -1,5 +1,19 @@
 # 更新记录
 
+## 0.3.27
+
+### 中文
+
+- 支持俄语（`ru`）界面本地化文案与俄语说明文档（由 @S-ker 贡献）。
+- 弹窗关闭按钮优化为图标按钮样式，增加悬停与聚焦交互。
+- 语言设置项收敛至全局配置，会话面板严格继承全局语言偏好。
+
+### English
+
+- Add Russian (`ru`) UI locale and Russian README translation (contributed by @S-ker).
+- Refine modal close button into an icon button with hover and focus states.
+- Restrict language setting to global configuration and ensure session panels inherit the global preference.
+
 ## 0.3.26
 
 ### 中文
