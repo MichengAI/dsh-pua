@@ -1,5 +1,17 @@
 # 更新记录
 
+## 0.3.28
+
+### 中文
+
+- 支持 DSH `0.2.1-alpha.3`，继续兼容既有已支持版本；开发依赖对齐宿主 `0.2.1-alpha.3`（含 Cordis `4.0.5-alpha.2`、Schemastery `3.18.5-alpha.2`）。
+- 无插件生产 API 破坏性改动；回归夹具为 alpha.3 持久 bash/pwsh 补上 `workingDirectory` 注入。
+
+### English
+
+- Support DSH `0.2.1-alpha.3` while retaining all existing supported versions; pin development dependencies to host `0.2.1-alpha.3` (including Cordis `4.0.5-alpha.2` and Schemastery `3.18.5-alpha.2`).
+- No production plugin API breaks; regression fixtures supply the `workingDirectory` inject required by alpha.3 persistent bash/pwsh.
+
 ## 0.3.27
 
 ### 中文

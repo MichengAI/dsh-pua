@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Context } from '@deepseek-ai/cordis';
+import { Context, Service } from '@deepseek-ai/cordis';
 import { AgentRegistry } from '@deepseek-ai/dsh-agent';
 import { AgentLoop } from '@deepseek-ai/dsh-agent-loop';
 import { SessionStore } from '@deepseek-ai/dsh-session';
@@ -25,6 +25,14 @@ for (const [name, plugin] of [['pwsh', pwsh], ['bash', bash]]) {
     new SessionProjectionRegistry(ctx); new CommandRuntime(ctx);
     new SystemPrompt(ctx, { includeHarnessIdentity: false }); new ToolRuntime(ctx);
     new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+    // alpha.3：持久 bash/pwsh 注入 workingDirectory；夹具提供最小实现即可。
+    class MemoryWorkingDirectory extends Service {
+      constructor(context) { super(context, 'workingDirectory'); }
+      get(session) { return session.header.cwd ?? process.cwd(); }
+      async ensure(agent) { return agent.session.header.cwd ?? process.cwd(); }
+      async set(_agent, path) { return path; }
+    }
+    new MemoryWorkingDirectory(ctx);
     const terminals = new TerminalSessionService(ctx);
     let scenario = { text: '诊断输出', exitCode: 1 };
     terminals.registerBackend({ type: 'fixture', async spawn() {
