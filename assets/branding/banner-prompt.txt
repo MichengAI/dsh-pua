@@ -1,11 +1,15 @@
-为 GitHub 项目 DSH PUA 制作一张精致的超宽 README banner，尺寸 2400×800，3:1。参考输入的 DSH Codex UI banner 的视觉语言：深海军蓝至靛紫渐变背景、细微星点、青蓝与紫色霓虹细边框、圆角面板、克制的科技产品设计。不是复制原图内容，不出现 Codex UI 名称、插件数量或原来的插件清单。
+Create a refined ultra-wide README banner for the GitHub project DSH PUA, size 2400x800, 3:1. Use the visual language of the input DSH Codex UI banner as reference: a deep navy-to-indigo gradient background, subtle star specks, thin cyan-blue and purple neon borders, rounded panels, restrained tech-product design. Do not copy the original image's content; do not show the Codex UI name, plugin counts, or the original plugin list.
 
-版式：左侧 42% 是清晰的英文品牌与介绍，右侧 58% 是有层次的任务改进与验收示意。安全边距至少 60 像素。
-左上胶囊标记精确文字：DSH PLUGIN ECOSYSTEM
-左侧主标题精确文字：DSH PUA，白色超大粗体，PUA 可使用青蓝到紫色渐变。
-副标题精确文字：Try another way.
-下一行精确文字：Verify before done.
-下方三个小胶囊，精确文字：15 Styles / Session Controls / Verification Loops
-右侧：三个有细线连接的精致圆角任务卡片，从左上向右下有节奏排布，表达重新思考、换方法、验证结果。三张卡片标题依次为 RETHINK、RETRY、VERIFY。使用放大镜、环形箭头、绿色勾选三个干净的线性图标。卡片里只用抽象的短横线和进度块，不伪造真实软件界面、不画密集不可读文字。用细小青色连线组成一个循环，在 VERIFY 卡片突出清晰的绿色勾选，表达验收。
-底部一行小字精确文字：Built for DeepSeek Harness
-整体高端、清爽、可读，视觉与参考图属于同一产品系列。只包含以上指定英文，不添加中文、无意义文字、额外标签、水印、商标或人物。不使用夸张炫光，不做拥挤仪表盘。
+Layout: the left 42% is clear English branding and introduction; the right 58% is a layered task-improvement and acceptance illustration. Safe margins of at least 60 pixels.
+
+Top-left capsule mark, exact text: DSH PLUGIN ECOSYSTEM
+Left main title, exact text: DSH PUA, oversized white bold, with PUA allowed to use a cyan-blue-to-purple gradient.
+Subtitle, exact text: Try another way.
+Next line, exact text: Verify before done.
+Three small capsules below, exact text: 15 Styles / Session Controls / Verification Loops
+
+Right side: three refined rounded task cards connected by thin lines, arranged with rhythm from upper-left to lower-right, expressing rethink, change approach, verify results. The three card titles are RETHINK, RETRY, VERIFY in that order. Use three clean linear icons: a magnifying glass, a circular arrow, and a green check mark. Inside the cards use only abstract short dashes and progress blocks; do not fake a real software interface and do not draw dense unreadable text. Form a loop from thin cyan connector lines, and highlight a clear green check mark on the VERIFY card to express acceptance.
+
+Bottom line of small text, exact text: Built for DeepSeek Harness
+
+Overall high-end, clean, readable, visibly from the same product family as the reference image. Include only the English specified above: no Chinese, no meaningless text, no extra labels, no watermark, no trademark, no people. No exaggerated lens flares, no crowded dashboard.

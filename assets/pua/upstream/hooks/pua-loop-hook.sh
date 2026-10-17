@@ -39,12 +39,14 @@ HOOK_INPUT=$(cat)
 # ═══════════════════════════════════════════════════════════════
 # Gate 0 — Defensive Subagent Isolation
 #
-# Claude Code 官方实际：Stop hook 仅主会话触发，subagent 走独立的
-# SubagentStop 事件注册；`parent_session_id` 字段在 Stop payload 中
-# 不存在。以下判断在当前版本是 dead code，**保留是防御性编程**——
-# 若未来调度行为变化，这层 gate 能兜住 regression。
-# jq 失败（非法 JSON）时返回空字符串不触发 set -e，等价于 fail-open
-# 但后续 state 文件解析会再次校验，综合不可劫持。
+# Claude Code reality: the Stop hook fires only for the main session; subagents go
+# through the separate SubagentStop event registration, and `parent_session_id`
+# does not exist in the Stop payload. The check below is dead code in the current
+# version; **keeping it is defensive programming** - if dispatch behavior changes
+# later, this gate catches the regression.
+# When jq fails (invalid JSON) it returns an empty string without tripping set -e,
+# which is equivalent to fail-open, but the later state-file parse re-validates,
+# so the combination cannot be hijacked.
 # ═══════════════════════════════════════════════════════════════
 HOOK_EVENT=$(echo "$HOOK_INPUT" | jq -r '.hook_event_name // ""' 2>/dev/null || echo "")
 PARENT_SESSION=$(echo "$HOOK_INPUT" | jq -r '.parent_session_id // ""' 2>/dev/null || echo "")
@@ -54,9 +56,9 @@ fi
 
 # ═══════════════════════════════════════════════════════════════
 # State file resolution (v3.2)
-# 用 cwd 哈希命名：$HOME/.claude/pua/loop-<hash>.md（每个项目目录独立）
-# 兼容 v3.1 单文件 loop-active.md（检查 started_cwd 匹配）
-# 兼容 legacy .claude/pua-loop.local.md
+# Named by cwd hash: $HOME/.claude/pua/loop-<hash>.md (independent per project directory)
+# Compatible with the v3.1 single file loop-active.md (checks started_cwd match)
+# Compatible with legacy .claude/pua-loop.local.md
 # ═══════════════════════════════════════════════════════════════
 HOOK_SESSION_ID=$(echo "$HOOK_INPUT" | jq -r '.session_id // ""' 2>/dev/null || echo "")
 PUA_DIR="${HOME}/.claude/pua"
@@ -68,7 +70,7 @@ LEGACY_STATE_FILE=".claude/pua-loop.local.md"
 if [[ -f "$ABS_STATE_FILE" ]]; then
   RALPH_STATE_FILE="$ABS_STATE_FILE"
 elif [[ -f "$LEGACY_ABS_STATE_FILE" ]]; then
-  # v3.1 兼容：旧版单文件，检查 started_cwd 是否匹配当前目录
+  # v3.1 compatibility: old single file; check whether started_cwd matches the current directory
   LEGACY_CWD=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$LEGACY_ABS_STATE_FILE" | grep '^started_cwd:' | sed 's/started_cwd: *//' | sed 's/^"\(.*\)"$/\1/' || true)
   if [[ "$LEGACY_CWD" == "$(pwd)" ]] || [[ -z "$LEGACY_CWD" ]]; then
     RALPH_STATE_FILE="$LEGACY_ABS_STATE_FILE"
@@ -85,8 +87,8 @@ fi
 
 # ═══════════════════════════════════════════════════════════════
 # Stale lock detection
-# mtime > 30min 视为孤儿 state（上次会话崩溃、subagent 遗留），清理退出。
-# macOS 用 stat -f %m，Linux 用 stat -c %Y，兜底 0。
+# An mtime older than 30min counts as an orphan state (previous session crashed, subagent leftover); clean up and exit.
+# macOS uses stat -f %m, Linux uses stat -c %Y, fallback 0.
 # ═══════════════════════════════════════════════════════════════
 MTIME=$(stat -f %m "$RALPH_STATE_FILE" 2>/dev/null || stat -c %Y "$RALPH_STATE_FILE" 2>/dev/null || echo 0)
 NOW=$(date +%s)
@@ -257,16 +259,16 @@ if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
 
         # Build rejection system message with verify output
         VERIFY_DISPLAY=$(echo "$VERIFY_OUTPUT" | tail -10)
-        REJECTION_MSG="🚫 PROMISE 被 Oracle 拒绝！verify_command 退出码 ${VERIFY_EXIT}（连续第 ${PROMISE_REJECTIONS} 次拒绝）"
+        REJECTION_MSG="🚫 PROMISE rejected by the Oracle! verify_command exit code ${VERIFY_EXIT} (rejection ${PROMISE_REJECTIONS} in a row)"
 
         # Stall escalation on repeated rejections
         if [[ $PROMISE_REJECTIONS -ge 5 ]]; then
-          REJECTION_MSG="$REJECTION_MSG | ⚠️ 已连续 ${PROMISE_REJECTIONS} 次虚假 promise！你在解决错误的问题。退回到需求本身重新理解。读 .claude/pua-loop-history.jsonl 了解失败模式。"
+          REJECTION_MSG="$REJECTION_MSG | ⚠️ ${PROMISE_REJECTIONS} false promises in a row! You are solving the wrong problem. Go back to the requirement and re-understand it. Read .claude/pua-loop-history.jsonl to learn the failure pattern."
         elif [[ $PROMISE_REJECTIONS -ge 3 ]]; then
-          REJECTION_MSG="$REJECTION_MSG | ⚠️ 连续 ${PROMISE_REJECTIONS} 次验证失败。REASSESS：重读验证输出、搜索相关源码、列 3 个不同假设再行动。不要再用同样的方法。"
+          REJECTION_MSG="$REJECTION_MSG | ⚠️ ${PROMISE_REJECTIONS} consecutive verification failures. REASSESS: re-read the verification output, search the relevant source, list 3 different hypotheses before acting. Do not use the same method again."
         fi
 
-        SYSTEM_MSG="$REJECTION_MSG | 验证输出(tail): $VERIFY_DISPLAY"
+        SYSTEM_MSG="$REJECTION_MSG | verification output (tail): $VERIFY_DISPLAY"
 
         jq -n \
           --arg prompt "$PROMPT_TEXT" \
@@ -312,38 +314,38 @@ mv "$TEMP_FILE" "$RALPH_STATE_FILE"
 
 # ─── Pressure system ───
 
-SIGNAL_HINT="终止用 <loop-abort>原因</loop-abort>，需人工介入用 <loop-pause>需要什么</loop-pause>"
+SIGNAL_HINT="To abort, use <loop-abort>reason</loop-abort>; to request human help, use <loop-pause>what you need</loop-pause>"
 
 # Pressure escalation (no artificial cap)
 if [[ $NEXT_ITERATION -le 3 ]]; then
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮迭代，稳步推进。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION}; steady progress."
 elif [[ $NEXT_ITERATION -le 7 ]]; then
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮了还没搞定？换方案，别原地打转。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION} and still not done? Change the approach; stop spinning in place."
 elif [[ $NEXT_ITERATION -le 15 ]]; then
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮。底层逻辑到底是什么？先 git log 看自己做了什么，读 .claude/pua-loop-history.jsonl 了解迭代历史。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION}. What is the underlying logic, really? Run git log to see what you actually did, and read .claude/pua-loop-history.jsonl for the iteration history."
 elif [[ $NEXT_ITERATION -le 30 ]]; then
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮。3.25 的边缘了。穷尽了吗？git diff 确认没在重复。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION}. You are on the edge of a 3.25. Have you exhausted it? Run git diff and confirm you are not repeating yourself."
 elif [[ $NEXT_ITERATION -le 50 ]]; then
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮。停下来重新审视：问题的根因到底是什么？用完全不同的思路。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION}. Stop and re-examine: what is the root cause? Take a completely different line of thought."
 elif [[ $NEXT_ITERATION -le 100 ]]; then
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮。马拉松模式。退回去从需求本身重新质疑（The Algorithm: question the requirement）。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION}. Marathon mode. Go back and question the requirement itself (The Algorithm: question the requirement)."
 else
-  PUA_PRESSURE="▎ 第 ${NEXT_ITERATION} 轮。超长迭代。如果任务真的无法在 loop 内完成，用 <loop-abort> 诚实报告。"
+  PUA_PRESSURE="▎ Iteration ${NEXT_ITERATION}. Extremely long iteration. If the task truly cannot be finished inside the loop, report it honestly with <loop-abort>."
 fi
 
 # Stall warning from promise rejections (autoresearch-style)
 STALL_MSG=""
 if [[ $PROMISE_REJECTIONS -ge 5 ]]; then
-  STALL_MSG=" | ⚠️ Oracle 已连续拒绝 ${PROMISE_REJECTIONS} 次。你在解决错误的问题。读 history.jsonl，用完全不同的方案。"
+  STALL_MSG=" | ⚠️ The Oracle has rejected ${PROMISE_REJECTIONS} times in a row. You are solving the wrong problem. Read history.jsonl and use a completely different approach."
 elif [[ $PROMISE_REJECTIONS -ge 3 ]]; then
-  STALL_MSG=" | ⚠️ Oracle 连续拒绝 ${PROMISE_REJECTIONS} 次。REASSESS：读验证输出，列 3 个不同假设。"
+  STALL_MSG=" | ⚠️ The Oracle rejected ${PROMISE_REJECTIONS} times in a row. REASSESS: read the verification output and list 3 different hypotheses."
 elif [[ $PROMISE_REJECTIONS -ge 1 ]]; then
-  STALL_MSG=" | 上次 promise 被 Oracle 拒绝（共 ${PROMISE_REJECTIONS} 次）。修复验证问题后再声称完成。"
+  STALL_MSG=" | The last promise was rejected by the Oracle (${PROMISE_REJECTIONS} total). Fix the verification problem before claiming completion."
 fi
 
 # Build system message
 if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
-  SYSTEM_MSG="${PUA_PRESSURE}${STALL_MSG} | 完成后输出 <promise>$COMPLETION_PROMISE</promise> (ONLY when TRUE) | $SIGNAL_HINT"
+  SYSTEM_MSG="${PUA_PRESSURE}${STALL_MSG} | When done, output <promise>$COMPLETION_PROMISE</promise> (ONLY when TRUE) | $SIGNAL_HINT"
 else
   SYSTEM_MSG="${PUA_PRESSURE}${STALL_MSG} | $SIGNAL_HINT"
 fi

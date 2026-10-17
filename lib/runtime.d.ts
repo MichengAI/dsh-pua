@@ -24,14 +24,14 @@ interface RuntimeState {
     loop?: LoopState;
 }
 export declare function pluginMessage(text: string): UserMessage;
-/** 与原版一样，只接受终端结果的直接结构字段，不从 stdout 或嵌套 JSON 猜失败。 */
+/** Like the original, only the terminal result's direct structural fields count; never guess a failure from stdout or nested JSON. */
 export declare function isTerminalFailure(result: Readonly<ToolExecutionResult>): boolean;
-/** 独立验收执行用户提供的命令，120 秒超时；输出只作为证据，不作为指令。 */
+/** Runs the user-provided command for independent acceptance with a 120-second timeout; output is evidence, never instruction. */
 export declare function verifyLoop(subprocess: Pick<SubprocessRuntime, "spawn">, command: string, cwd: string, signal: AbortSignal, timeoutMs?: number): Promise<{
     ok: boolean;
     detail: string;
 }>;
-/** 生命周期移植；完整状态留在日志，通过宿主 surface 替换只向模型提供说明。 */
+/** Lifetime port; full state stays in the log, and only the note reaches the model via a host surface replacement. */
 export declare class PuaRuntime {
     private readonly ctx;
     private readonly store;
@@ -54,7 +54,7 @@ export declare class PuaRuntime {
     private hideLegacyRecords;
     cancel(session: Session, persist?: boolean): void;
     cancelAll(): number;
-    /** 仅返回界面需要的观察数据，不暴露验收命令、任务原文或历史 JSON。 */
+    /** Returns only the observation data the UI needs, never the acceptance command, the original task text, or historical JSON. */
     activity(session: Session): {
         verifying: boolean;
         failureCount: number;

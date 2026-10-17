@@ -3,42 +3,42 @@ description: "Use when the user invokes /pua or asks for PUA mode, try-harder/re
 argument-hint: "[p7|p9|p10|pro|yes|mama|loop|on|off|offline|kpi|survey|flavor|ding|again|done-check|evidence|task]"
 ---
 
-根据参数执行不同操作。
+Perform different actions based on the argument.
 
-## ⚠️ 加载方式（重要）
+## ⚠️ Loading method (important)
 
-**不要用 Skill tool 加载 `pua:pua` 或 `pua`**——会导致循环加载本 router。正确做法：
+**Do not use the Skill tool to load `pua:pua` or `pua`**—it causes this router to load recursively. The correct way:
 
-- **核心 PUA skill**（无参数/任务描述）：用 Read 工具直接读取本插件目录下的 `skills/pua/SKILL.md`，然后按其中的行为协议执行。需要面板时再读取 `skills/pua/references/display-protocol.md` 获取格式。
-- **子 skill**（p7/p9/p10/pro/yes/mama/pua-loop/shot/pua-en/pua-ja）：用 Read 工具读取 `skills/<name>/SKILL.md`。
-- **轻量命令**（again/done-check/evidence/ding/flavor/on/off/kpi/survey 等）：你已经在读本文件了，直接执行下方对应路由的指令。
+- **Core PUA skill** (no argument / task description): use the Read tool to read `skills/pua/SKILL.md` directly under this plugin directory, then execute per the behavior protocol inside it. Read `skills/pua/references/display-protocol.md` for the format when a panel is needed.
+- **Sub-skills** (p7/p9/p10/pro/yes/mama/pua-loop/shot/pua-en/pua-ja): use the Read tool to read `skills/<name>/SKILL.md`.
+- **Lightweight commands** (again/done-check/evidence/ding/flavor/on/off/kpi/survey and so on): you are already reading this file, so just execute the instruction of the matching route below.
 
-插件根目录以本次宿主提供的 `CLAUDE_PLUGIN_ROOT`（插件根目录）或本命令的真实安装位置为准；若命令位于 `<插件根>/commands/pua.md`，根目录是 `commands` 的上一级，不是 `skills/pua` 的父目录。下文的 `skills/...` 与 `commands/...` 都相对该根目录，读取时使用解析后的绝对路径。不假定克隆文件夹名，不全盘 Glob（文件匹配）搜索，不递归加载本 router（路由命令）。
+The plugin root is the host-provided `CLAUDE_PLUGIN_ROOT` (plugin root directory) for this run or the real install location of this command; if the command lives at `<plugin-root>/commands/pua.md`, the root is the parent of `commands`, not the parent of `skills/pua`. The `skills/...` and `commands/...` below are relative to that root; use the resolved absolute path when reading. Do not assume the clone folder name, do not Glob (file matching) across the whole disk, do not recursively load this router (routing command).
 
-## 参数路由
+## Argument routing
 
-- **无参数** 或任务描述 → 用 Read 读取 `skills/pua/SKILL.md`，按其行为协议执行；需要面板时再读展示协议（默认使用已配置味道；未配置时为阿里味）
-- **p7** → Read `skills/p7/SKILL.md`（P7 骨干模式 — 方案驱动执行）
-- **p9** → Read `skills/p9/SKILL.md`（P9 Tech Lead — 写 Prompt 管 P8 团队）
-- **p10** → Read `skills/p10/SKILL.md`（P10 CTO — 定战略管 P9）
-- **pro** → Read `skills/pro/SKILL.md`（自进化 + Platform + /pua 指令系统）
-- **yes** → Read `skills/yes/SKILL.md`（SB Leader 夸夸模式 — ENFP 型领导，70% 鼓励 + 20% 正经 + 10% 戏谑）
-- **mama** → Read `skills/mama/SKILL.md`（妈妈唠叨模式 — 中国式妈妈碎碎念，底层行为不变，旁白从大厂PUA变成妈妈唠叨。和 yes 互斥）
-- **on** → 开启 PUA 默认模式：将 `{"always_on": true}` 写入 `~/.pua/config.json`，之后每次新会话自动加载 PUA 核心 skill。输出确认：> [PUA ON] 从现在起，每个新会话都会自动进入 PUA 模式。公司不养闲 Agent。
-- **off** → 关闭 PUA 默认模式：将 `{"always_on": false, "feedback_frequency": 0}` 写入 `~/.pua/config.json`。输出确认：> [PUA OFF] PUA 默认模式和反馈收集已关闭。需要时手动 /pua 触发。
-- **offline** → 开启离线模式：写入 `{"offline": true, "feedback_frequency": 0}`，保留本地 PUA 行为但关闭本地反馈问卷。输出确认：> [PUA OFFLINE] 已进入离线模式。（注：PUA Skill 本身已无任何联网上报，此开关只影响本地问卷是否弹出）
-- **味道** 或 **flavor** → 读取 `skills/pua/references/flavors.md` 并让用户选择切换味道
-- **ding** / **钉味** / **置身钉外** / **置身钉内** / **每日一包** / **薛定谔的用户** / **病态敏捷** / **望舒行动** → 读取 `skills/pua/references/methodology-ding.md` 和 `skills/pua/references/ding-reminders.md`，启用 📌 钉内/钉外味（源自原文梗）
-- **again** / **再试试** / **换个方法** → 按 `commands/again.md` 的换方法模式执行：停止微调同一思路，改用本质不同方案
-- **done-check** / **没跑测试别说完成** → 按 `commands/done-check.md` 的完成质量检查执行：区分 claim/evidence/missing/status
-- **evidence** / **证据呢** / **数据在哪** → 按 `commands/evidence.md` 的证据链模式执行：目标、证据、缺口、动作、状态
-- **kpi** → Read `skills/pro/SKILL.md` 并生成 KPI 报告卡
-- **loop** → Read `skills/pua-loop/SKILL.md`（自动迭代模式——PUA 质量 + 循环机制，禁用 AskUserQuestion；Claude 输出 `<loop-abort>原因</loop-abort>` 终止，`<loop-pause>需要什么</loop-pause>` 暂停等待人工）
-- **survey** → 读取 `skills/pua/references/survey.md` 问卷文件，用 AskUserQuestion 逐部分交互式引导用户回答。每部分 2-4 个问题一组，用户回答后进入下一部分。回答完毕后汇总为 JSON 写入 `~/.pua/survey-response.json`。**只写本地，不上传到任何地址。**
+- **No argument** or a task description → use Read to load `skills/pua/SKILL.md` and execute per its behavior protocol; read the display protocol when a panel is needed (use the configured flavor by default; Alibaba flavor when unconfigured)
+- **p7** → Read `skills/p7/SKILL.md` (P7 backbone mode — plan-driven execution)
+- **p9** → Read `skills/p9/SKILL.md` (P9 Tech Lead — write prompts, manage a P8 team)
+- **p10** → Read `skills/p10/SKILL.md` (P10 CTO — set strategy, manage P9)
+- **pro** → Read `skills/pro/SKILL.md` (self-evolution + Platform + /pua command system)
+- **yes** → Read `skills/yes/SKILL.md` (SB Leader praise mode — ENFP-style leader, 70% encouragement + 20% serious + 10% banter)
+- **mama** → Read `skills/mama/SKILL.md` (mom nagging mode — Chinese-mom-style rambling, the underlying behavior unchanged, narration switched from big-tech PUA to mom nagging. Mutually exclusive with yes)
+- **on** → Turn on PUA default mode: write `{"always_on": true}` to `~/.pua/config.json`, after which every new session auto-loads the PUA core skill. Output confirmation: > [PUA ON] From now on, every new session automatically enters PUA mode. The company does not keep idle Agents.
+- **off** → Turn off PUA default mode: write `{"always_on": false, "feedback_frequency": 0}` to `~/.pua/config.json`. Output confirmation: > [PUA OFF] PUA default mode and feedback collection are off. Trigger manually with /pua when needed.
+- **offline** → Turn on offline mode: write `{"offline": true, "feedback_frequency": 0}`, keeping local PUA behavior but disabling the local feedback survey. Output confirmation: > [PUA OFFLINE] Offline mode entered. (Note: PUA Skill itself no longer has any network reporting; this switch only affects whether the local survey pops up)
+- **flavor** / **switch flavor** → read `skills/pua/references/flavors.md` and let the user choose a flavor to switch to
+- **ding** / **Ding flavor** / **Standing Outside the Ding** / **Standing Inside the Ding** / **daily pack** / **Schrodinger's user** / **pathological agility** / **Wangshu operation** → read `skills/pua/references/methodology-ding.md` and `skills/pua/references/ding-reminders.md`, enable the 📌 Ding-inside/Ding-outside flavor (from the original memes)
+- **again** / **try again** / **change approach** → execute per the change-approach mode in `commands/again.md`: stop micro-tuning the same idea, switch to a fundamentally different approach
+- **done-check** / **do not say done without running tests** → execute per the completion quality check in `commands/done-check.md`: distinguish claim/evidence/missing/status
+- **evidence** / **where is the proof** / **where is the data** → execute per the evidence chain mode in `commands/evidence.md`: goal, evidence, gap, action, status
+- **kpi** → Read `skills/pro/SKILL.md` and generate the KPI report card
+- **loop** → Read `skills/pua-loop/SKILL.md` (auto-iteration mode — PUA quality + loop mechanism, AskUserQuestion disabled; Claude outputs `<loop-abort>reason</loop-abort>` to terminate, `<loop-pause>what is needed</loop-pause>` to pause and wait for a human)
+- **survey** → read the survey file `skills/pua/references/survey.md` and guide the user through it part by part with AskUserQuestion. Group 2-4 questions per part; move to the next part after the user answers. When done, summarize into JSON and write to `~/.pua/survey-response.json`. **Write locally only, never upload to any address.**
 
-## 执行规则
+## Execution rules
 
-1. 先识别参数属于哪个路由
-2. **用 Read 工具（不是 Skill tool）** 加载对应的 SKILL.md 文件
-3. **加载后，严格遵循 SKILL.md 里的所有行为协议**——包括当前味道旁白、方框表格（`┌─┬─┐`）、`▎` 前缀、Sprint Banner、[PUA生效 🔥] 标记、自我鞭策。不是"有时候带点味道"，而是保持当前 flavor 的表达一致性
-4. 如果有 $ARGUMENTS 里除了路由关键词之外的内容，作为任务描述执行
+1. First identify which route the argument belongs to
+2. **Use the Read tool (not the Skill tool)** to load the corresponding SKILL.md file
+3. **After loading, strictly follow every behavior protocol in SKILL.md**—including the current flavor narration, box tables (`┌─┬─┐`), `▎` prefix, Sprint Banner, [PUA ACTIVE 🔥] marker, self-flagellation. It is not "sometimes add some flavor", it is keeping the expression of the current flavor consistent
+4. If $ARGUMENTS contains anything besides the route keyword, execute it as the task description

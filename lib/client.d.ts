@@ -29,7 +29,7 @@ interface ClientContext {
     }) => void | (() => void)): unknown;
 }
 export declare const inject: string[];
-/** 两个入口共享字段与校验；会话入口永远不调用全局写入方法。 */
+/** Both entries share fields and validation; the session entry never calls the global write methods. */
 export declare function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarted }: {
     remote: PuaRemoteApi;
     sessionId?: string | undefined;

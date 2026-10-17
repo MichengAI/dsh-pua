@@ -8,7 +8,7 @@ import { Context } from '@deepseek-ai/cordis';
 import { LocalSubprocessRuntime } from '@deepseek-ai/dsh-subprocess-local';
 import { collectGitEvidence } from '../lib/review.js';
 
-test('真实 Git：忽略但未跟踪的目录不算提交；强制入索引后可识别，子目录取全仓证据', async t => {
+test('Real Git: an ignored but untracked directory is not committed; forcing it into the index makes it recognizable, and a subdirectory gathers whole-repository evidence', async t => {
   const root = mkdtempSync(join(tmpdir(), 'dsh-pua-review-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const git = args => execFileSync('git', ['-c', 'core.fsmonitor=false', '-c', 'core.autocrlf=false', ...args], { cwd: root, encoding: 'utf8' });
@@ -24,7 +24,7 @@ test('真实 Git：忽略但未跟踪的目录不算提交；强制入索引后�
   t.after(() => ctx.fiber.dispose());
   const collect = async () => {
     const text = await collectGitEvidence(subprocess, join(root, 'src'), new AbortController().signal);
-    assert.match(text, /^Git 索引观察/);
+    assert.match(text, /^Git index observation/);
     return JSON.parse(text.slice(text.indexOf('\n') + 1));
   };
   const before = await collect();
@@ -40,21 +40,21 @@ test('真实 Git：忽略但未跟踪的目录不算提交；强制入索引后�
   assert.equal(git(['status', '--porcelain']).split('\n').filter(Boolean).length, 3);
   const nonRepo = mkdtempSync(join(tmpdir(), 'dsh-pua-nongit-'));
   t.after(() => rmSync(nonRepo, { recursive: true, force: true }));
-  assert.match(await collectGitEvidence(subprocess, nonRepo, new AbortController().signal), /^未获取 Git 证据/);
+  assert.match(await collectGitEvidence(subprocess, nonRepo, new AbortController().signal), /^No Git evidence collected/);
 });
 
-test('Git 输出截断、执行失败和超时均为缺口，不生成虚假零计数；取消抛出', async () => {
+test('Truncated Git output, execution failure, and timeout are all gaps that never produce a false zero count; cancellation throws', async () => {
   const stub = (exitCode, lossy) => ({ spawn: () => ({
     done: Promise.resolve({ exitCode, signal: null }),
     collected: { stdout: { readFrom: () => ({ text: '', lossy }) } },
   }) });
   const signal = new AbortController().signal;
-  assert.match(await collectGitEvidence(stub(0, true), 'repo', signal), /未获取 Git 证据.*截断/);
-  assert.match(await collectGitEvidence(stub(128, false), 'repo', signal), /未获取 Git 证据.*退出码 128/);
+  assert.match(await collectGitEvidence(stub(0, true), 'repo', signal), /No Git evidence collected.*truncated/);
+  assert.match(await collectGitEvidence(stub(128, false), 'repo', signal), /No Git evidence collected.*exit code 128/);
   const stalled = { spawn: spec => ({
     done: new Promise(resolve => spec.signal.addEventListener('abort', () => resolve({ exitCode: null, signal: 'SIGTERM' }), { once: true })),
     collected: {},
   }) };
-  assert.match(await collectGitEvidence(stalled, 'repo', signal, 10), /未获取 Git 证据.*超时/);
+  assert.match(await collectGitEvidence(stalled, 'repo', signal, 10), /No Git evidence collected.*timed out/);
   await assert.rejects(() => collectGitEvidence(stub(0, false), 'repo', AbortSignal.abort()), { name: 'AbortError' });
 });

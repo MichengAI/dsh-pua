@@ -1,5 +1,5 @@
 ---
-description: "PUA Pro — 自进化 + Platform + /pua:pua 指令系统。/pua:pro。Triggers on: '/pua:pro', 'pua pro', '自进化', 'evolution'."
+description: "PUA Pro — self-evolution + Platform + /pua:pua command system. /pua:pro. Triggers on: '/pua:pro', 'pua pro', 'self-evolution', 'evolution'."
 ---
 
 Invoke the pua:pro skill and follow it exactly as presented to you.

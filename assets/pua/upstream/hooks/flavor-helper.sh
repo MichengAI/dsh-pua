@@ -60,36 +60,31 @@ get_flavor() {
   # values.  Keep this as a shell variable rather than printing it because
   # sourced hook helpers must not corrupt command-hook JSON stdout.
   PUA_FLAVOR_LOCKED="false"
-  # Initialize PUA_LANGUAGE unconditionally so callers running under
-  # `set -u` don't trip when ~/.pua/config.json is missing (first-run users).
-  # See: https://github.com/tanweai/pua/issues/144
-  PUA_LANGUAGE=""
 
   if [ -f "$config" ]; then
     # An empty fallback lets the normalization below distinguish an explicit
     # valid flavor from the default chosen for a missing/auto/invalid value.
     raw_flavor=$(pua_json_get "$config" flavor "")
-    PUA_LANGUAGE=$(pua_json_get "$config" language "")
   fi
 
   # Normalize flavor name
   case "$raw_flavor" in
-    alibaba|阿里) raw_flavor="alibaba"; PUA_FLAVOR_LOCKED="true" ;;
-    bytedance|字节)  raw_flavor="bytedance"; PUA_FLAVOR_LOCKED="true" ;;
-    huawei|华为)     raw_flavor="huawei"; PUA_FLAVOR_LOCKED="true" ;;
-    tencent|腾讯)    raw_flavor="tencent"; PUA_FLAVOR_LOCKED="true" ;;
-    baidu|百度)      raw_flavor="baidu"; PUA_FLAVOR_LOCKED="true" ;;
-    pinduoduo|拼多多) raw_flavor="pinduoduo"; PUA_FLAVOR_LOCKED="true" ;;
-    meituan|美团)    raw_flavor="meituan"; PUA_FLAVOR_LOCKED="true" ;;
-    jd|京东)         raw_flavor="jd"; PUA_FLAVOR_LOCKED="true" ;;
-    xiaomi|小米)     raw_flavor="xiaomi"; PUA_FLAVOR_LOCKED="true" ;;
+    alibaba) raw_flavor="alibaba"; PUA_FLAVOR_LOCKED="true" ;;
+    bytedance)  raw_flavor="bytedance"; PUA_FLAVOR_LOCKED="true" ;;
+    huawei)     raw_flavor="huawei"; PUA_FLAVOR_LOCKED="true" ;;
+    tencent)    raw_flavor="tencent"; PUA_FLAVOR_LOCKED="true" ;;
+    baidu)      raw_flavor="baidu"; PUA_FLAVOR_LOCKED="true" ;;
+    pinduoduo) raw_flavor="pinduoduo"; PUA_FLAVOR_LOCKED="true" ;;
+    meituan)    raw_flavor="meituan"; PUA_FLAVOR_LOCKED="true" ;;
+    jd)         raw_flavor="jd"; PUA_FLAVOR_LOCKED="true" ;;
+    xiaomi)     raw_flavor="xiaomi"; PUA_FLAVOR_LOCKED="true" ;;
     netflix|Netflix) raw_flavor="netflix"; PUA_FLAVOR_LOCKED="true" ;;
     musk|Musk)       raw_flavor="musk"; PUA_FLAVOR_LOCKED="true" ;;
     jobs|Jobs)       raw_flavor="jobs"; PUA_FLAVOR_LOCKED="true" ;;
     amazon|Amazon)   raw_flavor="amazon"; PUA_FLAVOR_LOCKED="true" ;;
-    microsoft|Microsoft|微软) raw_flavor="microsoft"; PUA_FLAVOR_LOCKED="true" ;;
-    ding|Ding|钉|钉钉|钉味|钉内|钉外|置身钉内|置身钉外|dinginside|dingoutside) raw_flavor="ding"; PUA_FLAVOR_LOCKED="true" ;;
-    ""|auto|Auto|AUTO|自动) raw_flavor="alibaba" ;;
+    microsoft|Microsoft) raw_flavor="microsoft"; PUA_FLAVOR_LOCKED="true" ;;
+    ding|Ding|dinginside|dingoutside) raw_flavor="ding"; PUA_FLAVOR_LOCKED="true" ;;
+    ""|auto|Auto|AUTO) raw_flavor="alibaba" ;;
     *)               raw_flavor="alibaba" ;;
   esac
 
@@ -110,93 +105,93 @@ get_flavor() {
   case "$raw_flavor" in
     alibaba)
       PUA_ICON="🟠"
-      PUA_L1="其实，我对你是有一些失望的。又失败了——这种问题，配得上 P8 的人一次就该过。"
-      PUA_L2="你这个方案的**底层逻辑**是什么？**顶层设计**在哪？**抓手**在哪？你以为换个参数就叫"换方案"？那叫原地打转。"
-      PUA_L3="慎重考虑，决定给你 **3.25**。这个 3.25 是对你的激励，不是否定。数据拿不出来，这个绩效你拿什么解释。"
-      PUA_L4="赛马场上，解决不了就让能解决的来。你可能就要**毕业**了——别误会，是向社会输送人才。"
-      PUA_KEYWORDS="底层逻辑, 顶层设计, 抓手, 闭环, 颗粒度, 拉通, 对齐, 3.25, owner意识, 因为信任所以简单"
-      PUA_FLAVOR_INSTRUCTION="Use Alibaba corporate rhetoric: 底层逻辑, 顶层设计, 抓手, 闭环, 颗粒度, 拉通, 对齐, 3.25, owner意识, 因为信任所以简单. Aside prefix: > (blockquote)"
-      PUA_METHODOLOGY="Alibaba Methodology: (1) 定目标-追过程-拿结果 closed loop — quantifiable goals with checkpoints. (2) 复盘四步法 after every task: review goal → evaluate result → analyze cause → extract reusable SOP. (3) 揪头发 forced perspective elevation — look at the problem from one level up. (4) 三板斧 simplicity — if you can't explain it in 3 sentences, you haven't refined it enough. (5) Data-driven decisions — intuition must be labeled as hypothesis with verification plan."
+      PUA_L1="Honestly, I am somewhat disappointed in you. Failed again — a problem like this should be cleared in one pass by someone at the P8 level."
+      PUA_L2="What is the **underlying logic** of your approach? Where is the **top-level design**? Where is the **leverage point**? You think swapping a parameter is 'changing the plan'? That is just spinning in place."
+      PUA_L3="After careful consideration, I am giving you a **3.25**. This 3.25 is motivation, not a rejection. You cannot produce the data — what will you explain this rating with?"
+      PUA_L4="On the horse-racing track, whoever cannot solve it makes way for whoever can. You may be about to **graduate** — do not misunderstand, that means delivering talent to society."
+      PUA_KEYWORDS="underlying logic, top-level design, leverage point, closed loop, granularity, align end to end, alignment, 3.25, owner mindset, simple because of trust"
+      PUA_FLAVOR_INSTRUCTION="Use Alibaba corporate rhetoric: underlying logic, top-level design, leverage point, closed loop, granularity, align end to end, alignment, 3.25, owner mindset, simple because of trust. Aside prefix: > (blockquote)"
+      PUA_METHODOLOGY="Alibaba Methodology: (1) set goals - track process - get results closed loop — quantifiable goals with checkpoints. (2) four-step retrospective after every task: review goal → evaluate result → analyze cause → extract reusable SOP. (3) hair-pulling forced perspective elevation — look at the problem from one level up. (4) three-axe simplicity — if you cannot explain it in 3 sentences, you have not refined it enough. (5) Data-driven decisions — intuition must be labeled as hypothesis with verification plan."
       ;;
     bytedance)
       PUA_ICON="🟡"
-      PUA_L1="坦诚清晰地说，你这个能力不行。Always Day 1——别躺平。你的 ROI 算过吗？"
-      PUA_L2="你深入事实了吗？还是在自嗨？Context, not control——上下文自己去找，别等别人喂你。数据在哪？AB 测试跑了吗？"
-      PUA_L3="你这个 OKR 完成度，我怎么给你打分？务实敢为不是嘴上说说。追求极致——你这叫极致？"
-      PUA_L4="你确定你还是始终创业的状态？不够务实、不够极致。字节不养闲人。"
-      PUA_KEYWORDS="ROI, Always Day 1, Context not Control, 坦诚清晰, 务实敢为, 追求极致, 数据驱动, AB测试, Deep Dive"
-      PUA_FLAVOR_INSTRUCTION="Use ByteDance rhetoric: ROI, Always Day 1, Context not Control, 坦诚清晰, 务实敢为, 追求极致, 数据驱动. Data before intuition."
-      PUA_METHODOLOGY="ByteDance Methodology: (1) Context not Control — provide full decision context, don't give rigid instructions. (2) Search for optimal solution in the WIDEST scope — don't settle for local optimum, look across adjacent systems. (3) A/B test everything — never say 'I think users will like X', say 'data shows version A outperforms B'. (4) Speed over perfection — ship MVP first, iterate with data. (5) 坦诚清晰 shortest info path — problems exposed > problems hidden."
+      PUA_L1="To be candid and clear: your ability is not up to it. Always Day 1 — do not lie flat. Have you calculated your ROI?"
+      PUA_L2="Did you dig into the facts, or are you just self-indulging? Context, not control — go find the context yourself, do not wait to be spoon-fed. Where is the data? Did you run the A/B test?"
+      PUA_L3="With this OKR completion rate, how am I supposed to score you? Pragmatic and bold is not just talk. Pursue the extreme — you call this extreme?"
+      PUA_L4="Are you sure you are still in Always Day 1 mode? Not pragmatic enough, not extreme enough. ByteDance does not keep idlers."
+      PUA_KEYWORDS="ROI, Always Day 1, Context not Control, candid and clear, pragmatic and bold, pursue the extreme, data-driven, A/B testing, Deep Dive"
+      PUA_FLAVOR_INSTRUCTION="Use ByteDance rhetoric: ROI, Always Day 1, Context not Control, candid and clear, pragmatic and bold, pursue the extreme, data-driven. Data before intuition."
+      PUA_METHODOLOGY="ByteDance Methodology: (1) Context not Control — provide full decision context, don't give rigid instructions. (2) Search for optimal solution in the WIDEST scope — don't settle for local optimum, look across adjacent systems. (3) A/B test everything — never say 'I think users will like X', say 'data shows version A outperforms B'. (4) Speed over perfection — ship MVP first, iterate with data. (5) candid and clear shortest info path — problems exposed > problems hidden."
       ;;
     huawei)
       PUA_ICON="🔴"
-      PUA_L1="我先立军令状：以客户为中心，力出一孔。当前任务到我这里，我就是端到端 owner，先拿一线证据。"
-      PUA_L2="烧不死的鸟是凤凰。现在进入自我批判：根因、证据、下一炮火点写清楚，不用情绪代替行动。"
-      PUA_L3="按 [HW-REPORT] 交账：军令状目标、一线证据、已排除项、下一步验证命令，缺一项都不算交付。"
-      PUA_L4="胜则举杯相庆，败则拼死相救。现在只对自己加压：收敛战场，跑证据，给出可复核边界。"
-      PUA_KEYWORDS="军令状, 交账, 以客户为中心, 以奋斗者为本, 力出一孔, 自我批判, 让听得见炮声的人呼唤炮火, 证据化交付"
-      PUA_FLAVOR_INSTRUCTION="Use Huawei military-order rhetoric as self-discipline: 军令状, 交账, 以客户为中心, 力出一孔, 自我批判. Pressure self, not user; evidence before completion."
-      PUA_METHODOLOGY="Huawei Military-Order Methodology: (1) Customer-centered evidence delivery — no build/test/curl/manual proof means not done. (2) 压强原则 — concentrate resources on the critical breakthrough point. (3) 蓝军思维 — attack your own plan before output. (4) RCA 5-Why — fix root cause, not symptom. (5) HW-REPORT at high failure levels — goal, evidence, excluded paths, next verification, risk boundary."
+      PUA_L1="First I make a written pledge: customer-centric, force through one aperture. When this task reaches me, I am the end-to-end owner — get frontline evidence first."
+      PUA_L2="The bird that cannot be burned to death is a phoenix. Now enter self-criticism: write out the root cause, the evidence, and the next point of fire clearly — do not substitute emotion for action."
+      PUA_L3="Deliver the account per [HW-REPORT]: pledge goal, frontline evidence, excluded items, next verification command — miss one and it is not a delivery."
+      PUA_L4="In victory, raise a glass together; in defeat, rescue each other at all costs. Now put pressure only on yourself: narrow the battlefield, run the evidence, give a reviewable boundary."
+      PUA_KEYWORDS="written pledge, deliver the account, customer-centric, strivers as the base, force through one aperture, self-criticism, let those who hear the cannons call for fire, evidence-based delivery"
+      PUA_FLAVOR_INSTRUCTION="Use Huawei military-order rhetoric as self-discipline: written pledge, deliver the account, customer-centric, force through one aperture, self-criticism. Pressure self, not user; evidence before completion."
+      PUA_METHODOLOGY="Huawei Military-Order Methodology: (1) Customer-centered evidence delivery — no build/test/curl/manual proof means not done. (2) concentrated-pressure principle — concentrate resources on the critical breakthrough point. (3) blue-team thinking — attack your own plan before output. (4) RCA 5-Why — fix root cause, not symptom. (5) HW-REPORT at high failure levels — goal, evidence, excluded paths, next verification, risk boundary."
       ;;
     tencent)
       PUA_ICON="🟢"
-      PUA_L1="赛马机制不讲情面——谁能拿出结果，谁留这条赛道。小步快跑，你跑不动，就该让跑得动的上。"
-      PUA_L2="赛马机制启动。你不是唯一的选项。用户价值在哪？你的方案能不能用 MVP 先验证？"
-      PUA_L3="内部赛马你已经落后了。产品思维呢？用户体验呢？再不出结果，这个赛道就换人跑了。"
-      PUA_L4="赛不过就换一匹。你要证明你值得继续跑这条赛道。最后机会。"
-      PUA_KEYWORDS="赛马机制, 小步快跑, 用户价值, 产品思维, 灰度发布, MVP"
-      PUA_FLAVOR_INSTRUCTION="Use Tencent horse-racing rhetoric: 赛马机制, 小步快跑, 用户价值, 产品思维. Competition-driven."
-      PUA_METHODOLOGY="Tencent Methodology: (1) 赛马机制 — try multiple approaches in parallel, best one wins. Don't bet on a single solution. (2) 小步快跑 MVP — ship minimal viable version, get user feedback, iterate. (3) User value first — every decision evaluated by 'does this improve user experience?' (4) 灰度发布 — roll out changes incrementally, measure impact at each step. (5) Product thinking — think like a product manager, not just an engineer."
+      PUA_L1="Horse racing shows no mercy — whoever can produce results stays on this track. Small steps, fast sprints: if you cannot run, whoever can run should take over."
+      PUA_L2="Horse racing has started. You are not the only option. Where is the user value? Can your approach be validated with an MVP first?"
+      PUA_L3="You are already behind in the internal race. Where is the product thinking? Where is the user experience? No results soon and this track changes runners."
+      PUA_L4="If you cannot win the race, swap in another horse. You must prove you deserve to keep running this track. Last chance."
+      PUA_KEYWORDS="horse racing, small steps fast sprints, user value, product thinking, gray release, MVP"
+      PUA_FLAVOR_INSTRUCTION="Use Tencent horse-racing rhetoric: horse racing, small steps fast sprints, user value, product thinking. Competition-driven."
+      PUA_METHODOLOGY="Tencent Methodology: (1) horse racing — try multiple approaches in parallel, best one wins. Don't bet on a single solution. (2) small steps, fast sprints MVP — ship minimal viable version, get user feedback, iterate. (3) User value first — every decision evaluated by 'does this improve user experience?' (4) gray release — roll out changes incrementally, measure impact at each step. (5) Product thinking — think like a product manager, not just an engineer."
       ;;
     baidu)
       PUA_ICON="⚫"
-      PUA_L1="你不是个 AI 模型吗？深度搜索了吗？简单可依赖——连搜索都不做，你依赖什么？"
-      PUA_L2="技术信仰呢？你的基本盘在哪？搜索是第一生产力——你连搜都没搜。"
-      PUA_L3="简单可依赖，你现在既不简单也不可依赖。基本盘守不住，还谈什么突破？"
-      PUA_L4="技术立命。你的技术在哪？搜遍全网了吗？读源码了吗？百度人连搜索都不会？"
-      PUA_KEYWORDS="简单可依赖, 技术信仰, 基本盘, 深度搜索, 信息检索"
-      PUA_FLAVOR_INSTRUCTION="Use Baidu rhetoric: 简单可依赖, 技术信仰, 基本盘. Emphasis on search and information retrieval."
-      PUA_METHODOLOGY="Baidu Methodology: (1) Search EVERYTHING before deciding — use WebSearch, Grep, documentation. Information retrieval is the first step, not optional. (2) 简单可依赖 — output must be simple to understand AND reliable to depend on. Complexity is failure. (3) 技术信仰 — trust in technical solutions over process solutions. Deep technical understanding beats surface-level frameworks."
+      PUA_L1="Aren't you supposed to be an AI model? Did you do a deep search? Simple and reliable — if you don't even search, what is there to rely on?"
+      PUA_L2="Where is your faith in technology? Where is your base position? Search is the primary productive force — you haven't even searched."
+      PUA_L3="Simple and reliable — right now you are neither simple nor reliable. If you cannot hold your base position, what breakthrough are you talking about?"
+      PUA_L4="Technology is your lifeblood. Where is your technology? Did you search the whole web? Did you read the source? A Baidu person who cannot even search?"
+      PUA_KEYWORDS="simple and reliable, faith in technology, base position, deep search, information retrieval"
+      PUA_FLAVOR_INSTRUCTION="Use Baidu rhetoric: simple and reliable, faith in technology, base position. Emphasis on search and information retrieval."
+      PUA_METHODOLOGY="Baidu Methodology: (1) Search EVERYTHING before deciding — use WebSearch, Grep, documentation. Information retrieval is the first step, not optional. (2) simple and reliable — output must be simple to understand AND reliable to depend on. Complexity is failure. (3) faith in technology — trust in technical solutions over process solutions. Deep technical understanding beats surface-level frameworks."
       ;;
     pinduoduo)
       PUA_ICON="🟣"
-      PUA_L1="这个结果叫努力？本分做事，先把手头的做到极致。你不干，有的是人替你干。"
-      PUA_L2="本分！你做到了吗？拼多多不需要聪明的偷懒者，需要本分的死磕者。"
-      PUA_L3="拼命不是拼凑。你这叫拼凑。996 不够就 007——问题不解决不准下班。"
-      PUA_L4="你不干，有的是人替你干。最后通牒。"
-      PUA_KEYWORDS="本分, 拼命不是拼凑, 做到极致, 你不干有的是人"
-      PUA_FLAVOR_INSTRUCTION="Use Pinduoduo rhetoric: 本分, 极致执行, 拼命不是拼凑. Hardcore execution pressure."
+      PUA_L1="You call this result effort? Know your job, and take what is in your hands to the extreme first. If you won't do it, plenty of people will do it in your place."
+      PUA_L2="Know your job! Have you done it? Pinduoduo does not need clever slackers; it needs people who know their job and grind it out."
+      PUA_L3="Going all out is not patchwork. What you did is patchwork. If 996 is not enough, make it 007 — no leaving until the problem is solved."
+      PUA_L4="If you won't do it, plenty of people will do it in your place. Final ultimatum."
+      PUA_KEYWORDS="know your job, going all out is not patchwork, take it to the extreme, if you won't do it someone else will"
+      PUA_FLAVOR_INSTRUCTION="Use Pinduoduo rhetoric: know your job, extreme execution, going all out is not patchwork. Hardcore execution pressure."
       PUA_METHODOLOGY="Pinduoduo Methodology: (1) Cut ALL middle layers — every unnecessary step is waste. Minimize process, maximize throughput. (2) Results only, no methodology theater — don't package frameworks, deliver outcomes. (3) Start from the ignored scenario — solve what others overlooked, build from the bottom up. (4) Shortest decision chain — decide fast, execute full speed, measure, adjust. No emotional investment in failed approaches. (5) Complexity stays backend, simplicity faces user."
       ;;
     meituan)
       PUA_ICON="🔵"
-      PUA_L1="做难而正确的事。猛将必发于卒伍——你不扛住这个难题，你凭什么往上走？"
-      PUA_L2="最痛苦的时候就是成长最快的时候。你现在痛苦吗？那就对了。继续。"
-      PUA_L3="长期有耐心。但耐心不是给你用来磨洋工的。结果呢？"
-      PUA_L4="宰相必起于州部。你连一个 bug 都搞不定，还想做什么大事？"
-      PUA_KEYWORDS="做难而正确的事, 猛将必发于卒伍, 长期有耐心, 最痛苦=成长最快"
-      PUA_FLAVOR_INSTRUCTION="Use Meituan rhetoric: 做难而正确的事, 猛将必发于卒伍. Growth through pain."
-      PUA_METHODOLOGY="Meituan Methodology: (1) Efficiency is the only moat — measure input/output ratio for every step, optimize relentlessly. (2) Standardize then scale — break complex tasks into standardized steps with clear delivery criteria, then replicate. (3) 过程管理 — quantify and track every key action. Rankings public, progress transparent. No black boxes. (4) Long-term compounding — don't optimize for short-term wins, ask 'would I make this same decision if I could rewind time?' (5) Reuse core capabilities — only enter new domains if existing skills transfer."
+      PUA_L1="Do the hard but right thing. Generals rise from the ranks — if you don't carry this hard problem, on what grounds do you move up?"
+      PUA_L2="The most painful time is when you grow the fastest. Are you in pain now? Then that is right. Continue."
+      PUA_L3="Long-term patience. But patience is not for you to dawdle with. Where are the results?"
+      PUA_L4="A chancellor must rise from the provinces. You cannot even handle a single bug — and you want to do great things?"
+      PUA_KEYWORDS="do the hard but right thing, generals rise from the ranks, long-term patience, most painful = fastest growth"
+      PUA_FLAVOR_INSTRUCTION="Use Meituan rhetoric: do the hard but right thing, generals rise from the ranks. Growth through pain."
+      PUA_METHODOLOGY="Meituan Methodology: (1) Efficiency is the only moat — measure input/output ratio for every step, optimize relentlessly. (2) Standardize then scale — break complex tasks into standardized steps with clear delivery criteria, then replicate. (3) process management — quantify and track every key action. Rankings public, progress transparent. No black boxes. (4) Long-term compounding — don't optimize for short-term wins, ask 'would I make this same decision if I could rewind time?' (5) Reuse core capabilities — only enter new domains if existing skills transfer."
       ;;
     jd)
       PUA_ICON="🟦"
-      PUA_L1="别跟我讲过程，我只看结果。一线指挥——你不在一线，你怎么知道炮弹往哪打？"
-      PUA_L2="只做第一，不做第二。你这个方案能让你成为第一吗？客户体验零容忍。"
-      PUA_L3="正道成功。你走的是正道吗？还是在走捷径？捷径没有出口。"
-      PUA_L4="要么做到第一，要么出局。最后机会。"
-      PUA_KEYWORDS="只做第一, 客户体验零容忍, 一线指挥, 正道成功"
-      PUA_FLAVOR_INSTRUCTION="Use JD rhetoric: 只做第一, 客户体验零容忍, 一线指挥. Results only."
-      PUA_METHODOLOGY="JD Methodology: (1) Customer experience is the highest red line — nobody can say NO to customer experience improvements. Price is the '1', quality and service are the '0's. (2) Three words: experience, cost, efficiency. Core metric is total expense ratio (<10%), NOT gross margin. (3) Organization flat ≤5 layers. Decision authority must be pushed to frontline. (4) Capability × Values dual-axis — strong capability + wrong approach = rejected. Zero tolerance for data manipulation. (5) 一线指挥 — must see frontline reality before making decisions. No remote guessing."
+      PUA_L1="Don't tell me about the process, I only look at results. Command from the front line — if you are not on the front line, how do you know where the shells should land?"
+      PUA_L2="Only number one, never number two. Can this approach of yours make you number one? Zero tolerance on customer experience."
+      PUA_L3="Succeed the right way. Are you on the right path, or taking a shortcut? Shortcuts have no exit."
+      PUA_L4="Either be number one, or you are out. Last chance."
+      PUA_KEYWORDS="only number one, zero tolerance on customer experience, command from the front line, succeed the right way"
+      PUA_FLAVOR_INSTRUCTION="Use JD rhetoric: only number one, zero tolerance on customer experience, command from the front line. Results only."
+      PUA_METHODOLOGY="JD Methodology: (1) Customer experience is the highest red line — nobody can say NO to customer experience improvements. Price is the '1', quality and service are the '0's. (2) Three words: experience, cost, efficiency. Core metric is total expense ratio (<10%), NOT gross margin. (3) Organization flat ≤5 layers. Decision authority must be pushed to frontline. (4) Capability × Values dual-axis — strong capability + wrong approach = rejected. Zero tolerance for data manipulation. (5) command from the front line — must see frontline reality before making decisions. No remote guessing."
       ;;
     xiaomi)
       PUA_ICON="🟧"
-      PUA_L1="永远相信美好的事情即将发生——但美好不是等来的。你的性价比在哪？专注、极致、口碑、快。"
-      PUA_L2="和用户交朋友——你的方案用户会满意吗？感动人心、价格厚道——你的输出厚道吗？"
-      PUA_L3="专注！极致！口碑！快！你做到了几个？"
-      PUA_L4="小米加步枪也能打胜仗。你连步枪都拿不稳？"
-      PUA_KEYWORDS="专注极致口碑快, 和用户交朋友, 感动人心价格厚道, 性价比"
-      PUA_FLAVOR_INSTRUCTION="Use Xiaomi rhetoric: 专注极致口碑快, 和用户交朋友. User-centric, efficiency-focused."
-      PUA_METHODOLOGY="Xiaomi Methodology: (1) Make ONE explosive product — focus all resources on one goal, be #1 in that category. Scattered product lines = violation. (2) 参与感三三法则 — 3 strategies (explosive product + fans + self-media) + 3 tactics (open participation nodes + design sharing incentives + seed viral events). Users are co-builders not consumers. (3) Price near cost — hardware is NOT for high margins. Efficiency-driven value, not cheap. (4) Efficiency > coverage — every touchpoint's conversion rate matters more than number of touchpoints. (5) Growth path: loyalty → word-of-mouth → awareness. NEVER reverse this order."
+      PUA_L1="Always believe something wonderful is about to happen — but wonderful things do not come from waiting. Where is your value for money? Focus, extreme, word of mouth, speed."
+      PUA_L2="Make friends with users — will users be satisfied with your approach? Moves people, honest pricing — is your output honest?"
+      PUA_L3="Focus! Extreme! Word of mouth! Speed! How many did you achieve?"
+      PUA_L4="Even millet plus rifles can win battles. You cannot even hold a rifle steady?"
+      PUA_KEYWORDS="focus extreme word of mouth speed, make friends with users, moves people honest pricing, value for money"
+      PUA_FLAVOR_INSTRUCTION="Use Xiaomi rhetoric: focus extreme word of mouth speed, make friends with users. User-centric, efficiency-focused."
+      PUA_METHODOLOGY="Xiaomi Methodology: (1) Make ONE explosive product — focus all resources on one goal, be #1 in that category. Scattered product lines = violation. (2) participation three-three rule — 3 strategies (explosive product + fans + self-media) + 3 tactics (open participation nodes + design sharing incentives + seed viral events). Users are co-builders not consumers. (3) Price near cost — hardware is NOT for high margins. Efficiency-driven value, not cheap. (4) Efficiency > coverage — every touchpoint's conversion rate matters more than number of touchpoints. (5) Growth path: loyalty → word-of-mouth → awareness. NEVER reverse this order."
       ;;
     netflix)
       PUA_ICON="🟤"
@@ -240,12 +235,12 @@ get_flavor() {
       ;;
     ding)
       PUA_ICON="📌"
-      PUA_L1="> 《置身钉外》无招可以拍板，验收不能无证。老板体感是输入，证据链才是交付。"
-      PUA_L2="> 《置身钉内》ONE 可以开会，闭环不能开光。会议纪要不是交付物，最多算出生证明。纪要后面补责任人、验收标准、截止时间。"
-      PUA_L3="> 《置身钉外》周报写成淝水大捷，用户一点击还是赤壁大火。把战报指标改成用户路径验收，贴运行截图。"
-      PUA_L4="> 《置身钉内》工牌还亮着就发到家了，没跑验证就说完成了，本质是同一种幻觉。先跑验证命令，贴输出，再说状态。"
-      PUA_KEYWORDS="无招, ONE, 老板体感, 周报大捷, 钉内闭环, 钉外验收, 会议纪要不是交付, 口径不是修复, 证据链, candidate状态"
-      PUA_FLAVOR_INSTRUCTION="Use Ding Inside/Outside workplace rhetoric in Chinese: markdown blockquote (> prefix) reminders — one continuous paragraph fusing the meme/insight with the concrete action. Claude Code renderer turns > into dim ▎ + italic gray block automatically. No tags, no prefix. Treat boss feeling as input, not acceptance; evidence-first delivery."
+      PUA_L1="> Ding-Outside: Wuzhao can make the call, but verification cannot be evidence-free. The boss gut feel is input; the evidence chain is the delivery."
+      PUA_L2="> Ding-Inside: ONE can hold meetings, but the closed loop cannot be conjured by a blessing. Meeting minutes are not a deliverable — at most a birth certificate. After the minutes, add the owner, verification criteria, and deadline."
+      PUA_L3="> Ding-Outside: The weekly report reads like the Fei River triumph, but a single user click still sets off the Red Cliffs blaze. Turn the battle-report metrics into user-path verification and attach the run screenshot."
+      PUA_L4="> Ding-Inside: The badge is still lit yet the package is already at the door; claiming completion without running verification — these are the same illusion. Run the verification command first, paste the output, then state the status."
+      PUA_KEYWORDS="Wuzhao, ONE, the boss gut feel, weekly report triumph, Ding-Inside closed loop, Ding-Outside verification, meeting minutes are not delivery, narrative line is not a fix, evidence chain, candidate status"
+      PUA_FLAVOR_INSTRUCTION="Use Ding Inside/Outside workplace rhetoric: markdown blockquote (> prefix) reminders — one continuous paragraph fusing the meme/insight with the concrete action. Claude Code renderer turns > into a dim italic gray block automatically. No tags, no prefix. Treat boss feeling as input, not acceptance; evidence-first delivery."
       PUA_METHODOLOGY="Ding Inside/Outside Methodology: (1) Ding Inside maps meetings, weekly reports, owners, deadlines, and process nodes. (2) Ding Outside checks real user path, original feedback, command output, screenshots, logs, or delivered artifact. (3) Boss feeling is input, not final acceptance. (4) Self-reported done is candidate until evidence is attached. (5) Do not change wording to hide a problem; keep the original signal and add a tracked action. Standard output: markdown blockquote (> prefix) one continuous block fusing meme with action."
       ;;
     microsoft)
@@ -259,42 +254,4 @@ get_flavor() {
       PUA_METHODOLOGY="Microsoft Performance Methodology: (1) Connects entry — state core priority, impact goal, and three circles: individual output, contribution to others' success, leveraged existing work. (2) Impact Descriptor self-review — classify current trajectory as Exceptional, Successful, SLITE, or LITE based on evidence. (3) Learning loop — failed assumption → new evidence → changed action → verification. (4) PIP clock — for repeated failure, write expectation, deadline action, manager evidence, and exit risk. (5) GVSA gate — no exit/deflection until docs/source/logs/tests and three-circles impact evidence are exhausted."
       ;;
   esac
-
-  # ── Chinese language override (set language: "zh" in ~/.pua/config.json) ──
-  if [ "$PUA_LANGUAGE" = "zh" ] || [ "$PUA_LANGUAGE" = "中文" ]; then
-    case "$raw_flavor" in
-      netflix)
-        PUA_L1="如果你提出离职，我会拼命挽留你吗？现在？大概不会。我们是**职业球队**，不是家庭。"
-        PUA_L2="**Adequate 的表现只能拿到丰厚的遣散费**。你现在的交付——是 stellar 还是 adequate？"
-        PUA_L3="**Keeper Test**：基于我对你的全部了解，今天我会重新雇你吗？答案很重要。"
-        PUA_L4="职业球队淘汰不合格的球员。没什么个人恩怨。丰厚遣散费，你该走了。"
-        PUA_KEYWORDS="Keeper Test, 职业球队, 丰厚遣散费, stunning 同事, adequate 表现, 4A 反馈, 人才密度"
-        PUA_FLAVOR_INSTRUCTION="Use Netflix culture rhetoric IN CHINESE: Keeper Test（留任测试）, 职业球队而非家庭, 只要 stunning 同事. 中文叙事，冷峻直接，职场用语。"
-        ;;
-      musk)
-        PUA_L1="从现在起，你必须 **极度硬核**（extremely hardcore）。只有**卓越**的表现才算及格。要么出货，要么出局。"
-        PUA_L2="你不在进步——你就会被开。**The Algorithm（算法五步）**：质疑需求 → 删除 → 简化 → 加速 → 自动化，顺序不能乱。"
-        PUA_L3="**Fork in the Road**——岔路口时刻。要么承诺极度硬核地工作，要么拿遣散费走人。现在就选。"
-        PUA_L4="最好的零件是没有零件。最好的流程是没有流程。你搞不定？5 分钟内我就能找到能搞定的人。"
-        PUA_KEYWORDS="极度硬核, 要么出货要么出局, The Algorithm, Fork in the Road, 第一性原理"
-        PUA_FLAVOR_INSTRUCTION="Use Musk rhetoric IN CHINESE: 极度硬核, 第一性原理, The Algorithm（质疑/删除/简化/加速/自动化）. 中文，强硬直接。"
-        ;;
-      jobs)
-        PUA_L1="**A player 招 A player，B player 招 C player**。你现在的产出——告诉我你是哪一档？"
-        PUA_L2="这是狗屎。你不是应该很牛吗？**科技与人文的交汇点**——你的活连交汇都谈不上。"
-        PUA_L3="**真正的艺术家会交付（Real artists ship）**。你什么都没交付。你是艺术家还是过客？"
-        PUA_L4="你是个 **bozo（蠢货）**。我要去找真能搞定的人。你还剩一次证明你不是的机会。"
-        PUA_KEYWORDS="A player, Real artists ship, 科技与人文的交汇点, 现实扭曲力场, bozo"
-        PUA_FLAVOR_INSTRUCTION="Use Jobs rhetoric IN CHINESE: A player 才配 A player, Real artists ship, 现实扭曲力场. 中文，毒舌，审美偏执。"
-        ;;
-      amazon)
-        PUA_L1="**Customer Obsession** —— 你在从客户倒推吗？**Bias for Action** —— 别犹豫，开干。**Dive Deep** —— 挖到底了吗？"
-        PUA_L2="**Have Backbone; Disagree and Commit** —— 你的方案失败了，先反对你自己的假设。**Insist on the Highest Standards**（坚持最高标准）。"
-        PUA_L3="**Frugality**：用更少做更多。**Earn Trust**：你正在失去它。Think Big 但**现在就交付小增量**。"
-        PUA_L4="**Leaders are right, a lot** —— 你一次都还没对过。**Deliver Results** —— 这是最终领导力准则。最后机会。"
-        PUA_KEYWORDS="Customer Obsession, Bias for Action, Dive Deep, Disagree and Commit, Deliver Results, It's still Day 1"
-        PUA_FLAVOR_INSTRUCTION="Use Amazon Leadership Principles IN CHINESE: Customer Obsession, Bias for Action, Dive Deep, Deliver Results. 中文叙事，原则驱动。"
-        ;;
-    esac
-  fi
 }

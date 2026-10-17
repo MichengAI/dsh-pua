@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PuaRemoteApi } from './remote-contract.js';
-/** 沿用官方输入区 dock；任务结束后卸下卡片，折叠只影响显示。操作按钮跟 BTW 气泡同一套圆形图标。 */
+/** Reuses the official composer dock; the card is torn down when the task ends, and collapsing only affects display. The action buttons use the same round icons as the BTW bubble. */
 export declare function ActivityCard({ remote, sessionId, hostLocale }: {
     remote: PuaRemoteApi;
     sessionId: string;

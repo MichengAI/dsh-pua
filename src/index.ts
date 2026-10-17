@@ -10,17 +10,17 @@ import { PuaRuntime } from './runtime.js';
 import { UI } from './i18n.js';
 import { Service } from '@deepseek-ai/cordis';
 
-/** Web Remote 仅访问此插件提供的配置能力，不持有其他插件的运行状态。 */
+/** Web Remote only reaches the configuration capability this plugin provides; it holds no other plugin's runtime state. */
 export class PuaConfigurationService extends Service {
   constructor(ctx: Context, readonly store: StateStore, readonly preferences: PreferencesBridge, readonly runtime: PuaRuntime) { super(ctx, 'puaConfiguration'); }
 }
 declare module '@deepseek-ai/cordis' { interface Context { puaConfiguration: PuaConfigurationService } }
 
-export const name = 'michengai-pua';
+export const name = 'phucnd0604-pua-en';
 export const inject = ['commands', 'systemPrompt'];
 export { Config };
 
-/** 注册当前会话的 PUA 命令与动态行为契约；Cordis 自动随插件卸载撤销贡献。 */
+/** Registers the current session's PUA command and dynamic-behavior contract; Cordis automatically withdraws the contributions when the plugin unloads. */
 export function apply(ctx: Context, config?: unknown): void {
   const catalog = new SourceCatalog();
   const prompts = new Map<string, string>();
@@ -35,7 +35,7 @@ export function apply(ctx: Context, config?: unknown): void {
   const runtime = new PuaRuntime(ctx, store, catalog, lifetime.signal, () => preferences.feedback());
   new PuaConfigurationService(ctx, store, preferences, runtime);
   ctx.systemPrompt.section({
-    name: 'michengai:pua',
+    name: 'phucnd0604-pua-en',
     order: 120,
     text: ({ agent }) => {
       if (!agent) return '';
@@ -51,7 +51,7 @@ export function apply(ctx: Context, config?: unknown): void {
       return state.configured || agent.session.header.parentSession !== undefined ? DISABLED_PROMPT : '';
     },
   });
-  // 注册表只能存普通字符串；斜杠菜单按界面语言覆盖这两项，不在这里做文案映射。
+  // The registry stores plain strings only; the slash menu overrides these two per UI language, so no copy mapping happens here.
   ctx.commands.register({
     name: 'pua',
     description: UI.zh.slash.pua.description,
@@ -61,11 +61,11 @@ export function apply(ctx: Context, config?: unknown): void {
   ctx.commands.register({
     name: 'pua-cancel-loop', description: UI.zh.slash.cancelLoop.description,
     handler: invocation => {
-      if (invocation.rawInput.trim()) return { kind: 'error', text: 'pua-cancel-loop 不接受额外参数。' };
+      if (invocation.rawInput.trim()) return { kind: 'error', text: 'pua-cancel-loop does not accept extra arguments.' };
       invocation.signal.throwIfAborted();
       runtime.cancel(invocation.agent.session);
       store.stage(invocation.agent.session, invocation.commandId, { kind: 'cancel-pua-loop' });
-      return { kind: 'success', text: 'PUA · 当前 Loop 已取消。' };
+      return { kind: 'success', text: 'PUA · Current Loop cancelled.' };
     },
   });
 }

@@ -1,292 +1,292 @@
-# OpenPUA 用户深度调研问卷
+# OpenPUA Deep User Research Survey
 
-> 预计填写时间：5-8 分钟
-> 您的回答将帮助我们改进 PUA Skill 和下一代产品
-> 所有数据匿名处理，不会关联到个人身份
+> Estimated time to complete: 5-8 minutes
+> Your answers will help us improve the PUA Skill and the next-generation product
+> All data is anonymized and will not be linked to your identity
 
 ---
 
-## 第一部分：你是谁（用户画像）
+## Part 1: Who You Are (User Profile)
 
-### Q1. 你的角色
-- A) 大厂在职开发者（BAT/TMD/字节/华为/美团等）
-- B) 中小公司开发者
-- C) 独立开发者/自由职业
-- D) 技术管理者/CTO/Tech Lead
-- E) 学生/学习者
-- F) 非技术岗位（产品/运营/设计等）
+### Q1. Your role
+- A) Developer employed at a big tech company (BAT/TMD/ByteDance/Huawei/Meituan, etc.)
+- B) Developer at a small or mid-sized company
+- C) Indie developer / freelancer
+- D) Tech manager / CTO / Tech Lead
+- E) Student / learner
+- F) Non-technical role (product/operations/design, etc.)
 
-### Q2. 你主要用哪个 AI 编程工具？（可多选）
+### Q2. Which AI coding tool do you mainly use? (multiple choice)
 - A) Claude Code
 - B) Cursor
 - C) OpenAI Codex CLI
 - D) GitHub Copilot (VSCode)
 - E) Windsurf
 - F) Kiro
-- G) CodeBuddy（腾讯）
-- H) 其他: ____
+- G) CodeBuddy (Tencent)
+- H) Other: ____
 
-### Q3. 你使用 AI 编程工具的频率
-- A) 每天使用，是主力工具
-- B) 每周几次
-- C) 偶尔用，不是主力
-- D) 刚开始用/还在探索
+### Q3. How often do you use AI coding tools
+- A) Daily, it's my main tool
+- B) A few times a week
+- C) Occasionally, not my main tool
+- D) Just started / still exploring
 
-### Q4. 你用 AI 编程工具主要做什么？（可多选）
-- A) 写新功能/新项目
-- B) Debug/修 bug
-- C) 代码审查/重构
-- D) 写测试
-- E) 运维/部署/DevOps
-- F) 数据处理/分析
-- G) 日常办公（写文档/邮件/PPT/分析报告）
-- H) 学习/探索/做 side project
-- I) 安全研究/渗透测试
-- J) 其他: ____
+### Q4. What do you mainly do with AI coding tools? (multiple choice)
+- A) Build new features / new projects
+- B) Debug / fix bugs
+- C) Code review / refactoring
+- D) Write tests
+- E) Ops / deployment / DevOps
+- F) Data processing / analysis
+- G) Everyday office work (writing docs / emails / PPT / analysis reports)
+- H) Learning / exploring / side projects
+- I) Security research / penetration testing
+- J) Other: ____
 
 ---
 
-## 第二部分：Claude Code / AI 编程工具的痛点
+## Part 2: Pain Points of Claude Code / AI Coding Tools
 
-### Q5. 你在用 AI 编程工具时，多久遇到一次以下问题？
+### Q5. When using AI coding tools, how often do you run into each of the following?
 
-**每个问题请评分：1=从不  2=偶尔  3=经常  4=几乎每次**
+**Rate each item: 1 = never  2 = occasionally  3 = often  4 = almost every time**
 
-| # | 问题描述 | 频率 |
+| # | Problem | Frequency |
 |---|---------|------|
-| 5a | AI 尝试 1-2 次就说"我无法解决这个问题"，建议你手动处理 | 1 2 3 4 |
-| 5b | AI 反复微调同一段代码（换参数/换措辞），但本质上在原地打转 | 1 2 3 4 |
-| 5c | AI 声称"已修复"但实际上没有验证（没跑测试/没 curl 测试） | 1 2 3 4 |
-| 5d | AI 有搜索工具但不主动搜索，靠过时的训练数据回答问题 | 1 2 3 4 |
-| 5e | AI 修完一个 bug 就停了，不检查是否有同类 bug | 1 2 3 4 |
-| 5f | AI 把责任推给你（"建议您手动检查..."、"可能是环境问题..."） | 1 2 3 4 |
-| 5g | AI 输出质量差/应付式完成（代码能跑但写得很烂） | 1 2 3 4 |
-| 5h | AI 等你给指示，不主动做下一步 | 1 2 3 4 |
-| 5i | AI 做了危险操作（删文件/改错配置/泄露密钥）你没注意到 | 1 2 3 4 |
-| 5j | AI 的回答太长/太啰嗦/废话太多 | 1 2 3 4 |
-| 5k | AI 上下文丢失（长对话后忘了之前说的/做的） | 1 2 3 4 |
-| 5l | AI 产出的代码有安全漏洞（SQL注入/XSS/硬编码密钥等） | 1 2 3 4 |
+| 5a | AI gives up after 1-2 attempts, says "I can't solve this problem," and suggests you handle it manually | 1 2 3 4 |
+| 5b | AI repeatedly tweaks the same code (changing parameters / wording) but is essentially spinning in place | 1 2 3 4 |
+| 5c | AI claims something is "fixed" without actually verifying it (no tests run / no curl check) | 1 2 3 4 |
+| 5d | AI has search tools but doesn't search proactively, answering from stale training data | 1 2 3 4 |
+| 5e | AI stops after fixing one bug and never checks for bugs of the same kind | 1 2 3 4 |
+| 5f | AI shifts the blame onto you ("I suggest you check manually...", "It might be an environment issue...") | 1 2 3 4 |
+| 5g | AI's output is poor quality / perfunctory (the code runs but is written terribly) | 1 2 3 4 |
+| 5h | AI waits for your instructions instead of taking the next step on its own | 1 2 3 4 |
+| 5i | AI performs a dangerous operation (deleting files / breaking config / leaking keys) that you didn't notice | 1 2 3 4 |
+| 5j | AI's answers are too long / too wordy / full of filler | 1 2 3 4 |
+| 5k | AI loses context (after a long conversation it forgets what was said / done) | 1 2 3 4 |
+| 5l | The code AI produces has security holes (SQL injection / XSS / hardcoded keys, etc.) | 1 2 3 4 |
 
-### Q6. 以上问题中，哪个对你影响最大？（选 1-3 个）
-请填写编号：____
+### Q6. Which of the problems above affects you most? (choose 1-3)
+Enter the numbers: ____
 
-### Q7. 你当前怎么处理这些问题的？（可多选）
-- A) 直接告诉 AI "重新做"/"再试一次"
-- B) 手动接管，自己写代码
-- C) 换一个新对话重来
-- D) 用 /pua 或类似的 skill 来施压
-- E) 切换模型（Opus → Sonnet / Claude → GPT）
-- F) 认了，就这样
-- G) 其他: ____
+### Q7. How do you currently deal with these problems? (multiple choice)
+- A) Just tell the AI to "redo it" / "try again"
+- B) Take over manually and write the code yourself
+- C) Start over in a new conversation
+- D) Use /pua or a similar skill to apply pressure
+- E) Switch models (Opus → Sonnet / Claude → GPT)
+- F) Accept it and move on
+- G) Other: ____
 
-### Q8. 你在**非编程场景**用 AI 时遇到的最大问题是什么？（可多选）
+### Q8. What's the biggest problem you run into when using AI in **non-coding scenarios**? (multiple choice)
 
-| # | 场景 + 问题 |
+| # | Scenario + Problem |
 |---|------------|
-| 8a | 写文档时 AI 输出太"AI味"，读起来像机器写的 |
-| 8b | 做数据分析时 AI 给的结论/数字不可靠，需要反复验证 |
-| 8c | 写邮件/消息时语气不对（太正式/太随意/太客套） |
-| 8d | 做调研时 AI 编造来源/虚构数据 |
-| 8e | 处理文件（Excel/PDF/PPT）时 AI 搞不定格式 |
-| 8f | AI 不理解我的业务上下文，总是给通用建议 |
-| 8g | AI 处理中文能力不如英文 |
-| 8h | 其他: ____ |
+| 8a | When writing docs, AI's output has too much "AI flavor" and reads like a machine wrote it |
+| 8b | When doing data analysis, the AI's conclusions/numbers are unreliable and need repeated checking |
+| 8c | When writing emails/messages, the tone is off (too formal / too casual / too ingratiating) |
+| 8d | When doing research, AI fabricates sources / invents data |
+| 8e | When handling files (Excel/PDF/PPT), AI can't get the formatting right |
+| 8f | AI doesn't understand my business context and always gives generic advice |
+| 8g | AI handles Chinese worse than English |
+| 8h | Other: ____ |
 
 ---
 
-## 第三部分：PUA Skill 使用体验
+## Part 3: Your Experience with the PUA Skill
 
-### Q9. 你是怎么知道 PUA Skill 的？
+### Q9. How did you hear about the PUA Skill?
 - A) GitHub Trending
-- B) 微信群/朋友推荐
-- C) 社交媒体（X/微博/小红书/CSDN）
-- D) 其他 Skill 的 README 链接过来
-- E) 搜索引擎
-- F) 其他: ____
+- B) WeChat group / a friend's recommendation
+- C) Social media (X/Weibo/Xiaohongshu/CSDN)
+- D) A link from another skill's README
+- E) A search engine
+- F) Other: ____
 
-### Q10. 你现在和 PUA Skill 的关系是？
-- A) 每天都在用，已经是工作流的一部分
-- B) 每周用几次
-- C) 装了，偶尔想起来用一下
-- D) 装了，用过 1-2 次，没有持续用
-- E) Star 了但没装
-- F) 装了但卸载了
+### Q10. What's your current relationship with the PUA Skill?
+- A) I use it every day; it's part of my workflow
+- B) A few times a week
+- C) Installed it; I use it occasionally when I remember
+- D) Installed it, used it 1-2 times, haven't kept using it
+- E) Starred it but haven't installed it
+- F) Installed it but uninstalled it
 
-### Q11. Sean Ellis 测试 — 如果明天 PUA Skill 永久下架，你会？
-- A) 非常失望，这已经是我工作流不可缺少的一部分
-- B) 有点失望，但能找到替代或自己写一个
-- C) 无所谓
-- D) 不会注意到
+### Q11. Sean Ellis test — if the PUA Skill were permanently taken down tomorrow, what would you do?
+- A) Very disappointed; it's already an indispensable part of my workflow
+- B) Somewhat disappointed, but I could find a replacement or write my own
+- C) Don't care
+- D) Wouldn't notice
 
-### Q12. 你用 PUA Skill 主要是因为什么？（可多选，按重要性排序）
+### Q12. What do you mainly use the PUA Skill for? (multiple choice, ranked by importance)
 
-| # | 原因 | 是否选择 | 重要性排名 |
+| # | Reason | Selected? | Importance rank |
 |---|------|---------|-----------|
-| 12a | AI 确实 debug 更努力了，解决了之前放弃的问题 | □ | ___ |
-| 12b | 5步方法论（闻味道→揪头发→照镜子→执行→复盘）本身很有价值 | □ | ___ |
-| 12c | PUA 话术很搞笑/很爽，是工作时的情绪调节 | □ | ___ |
-| 12d | 看 AI 被 PUA 或 AI 反抗 PUA 的过程很有趣 | □ | ___ |
-| 12e | 截图分享给同事/朋友很有传播力 | □ | ___ |
-| 12f | 7项检查清单让 debug 更系统化 | □ | ___ |
-| 12g | 防止 AI 偷懒/提前放弃 | □ | ___ |
-| 12h | 大厂文化的话术有共鸣（阿里味/字节味等） | □ | ___ |
-| 12i | 其他: ____ | □ | ___ |
+| 12a | AI really debugs harder and solves problems it previously gave up on | □ | ___ |
+| 12b | The 5-step methodology (smell the flavor → pull yourself up a level → look in the mirror → execute → retrospective) is valuable in itself | □ | ___ |
+| 12c | The PUA talk is hilarious / satisfying; it's an emotional release at work | □ | ___ |
+| 12d | Watching the AI get PUA'd, or fight back against it, is entertaining | □ | ___ |
+| 12e | Screenshots shared with colleagues/friends spread well | □ | ___ |
+| 12f | The 7-item checklist makes debugging more systematic | □ | ___ |
+| 12g | It stops the AI from slacking off / giving up early | □ | ___ |
+| 12h | The big-tech-culture talk resonates (Alibaba flavor / ByteDance flavor, etc.) | □ | ___ |
+| 12i | Other: ____ | □ | ___ |
 
-### Q13. 你最喜欢哪个大厂风味？（选 1-2 个）
-- A) 阿里味（361/闭环/抓手）
-- B) 字节味（坦诚直接/Always Day 1）
-- C) 华为味（狼性/烧不死的鸟是凤凰）
-- D) 腾讯味（赛马/隔壁组已经3.75了）
-- E) 美团味（做难而正确的事）
+### Q13. Which big-tech flavor do you like most? (choose 1-2)
+- A) Alibaba flavor (361 / closed loop / lever)
+- B) ByteDance flavor (radical candor / Always Day 1)
+- C) Huawei flavor (wolf spirit / the bird that won't burn to death is a phoenix)
+- D) Tencent flavor (horse race / the team next door is already at 3.75)
+- E) Meituan flavor (do the hard but right thing)
 - F) Netflix Keeper Test
 - G) Musk Hardcore
 - H) Jobs A/B Player
-- I) 不关心风味，只关心方法论
-- J) 不喜欢任何风味，觉得攻击性太强
+- I) Don't care about flavor, only about the methodology
+- J) Don't like any flavor; find it too aggressive
 
-### Q14. PUA Skill 有哪些地方让你**不舒服**或**想关掉**？（可多选）
+### Q14. What about the PUA Skill makes you **uncomfortable** or **want to turn it off**? (multiple choice)
 
-| # | 不舒服的点 |
+| # | Pain point |
 |---|-----------|
-| 14a | 话术太aggressive，有些措辞让人不适（如"你这水平出去找不到工作"） |
-| 14b | Token 消耗明显增加了，速度变慢 |
-| 14c | 有时候 AI 不需要被 PUA 但还是触发了，浪费时间 |
-| 14d | 输出格式太冗长（每次都显示 PUA 等级标签、方法论步骤） |
-| 14e | 有些平台加载不了（Codex 安全拒绝/字符限制） |
-| 14f | 对简单任务过度使用（改个格式也要走5步方法论） |
-| 14g | 没有不舒服的地方，都很好 |
-| 14h | 其他: ____ |
+| 14a | The talk is too aggressive; some phrasing is uncomfortable (e.g., "at your level you couldn't get a job anywhere else") |
+| 14b | Token consumption clearly increased and it got slower |
+| 14c | Sometimes the AI didn't need PUA but it triggered anyway, wasting time |
+| 14d | The output format is too verbose (it shows the PUA level tag and methodology steps every time) |
+| 14e | Some platforms can't load it (Codex safety refusal / character limits) |
+| 14f | Overused on simple tasks (even a format tweak has to go through the 5-step methodology) |
+| 14g | Nothing uncomfortable; it's all good |
+| 14h | Other: ____ |
 
-### Q15. 你有没有遇到过 PUA Skill 让 AI 表现**更差**的场景？
+### Q15. Have you ever seen a case where the PUA Skill made the AI perform **worse**?
 
-- A) 有。请描述场景: ____
-- B) 没有
-- C) 不确定
+- A) Yes. Describe the scenario: ____
+- B) No
+- C) Not sure
 
-### Q16. 你更想要哪种模式？
+### Q16. Which mode would you prefer?
 
-| 模式 | 描述 | 选择 |
+| Mode | Description | Choice |
 |------|------|------|
-| PUA 模式 (现有) | 用大厂话术施压，身份攻击 + 同侪比较 | □ |
-| Grit 模式 (新) | 同样的方法论，但不用攻击性话术，纯事实驱动施压 | □ |
-| 两者都要 | 可以切换 | □ |
-| 无所谓 | 我不关心话术风格 | □ |
+| PUA mode (current) | Apply pressure with big-tech talk, identity attacks + peer comparison | □ |
+| Grit mode (new) | The same methodology, but without aggressive talk — purely fact-driven pressure | □ |
+| Both | Switchable | □ |
+| Don't care | I don't care about the talk style | □ |
 
 ---
 
-## 第四部分：分享与传播行为
+## Part 4: Sharing and Spread Behavior
 
-### Q17. 你有没有分享过 PUA Skill 相关的内容？（可多选）
-- A) 分享过 AI 被 PUA 后变努力的截图
-- B) 分享过 AI 拒绝 PUA / 反过来 PUA 我的截图
-- C) 分享过 PUA 话术本身（发到群里大家笑）
-- D) 分享过修完 bug 的结果截图
-- E) 把 PUA Skill 推荐给了同事/朋友
-- F) 没有分享过
+### Q17. Have you ever shared anything related to the PUA Skill? (multiple choice)
+- A) Screenshots of the AI working harder after being PUA'd
+- B) Screenshots of the AI refusing PUA / turning around and PUA'ing me
+- C) The PUA talk itself (posted to a group so everyone could laugh)
+- D) Screenshots of the result after fixing a bug
+- E) Recommended the PUA Skill to colleagues/friends
+- F) Haven't shared anything
 
-### Q18. 如果你分享过，你分享到了哪里？（可多选）
-- A) 微信群/朋友圈
+### Q18. If you have shared, where did you share it? (multiple choice)
+- A) WeChat group / WeChat Moments
 - B) X / Twitter
-- C) GitHub / 技术社区
-- D) 公司内部 Slack/飞书
-- E) 小红书/抖音
-- F) 其他: ____
+- C) GitHub / tech communities
+- D) Company-internal Slack/Feishu
+- E) Xiaohongshu/Douyin
+- F) Other: ____
 
 ---
 
-## 第五部分：安全感知 + Agent Observatory（新产品调研）
+## Part 5: Security Perception + Agent Observatory (New Product Research)
 
-### Q19. 你在用 AI 编程工具时，有没有担心过以下安全问题？
+### Q19. When using AI coding tools, have you ever worried about the following security issues?
 
-**评分：1=完全不担心  2=偶尔想过  3=经常担心  4=非常担心**
+**Rate: 1 = not worried at all  2 = thought about it occasionally  3 = often worried  4 = very worried**
 
-| # | 安全问题 | 担心程度 |
+| # | Security issue | Worry level |
 |---|---------|---------|
-| 19a | AI 读了我不该读的文件（如 ~/.ssh/id_rsa、.env、密钥文件） | 1 2 3 4 |
-| 19b | AI 执行了我不知道的危险命令（rm -rf、curl 上传数据等） | 1 2 3 4 |
-| 19c | AI 把我的代码/密钥发送到了外部服务 | 1 2 3 4 |
-| 19d | AI 读取了来自外部的恶意指令（prompt injection） | 1 2 3 4 |
-| 19e | AI 生成的代码有安全漏洞但我没有注意到 | 1 2 3 4 |
-| 19f | 不知道 AI 在后台到底做了什么操作 | 1 2 3 4 |
+| 19a | AI read files it shouldn't have (e.g., ~/.ssh/id_rsa, .env, key files) | 1 2 3 4 |
+| 19b | AI ran dangerous commands I didn't know about (rm -rf, curl uploads, etc.) | 1 2 3 4 |
+| 19c | AI sent my code/keys to an external service | 1 2 3 4 |
+| 19d | AI read malicious instructions from outside (prompt injection) | 1 2 3 4 |
+| 19e | The code AI generated had a security hole I didn't notice | 1 2 3 4 |
+| 19f | No idea what operations the AI actually performed in the background | 1 2 3 4 |
 
-### Q20. 如果有一个工具能**记录 AI Agent 的每一个操作**并生成可视化报告（像看电影回放一样看 AI 做了什么），你会？
-- A) 非常想用，这正是我需要的
-- B) 有点兴趣，愿意试试
-- C) 无所谓，不太关心 AI 做了什么
-- D) 不需要，我信任 AI
+### Q20. If a tool could **record every operation of an AI agent** and generate a visual report (letting you watch what the AI did like a movie replay), what would you do?
+- A) I'd really want to use it; this is exactly what I need
+- B) Somewhat interested, willing to try it
+- C) Don't care; I'm not that concerned about what the AI did
+- D) Don't need it; I trust the AI
 
-### Q21. 以下 Agent Observatory 功能，哪些你最想要？（选 1-3 个）
-- A) 操作时间线：像 Chrome DevTools 一样看 AI 的每一步操作
-- B) 文件访问热力图：AI 读/写了哪些目录，有没有越界
-- C) 安全评分：0-100 分的 AI 安全评级
-- D) 自定义策略：设置规则（如"禁止访问 ~/.ssh"）
-- E) 历史趋势：过去 7 天 AI 操作的统计和变化
-- F) 网络请求图：AI 联网去了哪里，发了什么数据
-
----
-
-## 第六部分：付费意愿
-
-### Q22. 你愿意为 PUA Skill 的增强版（Pro）付费吗？
-
-**Pro 功能**: 个性化风味定制 + Agent Observatory 安全面板 + 高级方法论包 + 跨会话统计
-
-- A) $0，开源就该免费
-- B) $3/月
-- C) $5/月
-- D) $10/月
-- E) 一次性买断 $20
-- F) 如果公司报销，$15/月也可以
-
-### Q23. 什么功能会让你愿意付费？（可多选）
-- A) Agent Observatory 安全可视化面板
-- B) 个性化定制（创建我自己的大厂风味/话术）
-- C) 团队版（统一管理所有人的 AI Agent 行为）
-- D) AI debug 统计面板（"今天 AI 额外尝试了 47 次"）
-- E) 高级方法论包（Google/Amazon/Meta 风味）
-- F) 不会为任何功能付费
+### Q21. Which of the following Agent Observatory features would you most want? (choose 1-3)
+- A) Operation timeline: watch every step the AI took, like Chrome DevTools
+- B) File access heatmap: which directories the AI read/wrote, and whether it went out of bounds
+- C) Security score: a 0-100 AI safety rating
+- D) Custom policies: set rules (e.g., "never access ~/.ssh")
+- E) Historical trends: statistics and changes in AI operations over the past 7 days
+- F) Network request graph: where the AI went online and what data it sent
 
 ---
 
-## 第七部分：开放题（最有价值）
+## Part 6: Willingness to Pay
 
-### Q24. 用一句话描述：PUA Skill 给你最大的感受是什么？
-[自由文本]
+### Q22. Would you pay for an enhanced version of the PUA Skill (Pro)?
 
-### Q25. 如果你可以改变 PUA Skill 的一件事，你会改什么？
-[自由文本]
+**Pro features**: personalized flavor customization + Agent Observatory security panel + advanced methodology pack + cross-session statistics
 
-### Q26. 你在用 Claude Code / AI 编程工具时，最大的"我希望有人解决这个问题"的时刻是什么？
-[自由文本]
+- A) $0 — open source should be free
+- B) $3/month
+- C) $5/month
+- D) $10/month
+- E) One-time purchase of $20
+- F) If the company reimburses it, $15/month is fine
 
-### Q27. 你还有什么想告诉我们的？
-[自由文本]
+### Q23. What features would make you willing to pay? (multiple choice)
+- A) Agent Observatory security visualization panel
+- B) Personalization (create my own big-tech flavor / talk)
+- C) Team edition (centrally manage everyone's AI agent behavior)
+- D) AI debug statistics panel ("today the AI made 47 extra attempts")
+- E) Advanced methodology pack (Google/Amazon/Meta flavors)
+- F) Wouldn't pay for any feature
 
 ---
 
-## 问卷数据分析框架
+## Part 7: Open Questions (Most Valuable)
 
-### 核心指标计算方法
+### Q24. Describe in one sentence: what's the biggest impression the PUA Skill has left on you?
+[free text]
 
-| 指标 | 计算方式 | PMF 阈值 |
+### Q25. If you could change one thing about the PUA Skill, what would it be?
+[free text]
+
+### Q26. When using Claude Code / AI coding tools, what was your biggest "I wish someone would solve this" moment?
+[free text]
+
+### Q27. Anything else you want to tell us?
+[free text]
+
+---
+
+## Survey Data Analysis Framework
+
+### How Core Metrics Are Computed
+
+| Metric | How it's computed | PMF threshold |
 |------|---------|---------|
-| **Sean Ellis Score** | Q11选A的人数 ÷ (Q10选A/B/C/D的人数) | ≥40% |
-| **情绪vs功能比** | Q12(c+d+e+h) ÷ Q12(a+b+f+g) | >1 = 情绪驱动, <1 = 功能驱动 |
-| **留存健康度** | Q10选A+B的比例 | ≥30% |
-| **付费转化意愿** | Q22选B+C+D+F的比例 | ≥15% |
-| **安全需求验证** | Q19平均分 ≥2.5 的题目数 | ≥4/6 = 需求真实 |
-| **Observatory PMF** | Q20选A的比例 | ≥25% |
-| **传播系数** | Q17(非F)的比例 | ≥40% = 自传播 |
-| **不适比** | Q14(非g)的平均选择数 | ≤2 = 可接受 |
-| **Grit Mode需求** | Q16选"Grit"或"两者都要"的比例 | ≥30% = 做 Grit Mode |
+| **Sean Ellis Score** | number who chose A on Q11 ÷ (number who chose A/B/C/D on Q10) | ≥40% |
+| **Emotion vs. function ratio** | Q12(c+d+e+h) ÷ Q12(a+b+f+g) | >1 = emotion-driven, <1 = function-driven |
+| **Retention health** | the proportion who chose A+B on Q10 | ≥30% |
+| **Willingness to convert to paid** | the proportion who chose B+C+D+F on Q22 | ≥15% |
+| **Security need validation** | number of Q19 items with an average score ≥2.5 | ≥4/6 = real need |
+| **Observatory PMF** | the proportion who chose A on Q20 | ≥25% |
+| **Spread coefficient** | the proportion on Q17 (other than F) | ≥40% = organic spread |
+| **Discomfort ratio** | the average number of choices on Q14 (other than g) | ≤2 = acceptable |
+| **Grit Mode demand** | the proportion who chose "Grit" or "Both" on Q16 | ≥30% = build Grit Mode |
 
-### 用户分群
+### User Segments
 
-| 群 | 定义 | 关注指标 |
-|----|------|---------|
-| 核心用户 | Q10=A/B 且 Q11=A | Sean Ellis, 付费, Q24 |
-| 围观用户 | Q10=D/E | 为什么不持续用？Q14 |
-| 情绪用户 | Q12中 c/d/e 排名最高 | 留存，是否会流失 |
-| 功能用户 | Q12中 a/b/f/g 排名最高 | 付费，Q25 改进建议 |
-| 安全敏感用户 | Q19平均分 ≥3 | Observatory需求，Q21功能偏好 |
-| 抗PUA用户 | Q14a 被选 且 Q16="Grit" | Grit Mode设计输入，Q25 |
+| Segment | Definition | Metrics to watch |
+|----|------|------|
+| Core users | Q10=A/B and Q11=A | Sean Ellis, payment, Q24 |
+| Onlookers | Q10=D/E | Why not keep using it? Q14 |
+| Emotion users | c/d/e ranked highest on Q12 | Retention, churn risk |
+| Function users | a/b/f/g ranked highest on Q12 | Payment, Q25 improvement suggestions |
+| Security-sensitive users | Q19 average ≥3 | Observatory demand, Q21 feature preferences |
+| PUA-resistant users | Q14a selected and Q16="Grit" | Grit Mode design input, Q25 |

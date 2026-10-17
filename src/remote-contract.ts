@@ -19,7 +19,7 @@ export interface PuaRemoteApi {
   startLoop(sessionId: string, task: string, values: Configuration): Promise<RemoteResult<{ text: string }>>;
   cancelLoop(sessionId: string): Promise<RemoteResult<{ text: string }>>;
 }
-/** 0.1.6-alpha.2 要求 create()；旧宿主 Registry 仍读 schema.parse。 */
+/** 0.1.6-alpha.2 requires create(); older host registries still read schema.parse. */
 function strictCodec(typeSymbol: string, schema: z.ZodType): InvocationDescriptor['parameters'][number]['codec'] {
   return { mode: 'strict', typeSymbol, schema, create: () => schema } as InvocationDescriptor['parameters'][number]['codec'];
 }
@@ -36,7 +36,7 @@ const methods: [string, InvocationDescriptor['parameters'], z.ZodType][] = [
   ['cancelLoop', [session], z.object({ text: z.string() })],
 ];
 export const DESCRIPTORS: InvocationDescriptor[] = methods.map(([method, parameters, schema]) => ({
-  id: `@michengai/dsh-pua#puaConfig/${method}`, namespace: 'puaConfig', service: 'puaConfig', method,
+  id: `@phucnd0604/dsh-pua-en#puaConfig/${method}`, namespace: 'puaConfig', service: 'puaConfig', method,
   invocation: { kind: 'direct' }, parameters, result: strictCodec('PuaConfiguration', schema),
 }));
-export const TYPERT_REMOTE: TypertRemoteContribution = { package: '@michengai/dsh-pua', descriptors: DESCRIPTORS };
+export const TYPERT_REMOTE: TypertRemoteContribution = { package: '@phucnd0604/dsh-pua-en', descriptors: DESCRIPTORS };

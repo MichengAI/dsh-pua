@@ -1,10 +1,10 @@
-/** 固定 Git 提交的原版目录；提供给模型的路径必须命中白名单。 */
+/** Pinned original tree for a fixed Git commit; every path offered to the model must hit the allowlist. */
 export declare class SourceCatalog {
     readonly revision: string;
     private readonly documents;
     constructor();
     list(): readonly string[];
-    /** 返回完整原文；未知路径失败，不将输入转换为任意文件路径。 */
+    /** Returns the full original text; an unknown path fails instead of turning input into an arbitrary file path. */
     read(path: string): string;
     body(path: string): string;
 }

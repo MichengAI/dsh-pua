@@ -3,3 +3,7 @@ node_modules/
 .test-tmp/
 .codegraph/
 /docs/
+
+# Agent-facing config written by /setup-matt-pocock-skills and skills in the mattpocock deck
+!/docs/
+!/docs/**

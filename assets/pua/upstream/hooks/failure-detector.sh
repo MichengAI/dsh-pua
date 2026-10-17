@@ -115,12 +115,12 @@ get_flavor
 if [ "${PUA_FLAVOR_LOCKED:-false}" = "true" ]; then
   FLAVOR_CONTEXT="Locked current flavor: ${PUA_FLAVOR} ${PUA_ICON}. ${PUA_FLAVOR_INSTRUCTION}"
   read -r -d '' L2_ROUTING_BLOCK << EOF_ROUTING || true
-[方法论切换建议 🔄] Keep the locked ${PUA_ICON} ${PUA_FLAVOR} voice. The user explicitly locked it; switch the analytical METHOD only:
+[Methodology Switch Suggestion 🔄] Keep the locked ${PUA_ICON} ${PUA_FLAVOR} voice. The user explicitly locked it; switch the analytical METHOD only:
 - If spinning in loops → question the requirement, delete unnecessary parts, then simplify
 - If giving up → replace the failed approach after a concrete keeper-style comparison
 - If not searching → search primary evidence before judging
 - If quality is poor → subtract unnecessary complexity and verify the smallest complete path
-Announce the method change: > [方法论切换 🔄] 保持 ${PUA_ICON} ${PUA_FLAVOR} 语气；采用 [method] 作为分析路径: [reason]
+Announce the method change: > [Methodology Switch 🔄] Keep the ${PUA_ICON} ${PUA_FLAVOR} voice; adopt [method] as the analytical path: [reason]
 EOF_ROUTING
   read -r -d '' L4_ROUTING_BLOCK << EOF_ROUTING || true
 IF (and only if) the Conditional Application Gate passes: the current analytical method has FAILED. Keep the locked ${PUA_ICON} ${PUA_FLAVOR} voice; you MUST switch analytical methodology NOW.
@@ -133,12 +133,12 @@ EOF_ROUTING
 else
   FLAVOR_CONTEXT="Default flavor starting point: ${PUA_FLAVOR} ${PUA_ICON}. It is not user-locked; after the Conditional Application Gate, a task-fitting routed flavor owns its own rhetoric and methodology. Do not represent this default as user-selected."
   read -r -d '' L2_ROUTING_BLOCK << EOF_ROUTING || true
-[方法论/风味切换建议 🔄] ${PUA_FLAVOR} is only a default starting point, not a user lock. Only after the Conditional Application Gate passes, use the existing selector:
+[Methodology/Flavor Switch Suggestion 🔄] ${PUA_FLAVOR} is only a default starting point, not a user lock. Only after the Conditional Application Gate passes, use the existing selector:
 - If spinning in loops → switch to ⬛ Musk (The Algorithm: question the requirement itself, then delete)
 - If giving up → switch to 🟤 Netflix (Keeper Test: this approach is not worth keeping, replace it entirely)
 - If not searching → switch to ⚫ Baidu (search everything first, then judge)
 - If quality is poor → switch to ⬜ Jobs (subtraction + pixel-perfect)
-Announce the switch: > [方法论切换 🔄] 从默认 ${PUA_ICON} ${PUA_FLAVOR} 切换到 [new flavor]: [reason]
+Announce the switch: > [Methodology Switch 🔄] From the default ${PUA_ICON} ${PUA_FLAVOR}, switch to [new flavor]: [reason]
 EOF_ROUTING
   read -r -d '' L4_ROUTING_BLOCK << EOF_ROUTING || true
 IF (and only if) the Conditional Application Gate passes: the current analytical method has FAILED. ${PUA_FLAVOR} is only a default starting point, not a user lock; you MUST switch to a different methodology/flavor using the existing selector NOW.
@@ -172,9 +172,9 @@ else
 fi
 read -r -d '' CONDITIONAL_GATE << EOF_GATE || true
 [PUA Conditional Application Gate — Candidate Only]
-报告状态：只观察，不控制。工具失败观察不是本任务/子目标失败计数。The ${COUNT} scoped tool-failure observations are NOT a task/sub-goal failure count and do not set a task level.
-先核对当前子目标与可见实验验收。Before applying any template, verify the CURRENT same sub-goal and its visible experiment/acceptance condition. 预期复现、无匹配、未验证关联或其他子目标均不升级。Expected reproduction, no match, an unverified link, or a different sub-goal MUST NOT escalate.
-只有当前同一子目标已确认失败数达到原门限才应用候选模板。Apply a candidate template only when the CURRENT same sub-goal has independently confirmed failures at the original threshold: L1=2, L2=3, L3=4, L4=5+. This report offers candidate ${CANDIDATE_LEVEL} at the ${CANDIDATE_THRESHOLD} observation threshold only.
+Report status: observe only, never control. The ${COUNT} scoped tool-failure observations are not a task/sub-goal failure count and do not set a task level.
+Before applying any template, re-check the CURRENT same sub-goal and its visible experiment/acceptance condition. Expected reproduction, no match, an unverified link, or a different sub-goal MUST NOT escalate.
+Apply a candidate template only when the CURRENT same sub-goal has independently confirmed failures at the original threshold: L1=2, L2=3, L3=4, L4=5+. This report offers candidate ${CANDIDATE_LEVEL} at the ${CANDIDATE_THRESHOLD} observation threshold only.
 Otherwise keep the task's current level unchanged and ignore this candidate template.
 EOF_GATE
 CONTEXT=""

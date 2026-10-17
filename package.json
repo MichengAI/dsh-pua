@@ -1,7 +1,7 @@
 {
-  "name": "@michengai/dsh-pua",
-  "version": "0.3.28",
-  "description": "DSH PUA — 为 DeepSeek Harness 提供 PUA 任务推进、角色风味、验收循环和运行状态卡片 · PUA task persistence, personas, verification loops, and live status cards for DeepSeek Harness",
+  "name": "@phucnd0604/dsh-pua-en",
+  "version": "0.1.0",
+  "description": "DSH PUA — PUA task persistence, personas, verification loops, and live status cards for DeepSeek Harness. English fork of @michengai/dsh-pua.",
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
@@ -31,11 +31,8 @@
     "assets/pua",
     "assets/screenshots",
     "assets/branding/dsh-pua-banner.png",
-    "assets/branding/dsh-pua-banner-zh-CN.png",
     "cordis.patch.yml",
     "README.md",
-    "README.ru.md",
-    "README.zh-CN.md",
     "LICENSE",
     "NOTICE",
     "CHANGELOG.md"
@@ -64,10 +61,6 @@
     "verify": "node scripts/verify.mjs",
     "prepack": "npm run build && npm run verify",
     "test:compat": "node scripts/check-compat.mjs"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",
@@ -172,10 +165,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MichengAI/dsh-pua.git"
+    "url": "git+https://github.com/phucnd0604/dsh-pua-en.git"
   },
-  "homepage": "https://github.com/MichengAI/dsh-pua#readme",
+  "homepage": "https://github.com/phucnd0604/dsh-pua-en#readme",
   "bugs": {
-    "url": "https://github.com/MichengAI/dsh-pua/issues"
+    "url": "https://github.com/phucnd0604/dsh-pua-en/issues"
   }
 }

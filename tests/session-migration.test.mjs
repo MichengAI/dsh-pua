@@ -11,7 +11,7 @@ import { repairPuaToolOrder } from '../lib/tool-order.js';
 
 const legacyRuntime = text => createUserMessage({
   content: [{ type: 'text', text }],
-  source: { kind: 'plugin', plugin: '@michengai/dsh-pua/runtime' },
+  source: { kind: 'plugin', plugin: '@phucnd0604/dsh-pua-en/runtime' },
 });
 
 test('官方 V2→V3 迁移后的 PUA 插入历史可修复，运行状态和工具证据可重载', { skip: SESSION_FORMAT_VERSION >= 4 ? 'V4 宿主不直接装载 V3 迁移产物；旧日志由宿主迁移器打开' : false }, async t => {
@@ -46,7 +46,7 @@ test('官方 V2→V3 迁移后的 PUA 插入历史可修复，运行状态和工
   const session = Session.create(header.id, migrated, upgraded, inherited);
   const originalPrefix = JSON.stringify(session.snapshotEvents());
   const originalLength = session.snapshotEvents().length;
-  repairPuaToolOrder(session, '@michengai/dsh-pua/runtime');
+  repairPuaToolOrder(session, '@phucnd0604/dsh-pua-en/runtime');
   const messages = session.deriveMessages();
   const callIndex = messages.findIndex(message => message.content.some(block => block.type === 'tool-call'));
   assert.equal(messages[callIndex + 1].source.kind, 'tool');

@@ -1,12 +1,12 @@
 ---
-description: "PUA 离线模式 — 关闭本地反馈问卷，保留本地 PUA 行为。/pua:offline。Triggers on: '/pua:offline', '离线模式', '封闭网络', 'offline mode', 'no network'."
+description: "PUA offline mode — disable the local feedback survey, keep local PUA behavior. /pua:offline. Triggers on: '/pua:offline', 'offline mode', 'closed network', 'no network'."
 ---
 
-开启 PUA 离线模式，适用于内网、封闭网络，或不希望任务结束时被反馈问卷打断的环境。
+Enable PUA offline mode, for intranets, closed networks, or environments where you do not want a feedback survey interrupting the end of a task.
 
-> **注意**：PUA Skill 已移除全部联网上报功能（session 上传 / 评分上报 / 心跳 telemetry / 排行榜），**默认就不发送任何数据**。此命令现在只控制本地反馈问卷是否弹出，不再是"关闭上报"的开关。
+> **Note**: PUA Skill has removed every network reporting feature (session upload / rating upload / heartbeat telemetry / leaderboard), so **it sends no data by default**. This command now only controls whether the local feedback survey pops up; it is no longer a "turn off reporting" switch.
 
-## 执行
+## Execution
 
 ```bash
 mkdir -p "$HOME/.pua"
@@ -27,12 +27,12 @@ with open(path, 'w', encoding='utf-8') as f:
 PY
 ```
 
-## 输出确认
+## Output confirmation
 
-> [PUA OFFLINE] 已进入离线模式：保留本地压力/验证协议，不再弹出反馈问卷。恢复问卷时编辑 `~/.pua/config.json`：`"offline": false` 并设置 `feedback_frequency`。
+> [PUA OFFLINE] Offline mode entered: local pressure/verification protocol kept, feedback survey no longer pops up. To restore the survey, edit `~/.pua/config.json`: `"offline": false` and set `feedback_frequency`.
 
-## 设计边界
+## Design boundaries
 
-- 离线模式不等于 `/pua:off`：PUA 行为仍可开启。
-- 离线模式只关闭本地反馈问卷；PUA Skill 本身已无任何联网上报代码，无需靠此开关阻止上传。
-- 不会替用户禁止模型或其他工具联网。真正的网络隔离仍应由运行环境、防火墙或工具权限控制完成。
+- Offline mode is not the same as `/pua:off`: PUA behavior can still be enabled.
+- Offline mode only disables the local feedback survey; the PUA Skill itself no longer has any network reporting code, so this switch is not needed to block uploads.
+- It does not forbid the model or other tools from going online on the user's behalf. Real network isolation must still be done by the runtime environment, a firewall, or tool permissions.

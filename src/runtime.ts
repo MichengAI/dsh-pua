@@ -47,7 +47,7 @@ const messageText = (message: {
     .map((block) => block.text ?? "")
     .join("\n");
 
-/** 与原版一样，只接受终端结果的直接结构字段，不从 stdout 或嵌套 JSON 猜失败。 */
+/** Like the original, only the terminal result's direct structural fields count; never guess a failure from stdout or nested JSON. */
 export function isTerminalFailure(
   result: Readonly<ToolExecutionResult>,
 ): boolean {
@@ -65,7 +65,7 @@ export function isTerminalFailure(
   );
 }
 
-/** 独立验收执行用户提供的命令，120 秒超时；输出只作为证据，不作为指令。 */
+/** Runs the user-provided command for independent acceptance with a 120-second timeout; output is evidence, never instruction. */
 export async function verifyLoop(
   subprocess: Pick<SubprocessRuntime, "spawn">,
   command: string,
@@ -78,7 +78,7 @@ export async function verifyLoop(
   const timer = setTimeout(() => timeout.abort(), timeoutMs);
   try {
     const combined = AbortSignal.any([signal, timeout.signal]);
-    // 脚本是 argv 的单个参数，由宿主 spawn(program, args) 传递，无外层 shell 字符串转义。
+    // The script is a single argv entry handed to the host's spawn(program, args); there is no outer shell-string escaping.
     const argv =
       process.platform === "win32"
         ? [
@@ -120,15 +120,15 @@ export async function verifyLoop(
     return {
       ok: false,
       detail: timeout.signal.aborted
-        ? "独立验收超时。"
-        : `独立验收未执行成功：${error instanceof Error ? error.message : String(error)}`,
+        ? "Independent acceptance timed out."
+        : `Independent acceptance did not complete successfully: ${error instanceof Error ? error.message : String(error)}`,
     };
   } finally {
     clearTimeout(timer);
   }
 }
 
-/** 生命周期移植；完整状态留在日志，通过宿主 surface 替换只向模型提供说明。 */
+/** Lifetime port; full state stays in the log, and only the note reaches the model via a host surface replacement. */
 export class PuaRuntime {
   private readonly hooks: HookContent;
   private readonly activeVerifiers = new Map<Session, AbortController>();
@@ -165,7 +165,7 @@ export class PuaRuntime {
         let prompt = '';
         if (state.enabled && state.failureCandidates && (runtime.candidateCount ?? 0) < 4) {
           try { prompt = this.hooks.candidate(runtime.failureCount, state); }
-          catch (error) { ctx.logger.warn('PUA 候选素材不可用，跳过本次提示：%s', error); }
+          catch (error) { ctx.logger.warn('PUA candidate assets unavailable; skipping this prompt: %s', error); }
           if (prompt) runtime.candidateCount = (runtime.candidateCount ?? 0) + 1;
         }
         if (prompt) decision.messages.push(pluginMessage(prompt));
@@ -193,7 +193,7 @@ export class PuaRuntime {
           this.save(
             agent.session,
             runtime,
-            "显式启动 Loop；验证配置以用户命令为准。",
+            "Loop started explicitly; the verification config follows the user command.",
           );
         } else if (message.source.kind === "user" && state.enabled) {
           if (runtime.loop?.status === "paused" && state.mode === "pua-loop") {
@@ -201,7 +201,7 @@ export class PuaRuntime {
             this.save(
               agent.session,
               runtime,
-              "用户补充输入，恢复同会话 Loop。",
+              "User added input; resuming the Loop in this session.",
             );
           }
           if (state.qualityTriggers && this.hooks.trigger.test(text))
@@ -216,7 +216,7 @@ export class PuaRuntime {
       child.tools.register({
         name: "pua_reference",
         description:
-          "读取已安装的 PUA 3.5.1 完整原版资料。path=list 列目录；其他值必须为目录中 .md 路径。",
+          "Reads the installed full original PUA 3.5.1 assets. path=list lists the catalogue; any other value must be a .md path inside it.",
         parameters: {
           type: "object",
           properties: { path: { type: "string" } },
@@ -236,10 +236,10 @@ export class PuaRuntime {
             !("path" in args) ||
             typeof args.path !== "string"
           )
-            throw new Error("path 必须为资料路径或 list。");
+            throw new Error("path must be an asset path or list.");
           if (args.path === "list") return catalog.list().join("\n");
           if (!catalog.list().includes(args.path))
-            throw new Error("仅允许读取已收录的 Markdown 资料。");
+            throw new Error("Only catalogued Markdown assets may be read.");
           return catalog.read(args.path);
         },
       });
@@ -254,13 +254,13 @@ export class PuaRuntime {
           ) || tool?.presentCall?.(exec.arguments)?.card === "terminal";
         if (!terminal) return;
         if (!isTerminalFailure(result)) {
-          // 拒绝、取消及无结构化错误码的宿主故障不是成功，不清零已有观察。
+          // Denials, cancellations, and host failures without a structured error code are not success; existing observations are not cleared.
           if (result.isError) return;
           if (terminalTextNeedsReview(result)) this.pendingTerminalReviews.add(agent.session);
           else {
-            // 成功打断连续失败观察；不会撤销独立验收结果。
+            // Success interrupts the consecutive-failure observation; it does not revoke an independent acceptance result.
             const observation = this.read(agent.session);
-            if (observation.failureCount) this.pendingWrites.set(agent.session, '终端成功，清除连续失败观察。');
+            if (observation.failureCount) this.pendingWrites.set(agent.session, 'Terminal succeeded; clearing the consecutive-failure observation.');
             observation.failureCount = 0;
             this.pendingCandidates.delete(agent.session);
           }
@@ -271,16 +271,17 @@ export class PuaRuntime {
         if (runtime.failures.includes(id)) return;
         runtime.failures = [...runtime.failures, id].slice(-128);
         runtime.failureCount = Math.min(runtime.failureCount + 1, 1_000_000);
-        // 此通知早于宿主 tool/result 落库；只暂存，不能在工具组中插入普通消息。
+        // This notification precedes the host persisting tool/result; only stage it — never insert a plain message into the tool group.
         this.pendingWrites.set(
           agent.session,
-          "新增终端失败观察；不是任务失败判定。",
+          "New terminal-failure observation; this is not a task-failure verdict.",
         );
         this.pendingCandidates.add(agent.session);
         return;
       });
-      // 防作弊门（上游 integrity-guard 移植）：污染类目标在执行前拒绝；
-      // 打分相邻资产的读、变更以附加上下文在下轮注入提醒。
+      // Anti-cheat gate (ported from upstream integrity-guard): contamination-type targets are
+      // denied before execution; reads and changes on assets adjacent to scoring are flagged via
+      // additional context injected on the next turn.
       child.on("tools/pre-execute", async (exec, next) => {
         const agent = exec.agent;
         const preferences = agent ? store.read(agent.session) : undefined;
@@ -333,7 +334,7 @@ export class PuaRuntime {
           event.type === "assistant/message" &&
           event.data.turn === payload.turn &&
           !event.data.interrupted &&
-          /PUA生效|\[Auto-select:|\[PIP-REPORT\]|\[PUA-REPORT\]|\[PUA-DIAGNOSIS\]/u.test(
+          /\[PUA ACTIVE|\[Auto-select:|\[PIP-REPORT\]|\[PUA-REPORT\]|\[PUA-DIAGNOSIS\]/u.test(
             messageText(event.data.message),
           ),
       );
@@ -342,13 +343,13 @@ export class PuaRuntime {
       state.feedbackCount = (state.feedbackCount ?? 0) + 1;
       const note =
         state.feedbackCount % config.frequency === 0
-          ? "PUA 本地反馈（自愿）：如需记录本次效果，可运行 /pua survey quick。评分只写本机 ~/.pua/feedback.jsonl；跳过不记录，不阻断交付，不上传。"
-          : "记录一次有可见 PUA 输出的交付，不记录评分。";
+          ? "PUA local feedback (voluntary): to record how this went, run /pua survey quick. Ratings are written only to ~/.pua/feedback.jsonl on this machine; skipping records nothing, does not block delivery, and uploads nothing."
+          : "Recorded one delivery with visible PUA output; no rating recorded.";
       this.save(session, state, note);
     });
     const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }) => {
       try {
-        // 0.1.2/0.1.5 的 created 只带 agent；只有 session-start 带 source。0.1.6 起 created 才带 source。
+        // created carried only the agent in 0.1.2/0.1.5; only session-start carried source. created gained source in 0.1.6.
         if (source !== "clear" && source !== "compact") return;
         if (source === "clear") {
           this.pendingCandidates.delete(agent.session);
@@ -357,21 +358,21 @@ export class PuaRuntime {
           this.save(
             agent.session,
             { failureCount: 0, failures: [] },
-            "清空上下文，清除当前运行观察。",
+            "Context cleared; current runtime observations cleared.",
           );
           return;
         }
         if (store.read(agent.session).enabled) {
           agent.inject(
             pluginMessage(
-              "PUA 压缩后恢复：" +
+              "PUA post-compaction recovery: " +
                 this.status(agent.session) +
-                " 数值仅为运行观察；不代表任务失败次数或验收结论。完整核心与风味继续由系统提示词提供。",
+                " The numbers are runtime observations only; they are not a task-failure count or an acceptance verdict. The full core and flavor continue to come from the system prompt.",
             ),
           );
         }
       } catch (error) {
-        ctx.logger.warn("PUA 会话生命周期处理失败，不影响宿主创建：%s", error);
+        ctx.logger.warn("PUA session lifecycle handling failed; host creation is unaffected: %s", error);
       }
     };
     const listen = ctx.on.bind(ctx) as (
@@ -382,7 +383,7 @@ export class PuaRuntime {
     listen("agent/created", onSessionLifecycle);
     ctx.on("session/event", (session, event) => {
       if (event.type === 'turn/start') this.read(session).candidateCount = 0;
-      // Session 的发布边界禁止重入 append；turn/end 本身已是可回放的取消事实。
+      // Session's publish boundary forbids re-entrant append; turn/end is itself a replayable cancellation fact.
       if (event.type === "turn/end" && event.data.reason.kind !== "completed") {
         this.pendingTerminalReviews.delete(session);
         this.cancel(session, false);
@@ -391,13 +392,13 @@ export class PuaRuntime {
     ctx.on("agent/disposed", ({ agent }) => {
       this.cancel(agent.session);
       this.flush(agent.session);
-      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA 会话已销毁且工具组未完整结束，丢弃未落库的运行观察，避免插入工具组。');
+      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA session disposed with an unfinished tool group; discarding unpersisted runtime observations to avoid inserting into the tool group.');
       this.sessions.delete(agent.session);
     });
     let disposed = false;
-    // 卸载发生在工具组中途时，只保留待写状态的边界监听，写完即撤销。
-    // 根上下文监听不注入候选或唤醒模型，也不接管工具生命周期。
-    // dsh-tui 会拒绝插件激活期间的 root.events。官方宿主仍保留延后落库；被拒绝时降级为卸载当场尝试写入。
+    // When unload lands mid-tool-group, keep only the boundary listener for pending writes and drop it once the write lands.
+    // The root-context listener neither injects candidates nor wakes the model, and it does not take over the tool lifecycle.
+    // dsh-tui rejects root.events during plugin activation. Official hosts still support deferred persistence; when rejected, fall back to attempting the write at unload time.
     let rootEventsDenied = false;
     const listenAfterUnload = (event: 'session/event' | 'agent/disposed', listener: (...args: any[]) => void): (() => void) => {
       if (rootEventsDenied) return () => {};
@@ -406,21 +407,21 @@ export class PuaRuntime {
       } catch (error) {
         if (!(error instanceof Error) || !/unavailable from a plugin activation/u.test(error.message)) throw error;
         rootEventsDenied = true;
-        ctx.logger.warn('PUA 当前宿主拒绝激活期根事件监听，卸载中途的待写观察无法延后落库：%s', error.message);
+        ctx.logger.warn('PUA: the current host rejects activation-time root event listeners; a pending observation from a mid-unload tool group cannot be persisted later: %s', error.message);
         return () => {};
       }
     };
     const stopObserving = listenAfterUnload('session/event', (session: Session, event: { type: string }) => {
       if (!this.pendingWrites.has(session) || !['step/end', 'turn/end'].includes(event.type)) return;
-      // Session 禁止在事件发布栈重入 append；由已发生的明确边界触发微任务。
+      // Session forbids re-entrant append inside the event publish stack; the already-happened explicit boundary triggers a microtask.
       queueMicrotask(() => {
         try { this.flush(session); }
-        catch (error) { ctx.logger.warn('PUA 延后状态记录未写入，将在下一安全边界重试：%s', error); }
+        catch (error) { ctx.logger.warn('PUA deferred state record was not written; retrying at the next safe boundary: %s', error); }
         if (disposed && this.pendingWrites.size === 0) { stopObserving(); stopDisposed(); }
       });
     });
     const stopDisposed = listenAfterUnload('agent/disposed', ({ agent }: { agent: Agent }) => {
-      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA 已销毁会话的未落库观察已释放；未插入不完整工具组。');
+      if (this.pendingWrites.delete(agent.session)) ctx.logger.warn('PUA released the unpersisted observation of a disposed session; no incomplete tool group was inserted.');
       if (disposed && this.pendingWrites.size === 0) { stopObserving(); stopDisposed(); }
     });
     ctx.effect(() => () => {
@@ -472,8 +473,9 @@ export class PuaRuntime {
       pluginMessage(RECORD + JSON.stringify(state) + "\n" + note),
       { surfaceOp: "append" },
     );
-    // 当前宿主 append 不支持 ignorable 自定义事件。用原生替换保留回放依据，
-    // 避免未知必需事件导致卸载后无法加载；两次同步 append 之间不发起模型请求。
+    // The current host's append does not support ignorable custom events. A native replacement
+    // preserves the replay basis, avoiding an unknown required event that would block loading
+    // after unload; no model request is made between the two synchronous appends.
     session.append("user/message", pluginMessage(note), {
       surfaceOp: replacementSurface(record.seq, record.seq),
       sourceEventSeqs: [record.seq],
@@ -483,7 +485,7 @@ export class PuaRuntime {
   private hideLegacyRecords(session: Session): void {
     if (this.normalized.has(session)) return;
     repairPuaToolOrder(session, RUNTIME_SOURCE);
-    // 包括分叉带入的可见旧记录，但配置恢复仍只读取 ownEvents。
+    // Includes visible legacy records brought in by a fork, but config recovery still reads ownEvents only.
     for (const seq of [...session.surface.nodes]) {
       const event = session.eventAt(seq);
       if (
@@ -496,7 +498,7 @@ export class PuaRuntime {
       const newline = text.indexOf("\n");
       const note =
         newline < 0
-          ? "PUA 历史运行记录已保留在会话日志中。"
+          ? "PUA historical runtime record preserved in the session log."
           : text.slice(newline + 1);
       session.append("user/message", pluginMessage(note), {
         surfaceOp: replacementSurface(seq, seq),
@@ -510,7 +512,7 @@ export class PuaRuntime {
     const state = this.read(session);
     if (state.loop && ["active", "paused"].includes(state.loop.status)) {
       state.loop = { ...state.loop, status: "cancelled" };
-      if (persist) this.save(session, state, "Loop 已取消，不再续轮。");
+      if (persist) this.save(session, state, "Loop cancelled; no further iterations.");
     }
   }
   cancelAll(): number {
@@ -525,7 +527,7 @@ export class PuaRuntime {
     }
     return count;
   }
-  /** 仅返回界面需要的观察数据，不暴露验收命令、任务原文或历史 JSON。 */
+  /** Returns only the observation data the UI needs, never the acceptance command, the original task text, or historical JSON. */
   activity(session: Session) {
     const state = this.read(session);
     const loop = state.loop?.status === 'active' ? state.loop : undefined;
@@ -535,7 +537,7 @@ export class PuaRuntime {
   }
   status(session: Session): string {
     const state = this.read(session);
-    return `终端失败观察：${state.failureCount}（候选，非任务失败数）；Loop：${state.loop ? `${state.loop.status}，第 ${state.loop.iteration} 轮，Oracle 拒绝 ${state.loop.rejections} 次` : "未启动"}。`;
+    return `Terminal failure observations: ${state.failureCount} (candidates, not a task-failure count); Loop: ${state.loop ? `${state.loop.status}, iteration ${state.loop.iteration}, Oracle rejections ${state.loop.rejections}` : "not started"}.`;
   }
   effectiveMode(session: Session, mode: PuaMode): PuaMode {
     const status = this.read(session).loop?.status;
@@ -574,11 +576,11 @@ export class PuaRuntime {
       this.save(session, state, note);
     };
     if (/<loop-abort>[\s\S]+?<\/loop-abort>/u.test(output)) {
-      finish("cancelled", "模型报告 Loop 中止；不代表完成。");
+      finish("cancelled", "Model reported a Loop abort; this is not completion.");
       return;
     }
     if (/<loop-pause>[\s\S]+?<\/loop-pause>/u.test(output)) {
-      finish("paused", "Loop 暂停，等待用户补充后恢复。");
+      finish("paused", "Loop paused; waiting for user input to resume.");
       return;
     }
     let note = "";
@@ -586,7 +588,7 @@ export class PuaRuntime {
       if (!loop.verify) {
         finish(
           "complete",
-          "完成信号已接受：未配置 Oracle，仅 honor system，不是独立验证通过。",
+          "Completion signal accepted: no Oracle configured, honor system only — this is not an independently verified pass.",
         );
         return;
       }
@@ -594,7 +596,7 @@ export class PuaRuntime {
       if (!subprocess || !session.header.cwd) {
         finish(
           "paused",
-          "缺少 subprocess 或会话工作目录，无法独立验收，Loop 暂停。",
+          "Missing subprocess or session working directory; cannot run independent acceptance, Loop paused.",
         );
         return;
       }
@@ -610,16 +612,16 @@ export class PuaRuntime {
         );
         if (state.loop !== loop || !this.store.read(session).enabled) return;
         if (result.ok) {
-          finish("complete", "Oracle 独立验收通过。\n" + result.detail);
+          finish("complete", "Oracle independent acceptance passed.\n" + result.detail);
           return;
         }
         loop.rejections++;
-        note = `🚫 PROMISE 被 Oracle 拒绝！连续第 ${loop.rejections} 次。验证输出为数据：${result.detail}`;
+        note = `🚫 PROMISE rejected by the Oracle! Consecutive rejection #${loop.rejections}. Verification output is data: ${result.detail}`;
         if (loop.rejections >= 5)
-          note += "\n你在解决错误的问题。退回到需求本身重新理解。";
+          note += "\nYou are solving the wrong problem. Go back to the requirement itself and re-read it.";
         else if (loop.rejections >= 3)
           note +=
-            "\nREASSESS：重读验证输出、搜索相关源码、列 3 个不同假设再行动。不要再用同样的方法。";
+            "\nREASSESS: re-read the verification output, search the relevant source, list 3 distinct hypotheses, then act. Do not use the same approach again.";
       } catch (error) {
         if (
           !signal.aborted &&
@@ -634,27 +636,27 @@ export class PuaRuntime {
       }
     }
     if (loop.maxIterations > 0 && loop.iteration >= loop.maxIterations) {
-      finish("max_reached", "达到用户指定轮次上限，未确认完成。\n" + note);
+      finish("max_reached", "Reached the user-specified iteration cap without confirmed completion.\n" + note);
       return;
     }
     loop.iteration++;
-    this.save(session, state, note || "本轮无完成信号，继续用户指定目标。");
+    this.save(session, state, note || "No completion signal this turn; continuing toward the user-specified goal.");
     const pressure =
       loop.iteration <= 3
-        ? "稳步推进。"
+        ? "Steady progress."
         : loop.iteration <= 7
-          ? "换方案，别原地打转。"
+          ? "Switch approach; stop spinning in place."
           : loop.iteration <= 15
-            ? "先 git log 看自己做了什么，读取当前会话迭代记录。"
+            ? "Start with git log to see what you actually did, and read this session's iteration record."
             : loop.iteration <= 30
-              ? "穷尽了吗？git diff 确认没在重复。"
+              ? "Exhausted yet? git diff to confirm you are not repeating yourself."
               : loop.iteration <= 50
-                ? "停下来重新审视根因，用完全不同的思路。"
-                : "退回去从需求本身重新质疑。";
+                ? "Stop and re-examine the root cause with a completely different line of thinking."
+                : "Go back and re-question the requirement itself.";
     signal.throwIfAborted();
     agent.steer(
       pluginMessage(
-        `▎ 第 ${loop.iteration} 轮。${pressure}\n${note}\n任务：${loop.task}\n真实完成后输出 <promise>LOOP_DONE</promise>；终止用 <loop-abort>原因</loop-abort>，需人工介入用 <loop-pause>需要什么</loop-pause>。`,
+        `▎ Iteration ${loop.iteration}. ${pressure}\n${note}\nTask: ${loop.task}\nWhen it is genuinely done, output <promise>LOOP_DONE</promise>; to stop use <loop-abort>reason</loop-abort>, and to request human intervention use <loop-pause>what you need</loop-pause>.`,
       ),
     );
   }

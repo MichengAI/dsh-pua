@@ -1,25 +1,34 @@
 <p align="center">
-  <img src="assets/branding/dsh-pua-banner.png" alt="DSH PUA" width="100%">
+  <img src="assets/branding/dsh-pua-banner.png" alt="DSH PUA English fork" width="100%">
 </p>
 
 <div align="center">
 
-# DSH PUA
+# DSH PUA — English fork (dsh-pua-en)
 
 **Help your agent try another approach and verify its work before calling it done.**
 
-[简体中文](README.zh-CN.md) · [Русский](README.ru.md) · [Features](#features) · [Screenshots](#screenshots) · [Installation](#installation) · [Usage](#usage) · [Configuration](#configuration) · [Commands](#common-commands) · [Session events](#session-events) · [Changelog](CHANGELOG.md)
-
-[![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
-[![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=downloads)](https://www.npmjs.com/package/@michengai/dsh-pua)
-[![CI](https://github.com/MichengAI/dsh-pua/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MichengAI/dsh-pua/actions/workflows/ci.yml)
+[![CI](https://github.com/phucnd0604/dsh-pua-en/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/phucnd0604/dsh-pua-en/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![DSH Web Plugin](https://img.shields.io/badge/DSH%20Web-Plugin-0f766e.svg)](https://github.com/deepseek-ai/deepseek-harness)
+[![Upstream: MichengAI/dsh-pua](https://img.shields.io/badge/upstream-MichengAI%2Fdsh--pua-0f766e.svg)](https://github.com/MichengAI/dsh-pua)
 [![Node.js 22.19+](https://img.shields.io/badge/Node.js-22.19%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 </div>
 
-> DSH PUA brings [PUA](https://github.com/tanweai/pua) to DeepSeek Harness. When an agent repeatedly fails, gives up too early, or claims completion without checking, it encourages a different approach, investigation, and evidence. Community-maintained; not an official DeepSeek AI or PUA product.
+> English fork of [MichengAI/dsh-pua](https://github.com/MichengAI/dsh-pua), based on
+> upstream 0.3.28 with vendored content from [tanweai/pua](https://github.com/tanweai/pua) 3.5.1.
+> DSH PUA brings PUA to DeepSeek Harness. When an agent repeatedly fails, gives up too early,
+> or claims completion without checking, it pushes a different approach, investigation, and
+> evidence. Community-maintained; not an official DeepSeek AI or PUA product.
+
+## Why this fork
+
+The upstream plugin serves Chinese as the primary language of agent-facing content
+(methodology docs, narration, hooks, error text). This fork translates that entire surface
+to English — vendored assets, hooks, and TypeScript strings included — so it can be used
+**instead of** the Chinese original as a daily driver. The PUA tone is preserved; proper
+nouns are romanized per [GLOSSARY.md](GLOSSARY.md). Command names are unchanged
+(slash commands like /pua, /ding, /mama, /kpi, /p7); descriptions and content are English.
 
 ## Features
 
@@ -33,67 +42,25 @@
 
 Results depend on the model and task. The plugin does not guarantee a solution every time.
 
-## Screenshots
-
-### Global settings
-
-Open Plugins in the sidebar, then `@michengai/dsh-pua`, to set default enablement, style, persona, and subagent behavior. Earlier DSH hosts still use Settings → Plugins → PUA Configuration. Screenshots show the Chinese interface.
-
-![PUA global settings with enablement, style, persona, and subagent options](assets/screenshots/pua-global-settings.png)
-
-### Current conversation
-
-Click **PUA** to the right of Experts to adjust the current conversation. Restore individual defaults or start and cancel a Loop from the same panel.
-
-![PUA chat entry and current-conversation configuration panel](assets/screenshots/pua-session-settings.png)
-
-## DSH product ecosystem
-
-For a desktop workbench, download [DSH Codex Desktop](https://github.com/MichengAI/dsh-codex-desktop/releases). Existing [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) installations can add plugins as needed by following each project's README. Below are 11 first-party plugins; consult the corresponding desktop release notes and bundled catalog for what that version includes.
-
-| Plugin | What you can do |
-| --- | --- |
-| [Codex UI](https://github.com/MichengAI/dsh-codex-ui) | Organize projects and conversations, search tasks, and navigate chat turns |
-| [Agency Agents](https://github.com/MichengAI/dsh-agency-agents) | Choose and summon specialists for your task |
-| [Skills Manager](https://github.com/MichengAI/dsh-skills-manager) | Find, enable, create, and import local skills |
-| [Archive Manager](https://github.com/MichengAI/dsh-archive-manager) | Search, restore, or clean up archived conversations |
-| [IM Connect](https://github.com/MichengAI/dsh-im-connect) | Send tasks and receive replies through messaging platforms |
-| [Automation](https://github.com/MichengAI/dsh-automation) | Schedule tasks and review each run |
-| [BTW](https://github.com/MichengAI/dsh-btw) | Ask side questions without interrupting the main task |
-| [Simplify](https://github.com/MichengAI/dsh-simplify) | Use `/simplify` to improve code within your Git changes |
-| [PUA](https://github.com/MichengAI/dsh-pua) | Guide the Agent to try new approaches after failures, investigate causes, and verify results before completion |
-| [Code Review](https://github.com/MichengAI/dsh-code-review) | Use `/review` to request an independent Agent code review and receive the report in the current conversation |
-| [Codex Pet](https://github.com/MichengAI/dsh-codex-pet) | View conversation notifications and respond to tool approvals and questions through a desktop pet |
-
 ## Installation
 
-Requires Node.js 22.19 or later and DSH `0.1.2-rc.1`, `0.1.5-rc.1`, `0.1.5-rc.2`, `0.1.5-rc.3`, `0.1.7-rc.1`, `0.1.7-rc.2`, `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-alpha.2`, or `0.2.1-alpha.3`. Uses your existing DSH model configuration; no additional API key is needed.
-
-GitHub and npm both include a ready-to-run `lib`. After changing source, run `npm run build` before committing.
-
-Examples use the `web` profile. Replace it with the profile you use.
-
-### Ask an agent to install it
-
-Send this to an agent that can run commands on your computer:
-
-```text
-Install @michengai/dsh-pua into my local DSH web profile by running dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/. Check that the plugin loads, then explain how to open PUA settings.
-```
-
-### Install manually
+Requires Node.js 22.19 or later and a supported DSH host version: 0.1.2-rc.1,
+0.1.5-rc.1, 0.1.5-rc.2, 0.1.5-rc.3, 0.1.7-rc.1, 0.1.7-rc.2, 0.2.0-rc.1, 0.2.0-rc.2, or
+0.2.1-alpha.2 / 0.2.1-alpha.3. Uses your existing DSH model configuration; no additional
+API key is needed. This fork installs by repository — no npm registry publish is involved.
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/
+dsh plugin --profile web add github:phucnd0604/dsh-pua-en
 ```
 
-After the current task finishes, reload DSH or restart its Web service. Refreshing the browser alone is not enough. Enter `/pua help` to check that the plugin is available.
+After the current task finishes, reload DSH or restart its Web service. Refreshing the
+browser alone is not enough. Enter `/pua help` to check that the plugin is available.
 
 ## Usage
 
-1. Open Plugins in the sidebar, open `@michengai/dsh-pua`, and use the package page or the `michengai-pua` row. On earlier DSH hosts, expand PUA Configuration under Settings → Plugins.
+1. Open Plugins in the sidebar, open `@phucnd0604/dsh-pua-en`, and use the package page or the `phucnd0604-pua-en` row. On earlier DSH hosts, expand PUA Configuration under Settings → Plugins.
 2. Turn on Allow PUA, choose a style and persona, and save. This only shows `/pua` and the chat entry. It does not inject by itself.
 3. Return to chat, turn the current conversation on with `/pua` or the chat entry, then submit the task.
 
@@ -119,8 +86,6 @@ Unchanged options follow global defaults. Editing an option overrides just that 
 | Feedback reminders | Change reminder frequency or turn reminders off; feedback is not uploaded |
 | Loop defaults | Set a verification command, timeout, and iteration limit |
 
-Since `0.3.0`, commands no longer change global settings. Subagent enablement also depends on the parent conversation's PUA switch.
-
 ### Continue until verification passes
 
 In the chat PUA panel, enter a Loop task, verification command, and iteration limit, then start it. For example, ask the agent to fix failing tests, verify with `npm test`, and stop after at most 10 iterations.
@@ -132,8 +97,6 @@ You can also enter:
 ```
 
 Enter `/pua-cancel-loop` or `/pua cancel-loop` to stop. Disabling PUA for the current conversation also cancels its Loop, but does not undo operations already performed.
-
-Set a verification command and iteration limit when using a Loop. Without a verification command, completion relies on the model's report. An iteration limit of 0 means unlimited iterations.
 
 ## Common commands
 
@@ -159,8 +122,8 @@ Tell them apart with `data.source`:
 
 | Origin | Current hosts (session format 4 or newer) | Older hosts |
 | --- | --- | --- |
-| Runtime notes and saved observations | `kind` is `plugin:@michengai/dsh-pua/runtime` | `kind` is `plugin` and `plugin` is `@michengai/dsh-pua/runtime` |
-| Text submitted with `/pua` and then queued as a follow-up or steer | `kind` is `plugin:@michengai/dsh-pua` | `kind` is `plugin` and `plugin` is `@michengai/dsh-pua` |
+| Runtime notes and saved observations | `kind` is `plugin:@phucnd0604/dsh-pua-en/runtime` | `kind` is `plugin` and `plugin` is `@phucnd0604/dsh-pua-en/runtime` |
+| Text submitted with `/pua` and then queued as a follow-up or steer | `kind` is `plugin:@phucnd0604/dsh-pua-en` | `kind` is `plugin` and `plugin` is `@phucnd0604/dsh-pua-en` |
 
 A real user message has `source.kind === "user"`.
 
@@ -171,13 +134,16 @@ Each saved runtime observation leaves two `user/message` events in the raw log. 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-dsh plugin --profile web remove @michengai/dsh-pua
+dsh plugin --profile web remove @phucnd0604/dsh-pua-en
 ```
 
 Reload DSH for the change to take effect. Project files and conversation history are preserved.
 
 ## License and attribution
 
-Adapted from [tanweai/pua](https://github.com/tanweai/pua) 3.5.1. Persona and collaboration capabilities depend on what DSH supports.
-
-Original project code uses [Apache License 2.0](LICENSE). Bundled PUA assets retain their upstream-declared MIT license and attribution; see [NOTICE](NOTICE).
+Adapted from [MichengAI/dsh-pua](https://github.com/MichengAI/dsh-pua) (which vendors
+[tanweai/pua](https://github.com/tanweai/pua) 3.5.1). Original plugin code uses
+[Apache License 2.0](LICENSE). Bundled PUA assets retain their upstream-declared MIT
+license and attribution; see [NOTICE](NOTICE). Original Chinese bytes are pinned in
+assets/pua/upstream.json (sourceSha256/gitBlobSha256); current English bytes are pinned
+as contentSha256 and checked by the verify script.

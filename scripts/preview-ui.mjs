@@ -3,10 +3,10 @@ import { mkdirSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 const dir = '.test-tmp/pua-ui-preview';
 mkdirSync(dir, { recursive: true });
-// 官方 primitives 的发布入口还包含代码高亮等组件；预览仅编译实际使用的官方源文件。
-// 参数为匹配宿主版本的 ui-primitives/src 目录，生产包始终由宿主提供这些组件。
+// The published entry of the official primitives also bundles components such as syntax highlighting; the preview compiles only the official source files it actually uses.
+// The argument is the ui-primitives/src directory matching the host version; the production package always receives these components from the host.
 const primitivesSource = process.argv[2];
-if (!primitivesSource) throw new Error('请传入官方 ui-primitives/src 目录：node scripts/preview-ui.mjs <目录>');
+if (!primitivesSource) throw new Error('Pass the official ui-primitives/src directory: node scripts/preview-ui.mjs <dir>');
 const { resolve } = await import('node:path');
 const { createRequire } = await import('node:module');
 const localRequire = createRequire(import.meta.url);
@@ -18,7 +18,7 @@ await build({ entryPoints: ['tests/ui-preview.ts'], bundle: true, format: 'esm',
     builder.onResolve({ filter: /^(react|react-dom|clsx)(\/.*)?$/ }, args => ({ path: localRequire.resolve(args.path) }));
   } }], define: { 'process.env.NODE_ENV': '"development"' } });
 
-const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PUA 配置组件验收</title><link rel="stylesheet" href="/preview.css"><style>
+const html = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PUA settings component acceptance</title><link rel="stylesheet" href="/preview.css"><style>
 :root{color-scheme:light;--dsw-alias-button-tool-bar-fill:#eceef1;--dsw-alias-button-tool-bar-hover:#dfe2e8;--dsw-alias-brand-primary:#365cc9;--dsw-alias-border-l3:#999;--dsw-specific-menu:#fff;--dsw-alias-bg-layer-3:#f5f6f8;--dsw-alias-border-l4:#dce0e6;--dsw-alias-label-dimmed:#999;--dsw-alias-label-tertiary:#626977;--dsw-alias-border-l1:#ddd;--dsw-elevation-prominent:0 4px 24px #0003;--dsw-alias-label-primary:#20242c;--dsw-alias-label-secondary:#626977;--dsw-alias-bg-layer-2:#fff;--dsw-alias-border-l2:#dce0e6;--dsw-alias-button-primary-fill:#365cc9;--dsw-alias-label-primary-foreground:#fff;--dsw-alias-interactive-bg-hover:#edf1f8}*{box-sizing:border-box}body{margin:0;background:#f5f6f8;font:14px system-ui;color:#20242c}main{max-width:900px;margin:32px auto;padding:0 20px}header{margin-bottom:20px}header strong{font-size:20px}header p,article>p{color:#626977}nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}nav button{padding:9px 12px;border:1px solid #dce0e6;border-radius:8px;background:white;cursor:pointer}nav button[aria-pressed=true]{background:#e9efff;color:#254ea8}article{background:#fff;border:1px solid #dce0e6;border-radius:12px;padding:24px}article>textarea{width:100%;resize:vertical;border:1px solid #dce0e6;border-radius:8px;padding:12px}.composer{display:flex;align-items:center;gap:12px;padding:14px 0 0}button:focus-visible{outline:2px solid #365cc9;outline-offset:2px}@media(max-width:500px){main{margin:16px auto;padding:0 12px}article{padding:16px}}
 :root[data-theme=dark]{color-scheme:dark;--dsw-alias-button-tool-bar-fill:#363636;--dsw-alias-button-tool-bar-hover:#454545;--dsw-specific-menu:#333;--dsw-alias-bg-layer-2:#292929;--dsw-alias-bg-layer-3:#333;--dsw-alias-border-l4:#555;--dsw-alias-border-l2:#555;--dsw-alias-label-primary:#eee;--dsw-alias-label-secondary:#bbb;--dsw-alias-label-tertiary:#aaa;--dsw-alias-interactive-bg-hover:#444} :root[data-theme=dark] body,:root[data-theme=dark] article,:root[data-theme=dark] nav button{background:#292929;color:#eee;border-color:#555}body:has(.pua-activity-dock) main{max-width:none;margin-left:0;margin-right:0;padding:0}body:has(.pua-activity-dock) main>article{padding-left:0;padding-right:0;--dsh-composer-card-max-width:680px;--dsh-composer-side-clearance:24px}body:has(.pua-activity-dock) main>article>textarea,body:has(.pua-activity-dock) .composer{display:block;box-sizing:border-box;width:calc(100% - 48px);max-width:680px;margin:0 auto}body:has(.pua-activity-dock) .composer{display:flex}</style><div id="root"></div><script type="module" src="/preview.js"></script></html>`;
 createServer((request, response) => {

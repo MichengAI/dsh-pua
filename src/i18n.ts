@@ -1,12 +1,12 @@
 import { FLAVORS } from './flavors.js';
 import type { Configuration, LanguagePref } from './configuration.js';
 
-/** 操作者可见界面文案的语言；模型侧 prompt 与服务端回复不在本地化范围。 */
+/** Language of operator-visible UI copy; model-side prompts and server replies are outside the scope of localization. */
 export type UiLang = 'zh' | 'en' | 'ru';
 
 type ConfigKey = keyof Configuration;
 
-/** 手动覆盖时才与宿主 locale 解耦；auto 表示跟随宿主。 */
+/** Decoupled from the host locale only when manually overridden; auto means follow the host. */
 export function resolveUiLang(pref: LanguagePref | undefined, hostLocale: string | undefined): UiLang {
   if (pref === 'en') return 'en';
   if (pref === 'zh-CN') return 'zh';
@@ -16,12 +16,12 @@ export function resolveUiLang(pref: LanguagePref | undefined, hostLocale: string
     if (/^ru(?:[-_]|$)/i.test(hostLocale)) return 'ru';
     if (/^zh(?:[-_]|$)/i.test(hostLocale)) return 'zh';
   }
-  return 'zh';
+  return 'en';
 }
 
 type Lookup = { get?(name: string): unknown };
 
-/** 读取宿主 locale 服务当前 active 值；缺失或形态不符时返回 undefined。 */
+/** Reads the host locale service's current active value; returns undefined when it is missing or malformed. */
 export function hostLocaleOf(lookup: Lookup): string | undefined {
   const locale = lookup.get?.('locale') as { snapshot?: { active?: unknown } } | undefined;
   const active = locale?.snapshot?.active;
@@ -40,7 +40,7 @@ const RU_FLAVOR_LABELS: Record<string, string> = {
   tesla: 'Tesla (Маск)', apple: 'Apple (Джобс)', amazon: 'Amazon', microsoft: 'Microsoft', ding: 'DingTalk',
 };
 
-/** 风味显示名；en/ru 无映射或 zh 未登记时回退原 id。 */
+/** Flavor display name; falls back to the raw id when en/ru have no mapping or zh has no entry. */
 export function flavorLabel(id: string, lang: UiLang): string {
   if (lang === 'en') return EN_FLAVOR_LABELS[id] ?? id;
   if (lang === 'ru') return RU_FLAVOR_LABELS[id] ?? id;
@@ -68,7 +68,7 @@ export interface ComposerCopy {
   dialogAria: string; closePanel: string; close: string; readError: string;
 }
 
-/** 斜杠菜单行。宿主命令注册表只接受普通字符串，菜单文案在每次生成候选项时按界面语言覆盖。 */
+/** Slash menu row. The host command registry accepts only plain strings, so menu copy is overridden per UI language every time candidates are generated. */
 export interface SlashCommandCopy {
   label: string;
   description: string;
@@ -79,7 +79,7 @@ export interface UiCopy {
   settingsSummary: string;
   cardTitle: string;
   cardToggle: (open: boolean) => string;
-  /** 全局开关只控制命令和聊天入口，不代表会话已注入。 */
+  /** The global switch only controls the command and chat entry; it does not mean the session has been injected. */
   allow: { label: string; description: string };
   fields: Record<ConfigKey, string>;
   languageChoices: Record<LanguagePref, string>;

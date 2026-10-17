@@ -1,42 +1,42 @@
 ---
-description: "扫描并清理本地过期的 PUA agent/state。"
+description: "Scan and clean expired local PUA agent/state."
 allowed-tools: ["Bash(find:*)", "Bash(stat:*)", "Bash(rm:*)", "Bash(ls:*)", "Bash(date:*)", "Bash(mkdir:*)"]
 ---
 
-# PUA Reap Orphans — 孤儿回收
+# PUA Reap Orphans — orphan reaping
 
-Keeper Test 的工程版：打完就退场，拖着不走的一律清理。
+The engineering version of the Keeper Test: exit as soon as the job is done; anything that lingers and will not leave gets cleaned up.
 
-## 执行步骤
+## Steps
 
-1. 确保目录存在：
+1. Make sure the directory exists:
    ```bash
    mkdir -p "$HOME/.claude/pua"
    ```
 
-2. 扫描 30 分钟未更新的 loop state（orphan 判定线）：
+2. Scan loop states not updated for 30 minutes (the orphan cutoff line):
    ```bash
    find "$HOME/.claude/pua/" -name "loop-*.md" -type f -mmin +30 2>/dev/null
    ```
 
-3. 同步扫 legacy 相对路径：
+3. Also scan the legacy relative path:
    ```bash
    find .claude/ -maxdepth 1 -name "pua-loop.local.md" -type f -mmin +30 2>/dev/null
    ```
 
-4. 对每个匹配文件：
-   - 读 session_id 和 iteration（若可解析）
-   - 记录到 `$HOME/.claude/pua/teardown.jsonl`：
+4. For each matching file:
+   - read session_id and iteration (if parseable)
+   - record to `$HOME/.claude/pua/teardown.jsonl`:
      ```bash
      echo "{\"reaped\":\"<file>\",\"age_min\":<N>,\"ts\":\"$(date -u +%FT%TZ)\",\"reason\":\"orphan_reap\"}" \
        >> "$HOME/.claude/pua/teardown.jsonl"
      ```
-   - 删除 state 文件：
+   - delete the state file:
      ```bash
      rm -f "<file>"
      ```
 
-5. 若存在 `active-agents.json`，清理 spawn_time > 30min 的记录（需 jq）：
+5. If `active-agents.json` exists, clean records with spawn_time > 30min (needs jq):
    ```bash
    test -f "$HOME/.claude/pua/active-agents.json" && \
      jq '.agents |= map(select(.spawn_time > (now - 1800)))' \
@@ -44,25 +44,25 @@ Keeper Test 的工程版：打完就退场，拖着不走的一律清理。
      mv "$HOME/.claude/pua/active-agents.json.tmp" "$HOME/.claude/pua/active-agents.json"
    ```
 
-6. 输出结果：
+6. Output the result:
 
    ```
-   > [PUA REAP] 清理了 N 个孤儿状态：
+   > [PUA REAP] Cleaned N orphan states:
    >   - loop-abc123.md (age 1h42m)
    >   - .claude/pua-loop.local.md (age 3h05m)
-   > 全部已落盘到 ~/.claude/pua/teardown.jsonl 备查。
+   > All written to ~/.claude/pua/teardown.jsonl for the record.
    ```
 
-7. 若无孤儿：
+7. If there are no orphans:
 
-   > [PUA REAP] 没发现孤儿。球队纪律良好。
+   > [PUA REAP] No orphans found. Team discipline is good.
 
-## 幂等性
+## Idempotency
 
-- 重复执行无害：`rm -f` 对不存在文件不报错
-- teardown.jsonl 追加而非覆盖，保留完整历史
+- Repeating it is harmless: `rm -f` does not error on missing files
+- teardown.jsonl is appended to, never overwritten, keeping the full history
 
-## 安全保护
+## Safety guards
 
-- 仅清理 `$HOME/.claude/pua/` 和 `.claude/pua-loop.local.md`，不越权
-- 年龄阈值硬编码 30min，不接受用户参数（防误杀活跃 loop）
+- Only cleans `$HOME/.claude/pua/` and `.claude/pua-loop.local.md`, never overreaches
+- The age threshold is hardcoded at 30min and accepts no user argument (to avoid killing an active loop by mistake)

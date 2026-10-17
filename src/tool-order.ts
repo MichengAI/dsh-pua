@@ -6,7 +6,7 @@ import { isPluginSource } from './message-source.js';
 interface PendingCalls { cursor: Session['seq']; ids: Map<string, Session["surface"]["nodes"][number]> }
 const calls = new WeakMap<Session, PendingCalls>();
 
-/** V3 工具结果是带 tool-result 块的 user 消息；V4 提升为 tool 角色，调用号留在 source.callId。 */
+/** In V3 a tool result is a user message with a tool-result block; V4 promotes it to the tool role and leaves the call id in source.callId. */
 function toolResultCallId(message: { role?: string; source?: { kind?: string; callId?: string }; content?: readonly { type?: string; toolCallId?: string }[] } | null | undefined): string | undefined {
   if (!message || message.source?.kind !== 'tool' || !message.source.callId) return undefined;
   if (message.role === 'tool') return message.source.callId;
@@ -15,7 +15,7 @@ function toolResultCallId(message: { role?: string; source?: { kind?: string; ca
   return block?.type === 'tool-result' && block.toolCallId === message.source.callId ? message.source.callId : undefined;
 }
 
-/** 从原始日志增量检查整组调用；包含已声明但尚未派发的并行调用。 */
+/** Incrementally checks the whole call group from the raw log; includes parallel calls that are declared but not yet dispatched. */
 export function hasPendingToolCalls(session: Session): boolean {
   let pending = calls.get(session);
   if (!pending) {
@@ -29,7 +29,7 @@ export function hasPendingToolCalls(session: Session): boolean {
       const callId = event.data.message.source.callId ?? ('toolCallId' in event.data.message ? event.data.message.toolCallId : undefined);
       if (callId) pending.ids.delete(callId);
     } else if (event.type === 'turn/end' || event.type === 'turn/start') {
-      // 结束轮次的孤儿不再阻塞后续轮次，不伪造缺失结果。
+      // Orphans from a finished turn no longer block later turns; missing results are not faked.
       pending.ids.clear();
     }
   }
@@ -40,9 +40,11 @@ export function hasPendingToolCalls(session: Session): boolean {
 }
 
 /**
- * 兼容本插件打断的完整历史工具组。只追加模型上下文替换，不改写原始事件。
- * 原工具结果本来就是 user-role 消息；使用通用 user/message 投影保留其完整
- * id、tool 来源和 content，覆盖前置 PUA 节点与结果节点，避免伪造或重执行工具。
+ * Repairs the complete historical tool group that this plugin interrupted. Only model-context
+ * replacements are appended; raw events are never rewritten. The original tool results were
+ * user-role messages to begin with; the generic user/message projection preserves their full
+ * id, tool source, and content while shadowing the preceding PUA node and the result node,
+ * so tools are never faked or re-executed.
  */
 export function repairPuaToolOrder(session: Session, plugin: string): void {
   const nodes = [...session.surface.nodes];
@@ -71,7 +73,7 @@ export function repairPuaToolOrder(session: Session, plugin: string): void {
       if (gap.length) replacements.push({ nodes: [...gap, seq], message });
       gap = [];
     }
-    // 缺失结果或夹入其他来源消息时不猜测，也不进行半组修复。
+    // When a result is missing or a foreign-source message is interleaved, do not guess and do not half-repair the group.
     if (pending.size) continue;
     for (const replacement of replacements) {
       const toolRole = (replacement.message.role as string) === 'tool';
@@ -81,7 +83,7 @@ export function repairPuaToolOrder(session: Session, plugin: string): void {
         sourceEventSeqs: hidden,
       };
       if (toolRole) {
-        // V4 的 tool/result 替换只能改写一个结果节点。空系统消息盖住 PUA 记录且不进入模型请求，原工具结果留在表面上。
+        // A V4 tool/result replacement can only rewrite a single result node. An empty system message shadows the PUA record without entering the model request, and the original tool result stays on the surface.
         session.append('system/message', {
           message: { id: randomUUID(), role: 'system', content: [], source: { kind: 'system-prompt' } },
         } as never, surface);

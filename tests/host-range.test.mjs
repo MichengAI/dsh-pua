@@ -45,7 +45,7 @@ test('CI 与说明中的兼容列表和 peer 一致', { skip: sourceTree ? false
   const ci = read('.github/workflows/ci.yml');
   assert.match(ci, /version: \['0\.1\.2-rc\.1', '0\.1\.5-rc\.1', '0\.1\.5-rc\.2', '0\.1\.5-rc\.3', '0\.1\.7-rc\.1', '0\.1\.7-rc\.2', '0\.2\.0-rc\.1', '0\.2\.0-rc\.2'/);
   assert.equal(ci.includes('0.1.6-alpha') || ci.includes('0.1.7-alpha'), false);
-  for (const file of ['README.md', 'README.zh-CN.md']) {
+  for (const file of ['README.md']) {
     const text = read(file);
     for (const version of supported) assert.equal(text.includes(version), true, file);
     assert.equal(text.includes('0.1.6-alpha') || text.includes('0.1.7-alpha'), false, file);

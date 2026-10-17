@@ -12,7 +12,7 @@ function loadClient() {
   runInNewContext(readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8'), {
     window: { __ModuleLoader__: { load: value => { contribution = value; } } },
   });
-  assert.equal(contribution.id, '@michengai/dsh-pua');
+  assert.equal(contribution.id, '@phucnd0604/dsh-pua-en');
   const requireLocal = createRequire(import.meta.url);
   let sharedControls = false;
   const client = contribution.factory(name => {
@@ -28,7 +28,7 @@ function loadClient() {
   return { client, sharedControls };
 }
 
-test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡片，卸载释放远程贡献', async () => {
+test('client bundle registers config, entries, and status card via host loader; unmount releases the remote contribution', async () => {
   const { client, sharedControls } = loadClient();
   assert.equal(sharedControls, true, '客户端必须复用宿主控件');
   const slots = [];
@@ -39,21 +39,21 @@ test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡
     slots: { inject: (_name, register) => register(), register: (options, render) => { slots.push({ ...options, render }); return () => {}; } },
   });
   assert.deepEqual(slots.map(({ name, id, key }) => ({ name, id, key })), [
-    { name: 'settings.plugin.item', id: undefined, key: 'michengai-pua' },
-    { name: 'plugins.bundle.config', id: undefined, key: '@michengai/dsh-pua' },
-    { name: 'plugins.row.config', id: undefined, key: '@michengai/dsh-pua#michengai-pua' },
-    { name: 'conversation.input.left', id: 'michengai-pua', key: undefined },
-    { name: 'conversation.input.dock', id: 'michengai-pua', key: undefined },
+    { name: 'settings.plugin.item', id: undefined, key: 'phucnd0604-pua-en' },
+    { name: 'plugins.bundle.config', id: undefined, key: '@phucnd0604/dsh-pua-en' },
+    { name: 'plugins.row.config', id: undefined, key: '@phucnd0604/dsh-pua-en#phucnd0604-pua-en' },
+    { name: 'conversation.input.left', id: 'phucnd0604-pua-en', key: undefined },
+    { name: 'conversation.input.dock', id: 'phucnd0604-pua-en', key: undefined },
   ]);
   const row = slots.find(slot => slot.name === 'plugins.row.config');
   const bundle = slots.find(slot => slot.name === 'plugins.bundle.config');
   const composer = slots.find(slot => slot.name === 'conversation.input.left');
   const summary = row.render({ view: 'summary' });
-  assert.equal(summary.type(summary.props), '命令与聊天入口、角色风味和子代理策略。');
+  assert.equal(summary.type(summary.props), 'Command and chat entry, persona flavor, and subagent policy.');
   const page = bundle.render({ view: 'page' });
   assert.equal(typeof page.type, 'function');
   assert.equal(page.props.view, 'page');
-  assert.equal(composer.render({}), null, '没有会话时不显示会话写入口');
+  assert.equal(composer.render({}), null, 'no session state renders no composer entry');
   assert.ok(slots[0].render({}));
   dispose(); assert.equal(unmounted, true);
 });
@@ -72,7 +72,7 @@ test('英文宿主的插件摘要使用英文说明', async () => {
   assert.equal(summary.type(summary.props), 'Command and chat entry, persona flavor, and subagent policy.');
 });
 
-test('斜杠菜单为 /pua 与 /pua-cancel-loop 补官方图标和中文标题，不覆盖已有图标', async () => {
+test('slash menu decorates /pua and /pua-cancel-loop with official icons without clobbering existing icons', async () => {
   const { client } = loadClient();
   const keep = () => null;
   const commandUi = {
@@ -94,12 +94,12 @@ test('斜杠菜单为 /pua 与 /pua-cancel-loop 补官方图标和中文标题�
   assert.equal(rows[0].icon, keep);
   assert.equal(rows[0].label, '压缩');
   assert.equal(rows[1].icon, gaugeIcon);
-  assert.equal(rows[1].label, '催办');
-  assert.equal(rows[1].description, '开启 PUA 任务模式、切换风味、换方法或核查验收证据');
-  assert.equal(rows[1].hint, '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|任务描述]');
+  assert.equal(rows[1].label, 'PUA');
+  assert.equal(rows[1].description, 'Turn on PUA task mode, switch flavor, change approach, or check verification evidence');
+  assert.equal(rows[1].hint, '[on|off|flavor|p7|p9|p10|pro|loop|review|again|status|help|task]');
   assert.equal(rows[2].icon, closeIcon);
-  assert.equal(rows[2].label, '取消循环');
-  assert.equal(rows[2].description, '取消当前会话 PUA Loop，不中断普通模型任务');
+  assert.equal(rows[2].label, 'Cancel loop');
+  assert.equal(rows[2].description, 'Cancel the current session PUA Loop without interrupting an ordinary model task');
   assert.equal(rows[0].description, '压缩');
   assert.equal(rows[3].icon, undefined);
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');

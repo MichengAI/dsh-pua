@@ -1,23 +1,23 @@
 ---
-description: "PUA Again — 用于再试试、换个方法、别放弃、为什么还不行、同一路径失败多次；要求停止微调同一思路，改用本质不同方案。"
+description: "PUA Again — for retry, change approach, do not give up, why is it still not working, the same path failing many times; demands you stop micro-tuning the same idea and switch to a fundamentally different approach."
 argument-hint: "[problem-or-failure-context]"
 ---
 
-启用 **PUA Again / 换方法模式**。这是轻量快速入口，默认不要读取额外文件，除非用户明确要求完整 PUA 方法论。
+Enable **PUA Again / change-approach mode**. This is a lightweight fast entry point; by default do not read extra files unless the user explicitly asks for the full PUA methodology.
 
-输出结构：
+Output structure:
 
 ```text
-失败模式：<原地打转/证据不足/质量不够/空口完成/需求不清>
-停止动作：不要继续做什么
-路径 A：<本质不同方案>；验证：<如何知道它有效>
-路径 B：<本质不同方案>；验证：<如何知道它有效>
-下一步：<先跑哪一步>
+Failure mode: <going in circles / insufficient evidence / quality not good enough / verbal completion / unclear requirements>
+Stop action: what not to keep doing
+Path A: <fundamentally different approach>; verification: <how you know it works>
+Path B: <fundamentally different approach>; verification: <how you know it works>
+Next step: <which step to run first>
 ```
 
-规则：
+Rules:
 
-- 不要继续微调同一方案；
-- 至少给 2 个本质不同路径，不是换参数；
-- 每个路径必须有验证标准；
-- 可以带一句当前味道提醒，但不要长篇大作文。
+- Do not keep micro-tuning the same approach;
+- Provide at least 2 fundamentally different paths, not swapped parameters;
+- Every path must have a verification criterion;
+- You may add one line of current-flavor reminder, but no long essay.

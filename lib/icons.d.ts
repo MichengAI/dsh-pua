@@ -3,10 +3,10 @@ type Icon = (props: {
     size?: number;
     className?: string;
 }) => ReactNode;
-/** 0.1.7 导出 Regular；0.1.6 仍用带尺寸后缀的旧名。都没有时渲染为空。 */
+/** 0.1.7 exports the Regular name; 0.1.6 still uses the old names with a size suffix. When neither exists, render nothing. */
 export declare function hostIcon(...names: string[]): Icon;
 export declare const IconGauge: Icon;
-/** 未开启时用电源符号，16 像素下和表盘分得开，也不划过文字。 */
+/** Uses the power symbol when off: it stays distinguishable from the gauge at 16px and does not strike through text. */
 export declare function IconGaugeOff({ size, className }: {
     size?: number;
     className?: string;

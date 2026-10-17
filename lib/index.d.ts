@@ -3,7 +3,7 @@ import { StateStore } from './state.js';
 import { Config, PreferencesBridge } from './settings.js';
 import { PuaRuntime } from './runtime.js';
 import { Service } from '@deepseek-ai/cordis';
-/** Web Remote 仅访问此插件提供的配置能力，不持有其他插件的运行状态。 */
+/** Web Remote only reaches the configuration capability this plugin provides; it holds no other plugin's runtime state. */
 export declare class PuaConfigurationService extends Service {
     readonly store: StateStore;
     readonly preferences: PreferencesBridge;
@@ -15,8 +15,8 @@ declare module '@deepseek-ai/cordis' {
         puaConfiguration: PuaConfigurationService;
     }
 }
-export declare const name = "michengai-pua";
+export declare const name = "phucnd0604-pua-en";
 export declare const inject: string[];
 export { Config };
-/** 注册当前会话的 PUA 命令与动态行为契约；Cordis 自动随插件卸载撤销贡献。 */
+/** Registers the current session's PUA command and dynamic-behavior contract; Cordis automatically withdraws the contributions when the plugin unloads. */
 export declare function apply(ctx: Context, config?: unknown): void;

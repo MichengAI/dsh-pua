@@ -2,7 +2,7 @@ import type { Context } from '@deepseek-ai/cordis';
 import { TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol';
 import { type ActivitySnapshot, type ConfigurationSnapshot } from './remote-contract.js';
 import { type Configuration, type ConfigurationPatch } from './configuration.js';
-/** 复用 DSH 已鉴权的 Typert Gateway；全局写入只由插件设置页调用。 */
+/** Reuses DSH's authenticated Typert Gateway; global writes are only issued by the plugin settings page. */
 export default class PuaRemote extends TypertRemoteService {
     static inject: string[];
     constructor(ctx: Context);

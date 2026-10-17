@@ -1,16 +1,16 @@
 import type { MessageSource } from '@deepseek-ai/dsh-llm';
 import { SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session';
 
-export const RUNTIME_PLUGIN = '@michengai/dsh-pua/runtime';
-export const COMMAND_PLUGIN = '@michengai/dsh-pua';
+export const RUNTIME_PLUGIN = '@phucnd0604/dsh-pua-en/runtime';
+export const COMMAND_PLUGIN = '@phucnd0604/dsh-pua-en';
 
-/** 0.1.7 起原生 V4 拒绝 `{ kind: 'plugin', plugin }`，来源 kind 改为 `plugin:<name>`。 */
+/** Since 0.1.7, native V4 rejects `{ kind: 'plugin', plugin }`; the source kind became `plugin:<name>`. */
 const formatVersion = SESSION_FORMAT_VERSION as number;
 
-/** 按当前宿主写入可被接纳的插件消息来源。读取侧仍同时认识两种形态。 */
+/** Writes a plugin message source the current host will accept. The read side still recognizes both shapes. */
 export function pluginSource(plugin: string): MessageSource {
   if (formatVersion >= 4) return { kind: `plugin:${plugin}` } as unknown as MessageSource;
-  // 旧宿主的 kind 不在 0.1.7 声明里，编译基线抬到 RC 后只能在此收容。
+  // The old host's kind is not declared in 0.1.7; once the compile baseline moved to the RC, it can only be contained here.
   return { kind: 'plugin', plugin } as unknown as MessageSource;
 }
 

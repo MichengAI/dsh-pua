@@ -39,9 +39,9 @@ export async function installSettings(ctx) {
       state.listed = true;
       return () => { state.listed = false; };
     }
-    get(ns) { return ns === 'michengai-pua' ? snapshot(state.config) : undefined; }
+    get(ns) { return ns === 'phucnd0604-pua-en' ? snapshot(state.config) : undefined; }
     describe() {
-      return state.listed ? [{ ns: 'michengai-pua', revision: state.revision, value: snapshot(state.config) }] : [];
+      return state.listed ? [{ ns: 'phucnd0604-pua-en', revision: state.revision, value: snapshot(state.config) }] : [];
     }
     async update(_ns, patch, expected) {
       if (state.fail) throw new Error('模拟磁盘写入失败');

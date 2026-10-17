@@ -1,37 +1,37 @@
 ---
-description: "查看当前活跃的 PUA agent/team 清单、PID、TTL。/pua:team-status。Triggers on: '/pua:team-status', '查看 agent 状态', 'pua team status', 'list agents'."
+description: "View the current active PUA agent/team list, PID, TTL. /pua:team-status. Triggers on: '/pua:team-status', 'view agent status', 'pua team status', 'list agents'."
 allowed-tools: ["Bash(ls:*)", "Bash(stat:*)", "Bash(jq:*)", "Bash(cat:*)", "Bash(test:*)", "Bash(find:*)"]
 ---
 
-# PUA Team Status — 活跃 agent 清单
+# PUA Team Status — active agent list
 
-职业球队需要上场阵容表。这个命令列出所有"还在场上"的 agent 及其年龄。
+A professional team needs a lineup sheet. This command lists every agent still "on the field" and its age.
 
-## 执行步骤
+## Steps
 
-1. 确保 `~/.claude/pua/` 存在：
+1. Make sure `~/.claude/pua/` exists:
    ```bash
    mkdir -p "$HOME/.claude/pua"
    ```
 
-2. 扫描 loop state 文件：
+2. Scan loop state files:
    ```bash
    ls -la "$HOME/.claude/pua/"loop-*.md 2>/dev/null || echo "NO_LOOP"
    ```
 
-3. 扫描 legacy 相对路径（向后兼容）：
+3. Scan the legacy relative path (backward compatible):
    ```bash
    test -f .claude/pua-loop.local.md && ls -la .claude/pua-loop.local.md || echo "NO_LEGACY"
    ```
 
-4. 扫描 active agents 记录（若 PostToolUse hook 已记录）：
+4. Scan the active agents records (if a PostToolUse hook has recorded them):
    ```bash
    test -f "$HOME/.claude/pua/active-agents.json" && \
      jq -r '.agents[] | "\(.id) | spawn=\(.spawn_time) | status=\(.status)"' \
        "$HOME/.claude/pua/active-agents.json" || echo "NO_AGENTS_FILE"
    ```
 
-5. 输出表格格式：
+5. Output in table format:
 
    ```
    | Type    | ID / File                          | Age      | Status    |
@@ -42,15 +42,15 @@ allowed-tools: ["Bash(ls:*)", "Bash(stat:*)", "Bash(jq:*)", "Bash(cat:*)", "Bash
    | orphan  | loop-<dead>.md                    | 02:15:00 | 🧟 ORPHAN |
    ```
 
-6. 若发现 STALE/ORPHAN，追加提示：
-   > 🧹 发现 N 个孤儿状态。建议执行 `/pua:reap-orphans` 批量清理。
+6. If STALE/ORPHAN is found, append a hint:
+   > 🧹 Found N orphan states. Suggest running `/pua:reap-orphans` to clean them in bulk.
 
-## 判定规则
+## Decision rules
 
-- **ACTIVE**：mtime < 30min
-- **STALE**：30min ≤ mtime < 2h
-- **ORPHAN**：mtime ≥ 2h 或无对应活跃 session
+- **ACTIVE**: mtime < 30min
+- **STALE**: 30min ≤ mtime < 2h
+- **ORPHAN**: mtime ≥ 2h or no matching active session
 
-## 无活跃 team 时
+## When there is no active team
 
-> [PUA TEAM STATUS] 没有活跃 agent。球队下班。
+> [PUA TEAM STATUS] No active agents. The team is off work.
