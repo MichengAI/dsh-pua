@@ -1,5 +1,17 @@
 # 更新记录
 
+## 1.0.1
+
+### 中文
+
+- 支持 DSH `0.2.1-rc.2`，开发依赖同步对齐到 `0.2.1-rc.2`。
+- 宿主支持矩阵保持为 0.2.0 以后的 RC 系列：`0.2.0-rc.1`、`0.2.0-rc.2`、`0.2.1-rc.1`、`0.2.1-rc.2`。
+
+### English
+
+- Support DSH `0.2.1-rc.2` and align development dependencies to `0.2.1-rc.2`.
+- Maintain supported host matrix for 0.2.0+ RC releases: `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, and `0.2.1-rc.2`.
+
 ## 1.0.0
 
 ### 中文

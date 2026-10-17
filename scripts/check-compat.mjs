@@ -14,6 +14,7 @@ const HOST_PINS = {
   '0.2.0-rc.1': { cordis: '4.0.4', schemastery: '3.18.4' },
   '0.2.0-rc.2': { cordis: '4.0.4', schemastery: '3.18.4' },
   '0.2.1-rc.1': { cordis: '4.0.5', schemastery: '3.18.5' },
+  '0.2.1-rc.2': { cordis: '4.0.5', schemastery: '3.18.5' },
 };
 const versions = process.argv.slice(2).length ? process.argv.slice(2) : supported;
 if (versions.some(version => !supported.includes(version))) throw new Error('只能验证声明的支持版本。');
