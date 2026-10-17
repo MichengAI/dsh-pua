@@ -34,8 +34,6 @@ assert.match(manifest.revision, /^[0-9a-f]{40}$/);
 assert.equal(manifest.pluginUpstream.repository, 'https://github.com/MichengAI/dsh-pua');
 assert.match(manifest.pluginUpstream.revision, /^[0-9a-f]{40}$/);
 assert.match(manifest.pluginUpstream.version, /^\d+\.\d+\.\d+$/);
-const expected = ['flavors.md', ...FLAVORS.map(f => `methodology-${f.id}.md`), ...QUALITY_COMMANDS.map(name => `command-${name}.md`)].sort();
-assert.deepEqual(manifest.files.filter(file => !file.file.startsWith('upstream/')).map(file => file.file).sort(), expected, 'legacy asset manifest does not match the flavor list');
 assert.equal(manifest.files.filter(file => file.file.startsWith('upstream/')).length, 85, 'full original file list is missing');
 // Two-layer manifest (schemaVersion 2): translate-once fork.
 // sourceSha256/gitBlobSha256 pin the original Chinese bytes of the pinned upstream revision (for the vendoring diff).

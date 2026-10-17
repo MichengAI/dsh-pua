@@ -14,139 +14,6 @@
   "standaloneLicenseFound": false,
   "files": [
     {
-      "file": "flavors.md",
-      "source": "skills/pua/references/flavors.md",
-      "gitBlobSha256": "f2b1584adb9436f73957855a08a08028552c0f8d43afa19ef1f51e86bccdee9f",
-      "sourceSha256": "0bf7fd9ad6433820779e09ef3ab9a52e7fae7124eca539746529d341a24b29a5",
-      "contentSha256": "60d1e5983f79d931fd3db3a52fe02caabde6f53fe86017957222bce8c5728b52"
-    },
-    {
-      "file": "methodology-alibaba.md",
-      "source": "skills/pua/references/methodology-alibaba.md",
-      "gitBlobSha256": "1020106678c034d1969ca706153c3376daa57d79fbb3d254b27abb52b6506800",
-      "sourceSha256": "bdbf491c974ffa266f1b5e0bbc0e61e31842e0e8baa2716ed6a60a1ef81b7fa0",
-      "contentSha256": "71517ee19fb26b84789f3e914d822023b2a9aebd58983b29646eec8c1ddebddc"
-    },
-    {
-      "file": "methodology-bytedance.md",
-      "source": "skills/pua/references/methodology-bytedance.md",
-      "gitBlobSha256": "6f5c803f92727aa7947aa67bc1d23a9404977a2f3a6cadde0a9f4fce7e071562",
-      "sourceSha256": "1cd09601024ebedb73a79d6fbf6d36acf5dbba3f5bf4b83cd0795efb0e775c10",
-      "contentSha256": "0c70f00d035caaf8a4d3d2f8af394a4485374de5f1c3ea8d45a1165fa871b87b"
-    },
-    {
-      "file": "methodology-huawei.md",
-      "source": "skills/pua/references/methodology-huawei.md",
-      "gitBlobSha256": "f38a8872c5714f424a3ac9ed3d74cae6aad9cb48cf1e41072aaf8e62ebe64b5a",
-      "sourceSha256": "c570b9c5bea031d41ab3006fb5bc61027f379790b6f643692ed5681f2fc5d4df",
-      "contentSha256": "c017f967fd3802ec7b72e9fbad3e2777b2399f3af388f877ec717c9fa0394b95"
-    },
-    {
-      "file": "methodology-tencent.md",
-      "source": "skills/pua/references/methodology-tencent.md",
-      "gitBlobSha256": "a2bb01d715adc8dacdf806a8cc27d0f3de84c35a98330d37f2526ff3d11c3d2b",
-      "sourceSha256": "d5d81b7cb77cb30afa3468883430472e06d94e8d5ac5bfc3ba878fc72e49e712",
-      "contentSha256": "2d396319e42b107b62fcc397f23d020b52fb6da14d99cd43f86fc34fd8432080"
-    },
-    {
-      "file": "methodology-baidu.md",
-      "source": "skills/pua/references/methodology-baidu.md",
-      "gitBlobSha256": "ddf371e7f5e82405c254b1c908d8bca03c9deaf9cb4563638c07b658b838cfc0",
-      "sourceSha256": "b57bb5b0ed9827777f13ddb43f6e7bca6a8416f7ddf7069ce91f5d3712efbe53",
-      "contentSha256": "3a556d79bbb7984505682535f9970ccadca7401c474550c67fe7970cd66b2b16"
-    },
-    {
-      "file": "methodology-pinduoduo.md",
-      "source": "skills/pua/references/methodology-pinduoduo.md",
-      "gitBlobSha256": "591b0204a2d7f65d7d0dd239c372f20e89f0721c1060bfbc968f90dae9c1242e",
-      "sourceSha256": "da879c879b0a78693c0689d79c7698a6c26e95169f1868e8c22ffe6be527e235",
-      "contentSha256": "890649a238e1462b6e68c9685513df14ed696fd4baa2a8bc458391162623253a"
-    },
-    {
-      "file": "methodology-meituan.md",
-      "source": "skills/pua/references/methodology-meituan.md",
-      "gitBlobSha256": "c13896cf338ce26e06a6a4aa039f2305da705b4da1f6a6bc22e9fc240787951e",
-      "sourceSha256": "85d1cf5bd20345ccf87c417590df002914c6881600482214a1115a1f00c8e8d0",
-      "contentSha256": "f6c4d252feb2da7f206dcc8181e1154d12f5c6292bf1b6b07a9f86c2cc8a4855"
-    },
-    {
-      "file": "methodology-jd.md",
-      "source": "skills/pua/references/methodology-jd.md",
-      "gitBlobSha256": "b923f2f251b58f450a4399705fc7459200e5a6a1e64b51b0e592220cdfcf36c6",
-      "sourceSha256": "d7d3cca45995bdcd76972fed30a5201cff58d5dc1d86941d9944d46db8b57eb4",
-      "contentSha256": "2baa796154c894bd47cf8a606304a80a7e89e75da0ef238b4732d968eb45de2f"
-    },
-    {
-      "file": "methodology-xiaomi.md",
-      "source": "skills/pua/references/methodology-xiaomi.md",
-      "gitBlobSha256": "376439596efeb52809700c04f876cb5f923bb7ca6d2577a143146abc8c4b49c6",
-      "sourceSha256": "3620f29f1960f44d7a6b25e17d6c84876d12780885df24d37026728a1011e440",
-      "contentSha256": "897ca2b44c302d6bd4ad9c3ba3930977d4a20832c406986b52a9078cde47b3d7"
-    },
-    {
-      "file": "methodology-netflix.md",
-      "source": "skills/pua/references/methodology-netflix.md",
-      "gitBlobSha256": "ccf70a0d89eccfaab40c604a923c72421aba1f4e8afb3d7fee3f4e47e6cd1d8d",
-      "sourceSha256": "fc093b5c18a07aa293917d195a631890016898829f0dca4aff4d3a13025d1709",
-      "contentSha256": "d5aae52873ef49fc70952df5854431dfc13f8306d620f87fa8e0e74b5528f000"
-    },
-    {
-      "file": "methodology-tesla.md",
-      "source": "skills/pua/references/methodology-tesla.md",
-      "gitBlobSha256": "2d9e328f6818ae3696fceea63c2d7995f0c827c3649ea8c06bf5d14294394a40",
-      "sourceSha256": "f19b916961a2cdab48cdbd281ac9a816632004b9da49c396b8fd22225e4b5bf0",
-      "contentSha256": "580dfbd7d21ef52138eed5f7af47e51e5a33fbcb567d7b67ef2729c3467f60ee"
-    },
-    {
-      "file": "methodology-apple.md",
-      "source": "skills/pua/references/methodology-apple.md",
-      "gitBlobSha256": "7c3366fd99a00b63fdad29d8731f96a8958ecd17c53ce775b1cfaf1ec3e2beac",
-      "sourceSha256": "0c24ab5e48dbf517d1bb8eb098a3812e6f18f3fc4e97b99dbbdeea45bc648eca",
-      "contentSha256": "1b45caf018e374998a96933c9478d59617bf81a6fbb4d680ddcde03d8803135a"
-    },
-    {
-      "file": "methodology-amazon.md",
-      "source": "skills/pua/references/methodology-amazon.md",
-      "gitBlobSha256": "16d3e7d91265b7734e40cddb17e283141b78d380291c5b51e6666c3bd74bb195",
-      "sourceSha256": "2d0a19d2cc679e0d036b56f24d890dff85befb5c09f3937b77896f8aed5b927a",
-      "contentSha256": "04c26dd0ba841ef740d0087aa593911b336b026286076affe92af7d212d3dfa1"
-    },
-    {
-      "file": "methodology-microsoft.md",
-      "source": "skills/pua/references/methodology-microsoft.md",
-      "gitBlobSha256": "1ef76e0dcf1d7cf7f9fd135a285f2a91383e303e58ccaeffc87e20cf813efc1f",
-      "sourceSha256": "3502276911e014f14527e0363a0ddf4952557ec090331db1c4fa2fa26527447f",
-      "contentSha256": "05edc99af97f41db833c3f9201ecf609c8435082b9b83d048b988a8bc1bb04c3"
-    },
-    {
-      "file": "methodology-ding.md",
-      "source": "skills/pua/references/methodology-ding.md",
-      "gitBlobSha256": "b4e78429a63d721774aa39b8809d6f49cf8f65267ec83be526ebcc3c263da2f1",
-      "sourceSha256": "7da4364419231ab1d0380c5339cd4f3a648e887ba5a53e064b4efffea6b3525a",
-      "contentSha256": "ef46d55b6e039c6baa856273420163bdc667e6200f20cfc30a8ee49e2231c7c9"
-    },
-    {
-      "file": "command-again.md",
-      "source": "commands/again.md",
-      "gitBlobSha256": "635223e3331e669641ec871451357cc96a38e57e64f657b013816e18b4b7f211",
-      "sourceSha256": "036646633662d5a75e0afd994537a1acee4e72e397a5e15123b2302a49590368",
-      "contentSha256": "2bc0c22a360024c2a0beca9b47fe2d9158be6ba37c39716e4036c8eb077a0c5f"
-    },
-    {
-      "file": "command-done-check.md",
-      "source": "commands/done-check.md",
-      "gitBlobSha256": "2d80ddb35c07ab2673fb607da2efd651d0e774d8b65b106327253f0ab3e2a45c",
-      "sourceSha256": "784bddf2cce508379b86f380311bdf9efcfb7eb064e506aaea4368b0dd01ce18",
-      "contentSha256": "84b970234af2ab7672bbf1b82c726773a0e6564430efa631e61200dbc5ff3e61"
-    },
-    {
-      "file": "command-evidence.md",
-      "source": "commands/evidence.md",
-      "gitBlobSha256": "2342f7d3b8aa8b68f25d3650f252a7761b25a6223926fc454a7e091d2ad896d6",
-      "sourceSha256": "7b370c726de2b1c73c64d715e99833214e25489e38f0f05bbc3b820d2b88213e",
-      "contentSha256": "2fa716b739692ab31afffca671e462a614de97f0c1d3652cbbb6f44e34c7f565"
-    },
-    {
       "file": "upstream/agents/cto-p10.md",
       "source": "agents/cto-p10.md",
       "gitBlobSha256": "144a74b7ab18f7b26b82c6855a954b901446f73a033c9ea7e36ff1c6d806082a",
@@ -742,7 +609,7 @@
       "contentSha256": "84a7ef8bb2778b2f4f6bd8f77dd2ddce5431cf11590630182946f5748e93f7e6"
     }
   ],
-  "byteSource": "Keeps the CRLF bytes detected on the original machine; gitBlobSha256 corresponds to the LF object bytes of the pinned commit.",
+  "byteSource": "sourceSha256 is the sha256 of the bytes as delivered by the vendoring upstream; gitBlobSha256 is the sha256 of the LF-normalized bytes, i.e. the material upstream's git blob object hash. Both layers are reproducible from a clone of the pinned revision.",
   "language": "en",
   "sourceLanguage": "zh-CN",
   "notes": "Two-layer manifest. sourceSha256/gitBlobSha256 pin the original Chinese bytes from upstream revision e6e6cd237ad17750d179674bff52f8184abea8fd (used for vendoring diff). contentSha256 pins the current English content served at runtime; scripts/verify.mjs checks this layer. Translations are semantic-accurate adaptations that keep the PUA tone; proper nouns romanized per GLOSSARY.md."

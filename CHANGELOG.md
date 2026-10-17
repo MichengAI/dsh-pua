@@ -25,6 +25,10 @@ content from tanweai/pua v3.5.1 (commit e6e6cd237ad17750d179674bff52f8184abea8fd
 - Two-layer provenance manifest (assets/pua/upstream.json, schemaVersion 2):
   sourceSha256/gitBlobSha256 pin the original Chinese bytes; contentSha256 pins the current
   English bytes and is checked by scripts/verify.mjs.
+- Drop the 19 legacy top-level duplicate assets (`assets/pua/flavors.md`, 15 `methodology-*.md`,
+  3 `command-*.md`): they were never loaded, because `SourceCatalog` reads only `upstream/**`
+  entries. The manifest now holds the 85 vendored files, where `sourceSha256` and `gitBlobSha256`
+  agree for every row and the whole manifest is regenerable from a material-upstream clone.
 - Install from this GitHub repository (github:phucnd0604/dsh-pua-en); npm publishing is
   intentionally not used for this fork.
 - Versioning restarts at 0.1.0; this fork does not continue the upstream 0.3.x series.

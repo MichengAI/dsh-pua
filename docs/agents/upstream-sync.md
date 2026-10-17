@@ -89,9 +89,9 @@ Confirm nothing else moved: `git log --oneline <baseline-revision>..<target-revi
 
 Stop and ask a human when upstream adds or removes a file or asset, adds or removes a flavor or mode, changes what a methodology means, would require widening the zero-CJK exemptions or `MAX_PROMPT_BYTES`, or changes LICENSE/NOTICE. Put the proposed mapping in the ticket (new upstream flavor -> fork flavor? new mode -> `MODES`? new manifest entry?) and wait for approval. A structural change blocks the release until the new material is fully translated.
 
-## 6. Legacy duplicate assets (separate cleanup ticket)
+## 6. Legacy duplicate assets (done, do not resurrect)
 
-The 19 top-level duplicate assets (`assets/pua/flavors.md`, 15 `methodology-*.md`, 3 `command-*.md`) have their own cleanup ticket, [#1](https://github.com/phucnd0604/dsh-pua-en/issues/1): they are never loaded at runtime (`SourceCatalog` only reads `upstream/**`) and are deleted together with the `scripts/verify.mjs` legacy assertion, taking the manifest from 104 to 85 entries. Do the deletion as its own commit, never inside a sync branch, and do not run the fork's own tag/version bump until it has landed.
+The 19 top-level duplicate assets (`assets/pua/flavors.md`, 15 `methodology-*.md`, 3 `command-*.md`) were deleted as their own commit (ticket [#1](https://github.com/phucnd0604/dsh-pua-en/issues/1)) together with the `scripts/verify.mjs` legacy assertion, taking the manifest from 104 to 85 entries. They mirrored `upstream/**` and were never served at runtime, because `SourceCatalog` only reads manifest entries whose `file` starts with `upstream/`. A sync must never re-add that top-level layer: `scripts/verify.mjs` now pins the 85 `upstream/**` entries and the zero-CJK rule, so a stray copy fails the gate instead of silently duplicating material.
 
 ## 7. Bump the fork version and record the baseline
 
