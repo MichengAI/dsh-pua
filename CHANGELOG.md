@@ -31,4 +31,11 @@ content from tanweai/pua v3.5.1 (commit e6e6cd237ad17750d179674bff52f8184abea8fd
   agree for every row and the whole manifest is regenerable from a material-upstream clone.
 - Install from this GitHub repository (github:phucnd0604/dsh-pua-en); npm publishing is
   intentionally not used for this fork.
+- Remove the release plumbing that only existed for npm publishing: `.github/workflows/publish.yml`
+  and `scripts/release-notes.mjs` (nothing references it). CI keeps `.github/workflows/ci.yml`.
+- Define and automate the upstream-sync process: `docs/adr/0003-upstream-sync-policy.md`,
+  `docs/agents/upstream-sync.md` (runbook), `docs/agents/sync-ticket.md` (ticket template) and
+  `scripts/sync-upstream.mjs` (offline drift detection plus manifest pin updates, which refuses to
+  write through a structural change unless `--allow-additions` / `--allow-removals` says a human
+  approved it). Record the plugin-upstream baseline in the manifest as `pluginUpstream`.
 - Versioning restarts at 0.1.0; this fork does not continue the upstream 0.3.x series.

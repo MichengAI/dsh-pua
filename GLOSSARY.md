@@ -6,9 +6,9 @@ Created by `/setup-matt-pocock-skills`. The `/domain-modeling` skill maintains i
 
 Locked for the EN translation (decisions from the grilling session: docs/adr/0001-dsh-pua-en-fork-strategy.md for fork identity and scope, docs/adr/0002-zero-cjk-assets-and-language-layers.md for the zero-CJK rule and per-layer language policy).
 
-## Flavor — a company-inspired style bundle the user can choose for the agent (15 styles: alibaba, huawei, ...). In code: src/flavors.ts, assets/pua/methodology-*.md. NOT the same as: persona (a role profile like P9), skill (a capability), or methodology.
+## Flavor — a company-inspired style bundle the user can choose for the agent (15 styles: alibaba, huawei, ...). In code: src/flavors.ts, assets/pua/upstream/skills/pua/references/methodology-*.md. NOT the same as: persona (a role profile like P9), skill (a capability), or methodology.
 
-## Methodology — the company-specific problem-solving framework attached to a flavor (e.g. Huawei RCA + blue-team self-attack). Lives in assets/pua/methodology-*.md and as a chapter of the vendored PUA skill. NOT: flavor (the style wrapper), narration (the lines the agent speaks).
+## Methodology — the company-specific problem-solving framework attached to a flavor (e.g. Huawei RCA + blue-team self-attack). Lives in assets/pua/upstream/skills/pua/references/methodology-*.md and as a chapter of the vendored PUA skill. NOT: flavor (the style wrapper), narration (the lines the agent speaks).
 
 ## Narration — the persona lines the agent says out loud (e.g. the upstream original `其实，我对你是有一些失望的...`), vendored as `PUA_L1`–`PUA_L4` variables in `assets/pua/upstream/hooks/flavor-helper.sh`. Translated to English in this fork; tone stays direct/PUA.
 
@@ -34,7 +34,7 @@ Locked for the EN translation (decisions from the grilling session: docs/adr/000
 
 ## Activation token — the exact string `[PUA ACTIVE 🔥]` (plain form `[PUA ACTIVE]`) replaces the upstream `[PUA生效 🔥]`/`[PUA生效]`. It is a detector string, not prose: src/runtime.ts matches it (with [Auto-select:, [PIP-REPORT], [PUA-REPORT], [PUA-DIAGNOSIS]) and assets/pua/upstream/hooks/stop-feedback.sh scans for the same prefix. Never retranslate or recase it.
 
-## Narration marker — a bracketed, title-cased label the agent prints to narrate a mode (e.g. `[Methodology Routing 🧭]`, `[Methodology Switch 🔄]`, `[PUA Breakthrough ✨]`, `[P8 Self-Check]`, `[MOM APPROVES ✨]`). ASCII sentinel markers are frozen and never recased ([PUA-DIAGNOSIS], [PIP-REPORT], [PUA-REPORT], [PUA-CHECKPOINT], [PUA Always-On], [HW-REPORT], [P7-COMPLETION], [PUA-ESCALATION], [TEARDOWN], [Auto-select:). See docs/adr/0002.
+## Narration marker — a bracketed, title-cased label the agent prints to narrate a mode (e.g. `[Methodology Routing 🧭]`, `[Methodology Switch 🔄]`, `[PUA Breakthrough ✨]`, `[P8 Self-Check]`, `[MOM APPROVES ✨]`). ASCII sentinel markers are frozen and never recased ([PUA-DIAGNOSIS], [PIP-REPORT], [PUA-REPORT], [PUA-CHECKPOINT], [PUA Always-On], [HW-REPORT], [P7-COMPLETION], [PUA-ESCALATION], [TEARDOWN], [Auto-select:). See docs/adr/0002. Hook-emitted variants keep the word `Suggestion` on purpose: `[Methodology Switch Suggestion 🔄]` (assets/pua/upstream/hooks/failure-detector.sh:118) and `[Methodology/Flavor Switch Suggestion 🔄]` (:136). A hook may only *suggest*; the model *announces* with `[Methodology Switch 🔄]`. Do not collapse the two spellings.
 
 ## Legacy session strings — `PUA · 会话 · ` (SESSION_RESULT_PREFIX, src/state.ts:21) and the matcher prefix `PUA · 已提交任务请求，` (src/state.ts:128) stay in Chinese on purpose so pre-fork session logs still replay as non-legacy and classify as an activation task. They are historical log literals, not UI copy; do not translate them.
 

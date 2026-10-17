@@ -83,7 +83,7 @@ const results = await Promise.allSettled(versions.map(async version => {
       throw new Error(`regression failed\n${tested.output.slice(-6000)}`);
     }
     if (!/(?:tests|pass) [1-9]\d*/u.test(tested.output)) throw new Error('No actual test count found in the output.');
-    console.log(`${version}：${tested.output.split(/\r?\n/u).filter(line => /(?:tests|pass|fail|skipped) \d+/u.test(line)).join('；')}`);
+    console.log(`${version}: ${tested.output.split(/\r?\n/u).filter(line => /(?:tests|pass|fail|skipped) \d+/u.test(line)).join('; ')}`);
     return version;
   } finally {
     if (!resolve(dir).startsWith(resolve(tmpBase) + sep)) throw new Error('Refusing to clean a directory outside the temp base.');
@@ -91,5 +91,5 @@ const results = await Promise.allSettled(versions.map(async version => {
   }
 }));
 results.forEach((result, index) => {
-  if (result.status === 'rejected') { console.error(`${versions[index]}：${result.reason.message}`); process.exitCode = 1; }
+  if (result.status === 'rejected') { console.error(`${versions[index]}: ${result.reason.message}`); process.exitCode = 1; }
 });

@@ -6,8 +6,17 @@
 // commits, or tags. Policy: docs/adr/0003-upstream-sync-policy.md.
 //
 //   node scripts/sync-upstream.mjs --material <clone> [--plugin <clone>] [--check] [--json]
-//   node scripts/sync-upstream.mjs --material <clone> --revision <sha> --version <v> --write
+//   node scripts/sync-upstream.mjs --material <clone> --revision <sha> --version <v> --write [--allow-additions] [--allow-removals]
+//   node scripts/sync-upstream.mjs --plugin <clone> [--plugin-baseline <sha>] [--plugin-revision <ref>]
 //   node scripts/sync-upstream.mjs --plugin <clone> --set-plugin-baseline <sha> --version <v> --write
+//
+// --plugin-baseline overrides the recorded pluginUpstream.revision (default: the manifest value);
+// --plugin-revision is the merge target to diff against (default: origin/main).
+//
+// --write refuses when upstream added or removed a vendored file: that is a structural change and a
+// human decision (docs/adr/0003 decision 6). --allow-additions / --allow-removals record that decision;
+// --allow-removals prunes the dropped entries from the manifest, --allow-additions only acknowledges
+// the addition (a new file still needs to be translated and given an entry by the sync ticket).
 
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -20,7 +29,7 @@ const MANIFEST_PATH = join(ROOT, 'assets', 'pua', 'upstream.json');
 const PLUGIN_REPOSITORY = 'https://github.com/MichengAI/dsh-pua';
 const MAX_LIST = 25;
 
-const VALUE_FLAGS = new Set(['material', 'revision', 'version', 'plugin', 'plugin-revision', 'set-plugin-baseline']);
+const VALUE_FLAGS = new Set(['material', 'revision', 'version', 'plugin', 'plugin-revision', 'plugin-baseline', 'set-plugin-baseline']);
 
 function parseFlags(argv) {
   const flags = {};
@@ -62,6 +71,13 @@ function upstreamVersion(clone, revision) {
     if (data && typeof data.version === 'string') return data.version;
   }
   return null;
+}
+
+// Resolve a tag or short sha to a full commit id: the manifest pins 40-hex revisions, and a tag
+// name would make scripts/verify.mjs and the recorded baseline disagree about what was vendored.
+function resolveRevision(clone, revision) {
+  const sha = tryGit(clone, ['rev-parse', revision + '^{commit}']);
+  return sha === null ? revision : sha.toString('utf8').trim();
 }
 
 function materialReport(manifest, clone, revision) {
@@ -137,27 +153,43 @@ function printPlugin(manifest, report) {
   if (report.files.length > MAX_LIST) console.log('  ... ' + (report.files.length - MAX_LIST) + ' more files');
 }
 
-function writeMaterial(manifest, report, versionFlag) {
+function writeMaterial(manifest, report, versionFlag, flags) {
+  // Structural change gate (docs/adr/0003 decision 6): a dropped or added vendored file is a human
+  // decision, so --write refuses until the run passes --allow-removals / --allow-additions.
   const missing = report.rows.filter(row => row.state === 'missing');
-  if (missing.length > 0) throw new Error('refusing to write: ' + missing.length + ' pinned source(s) are missing upstream; that is a structural change (docs/adr/0003 decision 6)');
+  const dropped = new Set(missing.map(row => row.file));
+  if (missing.length > 0 && !flags['allow-removals']) {
+    throw new Error('refusing to write: ' + missing.length + ' pinned source(s) are missing upstream; review the removals and re-run with --allow-removals (structural change, docs/adr/0003 decision 6):\n'
+      + missing.map(row => '  ' + row.file + '  <- ' + row.source).join('\n'));
+  }
+  if (report.newCandidates.length > 0 && !flags['allow-additions']) {
+    throw new Error('refusing to write: ' + report.newCandidates.length + ' new upstream file(s) are not in the manifest; review the additions and re-run with --allow-additions (structural change, docs/adr/0003 decision 6):\n'
+      + report.newCandidates.slice(0, MAX_LIST).map(path => '  ' + path).join('\n'));
+  }
   const next = JSON.parse(JSON.stringify(manifest));
+  if (dropped.size > 0) next.files = next.files.filter(entry => !dropped.has(entry.file));
   next.revision = report.revision;
   if (report.version) next.version = report.version;
   if (versionFlag) next.version = versionFlag;
   for (const row of report.rows) {
+    if (dropped.has(row.file)) continue;
     const entry = next.files.find(item => item.file === row.file);
     if (!row.translated) entry.contentSha256 = row.sourceSha256;
     entry.sourceSha256 = row.sourceSha256;
     entry.gitBlobSha256 = row.gitBlobSha256;
   }
+  rewriteManifest(next);
+  console.log('manifest written: revision ' + next.revision + ', version ' + next.version + ', ' + next.files.length + ' entries' + (dropped.size > 0 ? ' (pruned ' + dropped.size + ')' : ''));
+}
+
+function rewriteManifest(next) {
   writeFileSync(MANIFEST_PATH, JSON.stringify(next, null, 2) + '\n');
-  console.log('manifest written: revision ' + next.revision + ', version ' + next.version + ', ' + report.rows.length + ' entries');
 }
 
 function writePluginBaseline(manifest, revision, version) {
   const next = JSON.parse(JSON.stringify(manifest));
   next.pluginUpstream = { repository: PLUGIN_REPOSITORY, revision, version: version || next.pluginUpstream.version };
-  writeFileSync(MANIFEST_PATH, JSON.stringify(next, null, 2) + '\n');
+  rewriteManifest(next);
   console.log('manifest written: pluginUpstream ' + next.pluginUpstream.revision + ' (v' + next.pluginUpstream.version + ')');
 }
 
@@ -165,19 +197,19 @@ function main() {
   const flags = parseFlags(process.argv.slice(2));
   const manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
   if (!manifest.pluginUpstream) throw new Error('assets/pua/upstream.json has no pluginUpstream baseline');
-  const result = { schemaVersion: manifest.schemaVersion, forkVersion: null, material: null, plugin: null, drift: false };
+  const result = { schemaVersion: manifest.schemaVersion, forkVersion: JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version, material: null, plugin: null, drift: false };
   if (flags['set-plugin-baseline']) {
     if (!flags.write) throw new Error('--set-plugin-baseline requires --write');
     writePluginBaseline(manifest, flags['set-plugin-baseline'], flags.version);
     return;
   }
   if (flags.material) {
-    const revision = flags.revision || manifest.revision;
+    const revision = resolveRevision(flags.material, flags.revision || manifest.revision);
     const report = materialReport(manifest, flags.material, revision);
     result.material = { revision, version: report.version, summary: summarize(report), modified: report.rows.filter(row => row.state === 'modified').map(row => row.file), missing: report.rows.filter(row => row.state === 'missing').map(row => row.file), newCandidates: report.newCandidates };
     result.drift = result.drift || result.material.summary.modified > 0 || result.material.summary.missing > 0 || result.material.summary.newCandidates > 0;
     if (!flags.json) printMaterial(manifest, report);
-    if (flags.write) writeMaterial(manifest, report, flags.version);
+    if (flags.write) writeMaterial(manifest, report, flags.version, flags);
   }
   if (flags.plugin) {
     const base = flags['plugin-baseline'] || manifest.pluginUpstream.revision;

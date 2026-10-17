@@ -228,14 +228,14 @@
       "source": "hooks/failure-detector.sh",
       "gitBlobSha256": "b7acf69061df88d8c9c1bffbd79871372ce509660d750129e678dc86d59f9a97",
       "sourceSha256": "b7acf69061df88d8c9c1bffbd79871372ce509660d750129e678dc86d59f9a97",
-      "contentSha256": "8a9c8aaae80dcaaaa892e36492d432d0a225dfff340bb2d8c4ff6a3ba14ec70b"
+      "contentSha256": "52964c2dae7e6cc5fc4e27d7cccff66d46d3c18919c23d8d7461ed9551f5080a"
     },
     {
       "file": "upstream/hooks/flavor-helper.sh",
       "source": "hooks/flavor-helper.sh",
       "gitBlobSha256": "3d994210219c23e6c16eeee4bcf2bd5937ba85683a8dad8bb4bdda1bae5a1eaf",
       "sourceSha256": "3d994210219c23e6c16eeee4bcf2bd5937ba85683a8dad8bb4bdda1bae5a1eaf",
-      "contentSha256": "fe39ae7c9e98e7826749d0b1d8c3051c556e59abfa6d5ca41734672ec1b0c98b"
+      "contentSha256": "9f5ddeb2d688c940d0cd3260e780a50437acc1c3d46fffd9186c9f5a56374cdd"
     },
     {
       "file": "upstream/hooks/frustration-trigger.sh",

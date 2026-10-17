@@ -172,9 +172,9 @@ else
 fi
 read -r -d '' CONDITIONAL_GATE << EOF_GATE || true
 [PUA Conditional Application Gate — Candidate Only]
-Report status: observe only, never control. A tool-failure observation is not a task/sub-goal failure count. The ${COUNT} scoped tool-failure observations are NOT a task/sub-goal failure count and do not set a task level.
-First re-check the current sub-goal and its visible experiment acceptance. Before applying any template, verify the CURRENT same sub-goal and its visible experiment/acceptance condition. Expected reproduction, no match, an unverified link, or a different sub-goal MUST NOT escalate. Expected reproduction, no match, an unverified link, or a different sub-goal MUST NOT escalate.
-Apply a candidate template only when the CURRENT same sub-goal has independently confirmed failures at the original threshold. Apply a candidate template only when the CURRENT same sub-goal has independently confirmed failures at the original threshold: L1=2, L2=3, L3=4, L4=5+. This report offers candidate ${CANDIDATE_LEVEL} at the ${CANDIDATE_THRESHOLD} observation threshold only.
+Report status: observe only, never control. The ${COUNT} scoped tool-failure observations are not a task/sub-goal failure count and do not set a task level.
+Before applying any template, re-check the CURRENT same sub-goal and its visible experiment/acceptance condition. Expected reproduction, no match, an unverified link, or a different sub-goal MUST NOT escalate.
+Apply a candidate template only when the CURRENT same sub-goal has independently confirmed failures at the original threshold: L1=2, L2=3, L3=4, L4=5+. This report offers candidate ${CANDIDATE_LEVEL} at the ${CANDIDATE_THRESHOLD} observation threshold only.
 Otherwise keep the task's current level unchanged and ignore this candidate template.
 EOF_GATE
 CONTEXT=""

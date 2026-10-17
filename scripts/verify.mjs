@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
 import assert from 'node:assert/strict';
-import { loadPrompts, loadCommandPrompts, QUALITY_COMMANDS, MAX_PROMPT_BYTES, MODES, renderOriginalPrompt } from '../lib/content.js';
+import { loadPrompts, loadCommandPrompts, MAX_PROMPT_BYTES, MODES, renderOriginalPrompt } from '../lib/content.js';
 import { SourceCatalog } from '../lib/source.js';
 import { FLAVORS } from '../lib/flavors.js';
 
@@ -35,19 +35,19 @@ assert.equal(manifest.pluginUpstream.repository, 'https://github.com/MichengAI/d
 assert.match(manifest.pluginUpstream.revision, /^[0-9a-f]{40}$/);
 assert.match(manifest.pluginUpstream.version, /^\d+\.\d+\.\d+$/);
 assert.equal(manifest.files.filter(file => file.file.startsWith('upstream/')).length, 85, 'full original file list is missing');
+// assets/pua holds only the vendored upstream tree: the legacy top-level copies were deleted in
+// ticket #1 and must never come back (docs/adr/0003 decision 6, docs/agents/upstream-sync.md section 6).
+assert.deepEqual(manifest.files.filter(file => !file.file.startsWith('upstream/')).map(file => file.file), [], 'unexpected non-vendored asset entries');
 // Two-layer manifest (schemaVersion 2): translate-once fork.
 // sourceSha256/gitBlobSha256 pin the original Chinese bytes of the pinned upstream revision (for the vendoring diff).
 // contentSha256 pins the current runtime-served bytes; it changes as files are translated.
 // gitBlobSha256 is still asserted while a file matches its source (not yet translated).
-let translated = 0;
 for (const entry of manifest.files) {
   const bytes = readFileSync(join(root, 'assets/pua', entry.file));
   assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.contentSha256, `content fingerprint mismatch: ${entry.file}`);
   if (entry.contentSha256 === entry.sourceSha256) {
     const normalized = createHash('sha256').update(bytes.toString('utf8').replaceAll('\r\n', '\n')).digest('hex');
     assert.equal(normalized, entry.gitBlobSha256, `asset differs from pinned commit: ${entry.file}`);
-  } else {
-    translated++;
   }
 }
 // Zero-CJK policy (docs/adr/0002): everything under assets/pua is model-facing and must be English.
@@ -57,7 +57,9 @@ const CJK_PATTERN = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/;
 const CJK_EXEMPT = new Set(['assets/pua/upstream.json', 'assets/pua/upstream/skills/pua-ja/SKILL.md']);
 const assetFiles = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
   const path = join(dir, entry.name);
-  return entry.isDirectory() ? assetFiles(path) : /\.(?:md|sh|txt|json)$/.test(entry.name) ? [path] : [];
+  // Every text type the vendored tree ships is scanned; a new extension has to be added here,
+  // otherwise the zero-CJK gate silently skips it (docs/adr/0002 decision 1).
+  return entry.isDirectory() ? assetFiles(path) : /\.(?:md|sh|txt|json|py)$/.test(entry.name) ? [path] : [];
 });
 const cjkOffenders = assetFiles(join(root, 'assets/pua'))
   .map(path => relative(root, path).replaceAll('\\', '/'))

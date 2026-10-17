@@ -60,16 +60,11 @@ get_flavor() {
   # values.  Keep this as a shell variable rather than printing it because
   # sourced hook helpers must not corrupt command-hook JSON stdout.
   PUA_FLAVOR_LOCKED="false"
-  # Initialize PUA_LANGUAGE unconditionally so callers running under
-  # `set -u` don't trip when ~/.pua/config.json is missing (first-run users).
-  # See: https://github.com/tanweai/pua/issues/144
-  PUA_LANGUAGE=""
 
   if [ -f "$config" ]; then
     # An empty fallback lets the normalization below distinguish an explicit
     # valid flavor from the default chosen for a missing/auto/invalid value.
     raw_flavor=$(pua_json_get "$config" flavor "")
-    PUA_LANGUAGE=$(pua_json_get "$config" language "")
   fi
 
   # Normalize flavor name

@@ -9,15 +9,14 @@ Upstream plugin (code, runtime, build tooling):
   this fork's original code, build scripts, and docs.
 
 Third-party content vendored under assets/pua:
-  Files: flavors.md, methodology-*.md, command-*.md under assets/pua, and the skills,
-         commands, agents, and hooks files collected under assets/pua/upstream.
+  Files: the skills, commands, agents, and hooks files collected under assets/pua/upstream
+         (one manifest entry per file, in assets/pua/upstream.json).
   Source: https://github.com/tanweai/pua
   Author: Tanwei Security Lab (探微安全实验室, per the upstream plugin.json author field)
   Version: 3.5.1
   Commit: e6e6cd237ad17750d179674bff52f8184abea8fd
   License: MIT (upstream plugin.json, .claude-plugin/plugin.json, skills/pua/SKILL.md)
-  Status in this fork: the flat Markdown files listed above have been TRANSLATED to
-  English (semantic-accurate adaptation preserving the PUA tone; proper nouns romanized
+  Status in this fork: the vendored files listed above have been TRANSLATED to English (semantic-accurate adaptation preserving the PUA tone; proper nouns romanized
   per GLOSSARY.md). Original Chinese bytes are pinned for provenance and differential
   vendoring:
     - Manifest: assets/pua/upstream.json (schemaVersion 2)
@@ -26,9 +25,8 @@ Third-party content vendored under assets/pua:
   The MIT license applies to the upstream-derived content, translated or not.
 
 Provenance notes:
-  - Flat legacy Markdown keeps the CRLF bytes of the local checkout, differing from the
-    pinned Git object only by line endings.
-  - New files under upstream/ preserve the raw bytes of the pinned Git object.
+  - Every file under assets/pua/upstream/ preserves the raw bytes of the pinned Git object;
+    no line-ending conversion is applied to the vendored tree.
   - The upstream snapshot declares no standalone LICENSE file; metadata attestations are
     recorded here without claiming an upstream copyright file. Original authors' rights
     are not affected by any attribution in this project's LICENSE.

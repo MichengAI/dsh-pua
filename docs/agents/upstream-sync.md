@@ -61,6 +61,7 @@ Do this first: it is mechanical, and it makes the manifest consistent before any
    ```bash
    node scripts/sync-upstream.mjs --material "$TMP/pua" --revision <target-revision> --version <target-version> --write
    ```
+   `--write` refuses while any pinned source is missing upstream or any new upstream file is unaccounted for. Those are structural changes (section 5): only pass `--allow-removals` (prunes the dropped entries) or `--allow-additions` (acknowledges the addition; the new file still needs an entry once it is translated) after a human approved the mapping.
 5. Validate: `npm run build && npm run verify`. `scripts/verify.mjs` recomputes every `contentSha256` from the current bytes and asserts the zero-CJK rule.
 
 ## 4. Plugin merge (code layer)
