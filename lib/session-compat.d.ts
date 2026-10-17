@@ -1,3 +1,3 @@
 import { type SessionSeq, type SurfaceOp } from '@deepseek-ai/dsh-session';
-/** 按宿主格式构造替换范围；旧日志的版本迁移仍由宿主负责。 */
+/** Builds a replacement range for the host format; migrating old logs across versions remains the host's job. */
 export declare function replacementSurface(startSeq: SessionSeq, endSeq: SessionSeq): SurfaceOp;

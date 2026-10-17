@@ -32,7 +32,7 @@ except Exception:
 PUA_MARKERS = [
     'PUA ACTIVATED',
     'PUA Always-On',
-    'PUA生效',
+    'PUA ACTIVE',
     '[PUA',
     'pua:pua',
     'pua-loop',

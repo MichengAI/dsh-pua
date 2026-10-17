@@ -41,7 +41,7 @@ export function transition(state: PuaState, action: Action): PuaState {
     case 'review':
       return { ...state, enabled: true, configured: true, mode: 'pua' };
     case 'mode':
-      return { ...state, enabled: true, configured: true, mode: action.mode, ...(action.task.startsWith('使用钉内/钉外味。') ? { flavor: 'ding' as const, flavorLocked: true } : {}) };
+      return { ...state, enabled: true, configured: true, mode: action.mode, ...(action.task.startsWith('Use the Ding-inside/Ding-outside flavor.') ? { flavor: 'ding' as const, flavorLocked: true } : {}) };
     case 'loop':
       return { ...state, enabled: true, configured: true, mode: 'pua-loop' };
     case 'cancel-pua-loop': case 'teardown-all':
@@ -60,8 +60,8 @@ export function transition(state: PuaState, action: Action): PuaState {
 }
 
 /**
- * 从当前会话自己的成功命令恢复配置。分叉前缀不参与恢复，存储归宿主 profile 管理。
- * 暂存只覆盖同步 handler 到 command/done 落日志的间隙，避免唤醒时读到旧配置。
+ * Recovers configuration from successful commands logged by this session itself. The fork prefix is not replayed; storage is owned by the host profile.
+ * The staging map only covers the gap from the synchronous handler to the command/done log entry, so a wake-up never reads stale configuration.
  */
 export class StateStore {
   private readonly pending = new WeakMap<Session, Map<string, Action>>();
@@ -69,13 +69,13 @@ export class StateStore {
   constructor(private readonly defaults: () => Partial<PuaState> = () => ({}),
     private readonly parent: (session: Session) => Session | undefined = () => undefined) {}
 
-  /** 配置以原生命令日志保存，不追加模型消息，不会插入工具消息组。 */
+  /** Configuration is persisted as native command log entries: no model message is appended and no tool-message group is inserted. */
   configure(session: Session, value: unknown, expectedRevision?: number): void {
     const patch = parsePatch(value);
-    if (expectedRevision !== undefined && expectedRevision !== this.revision(session)) throw new Error('配置已被其他窗口修改，请刷新后重试。');
+    if (expectedRevision !== undefined && expectedRevision !== this.revision(session)) throw new Error('The configuration was changed by another window; refresh and retry.');
     const commandId = CommandId(randomUUID());
     session.append('command/run', { commandId, name: 'pua', args: 'config ' + JSON.stringify(patch), source: { kind: 'user' } });
-    session.append('command/done', { commandId, kind: 'success', text: SESSION_RESULT_PREFIX + '配置已保存。' });
+    session.append('command/done', { commandId, kind: 'success', text: SESSION_RESULT_PREFIX + 'Configuration saved.' });
     this.invalidate(session);
   }
   overrides(session: Session): Partial<Configuration> { this.read(session); return { ...this.cache.get(session)?.overrides }; }
@@ -109,7 +109,7 @@ export class StateStore {
       this.cache.set(session, cache);
     }
     const pending = this.pending.get(session);
-    // Session 日志只追加；从分叉继承边界开始，每个命令结果只解析一次。
+    // The session log is append-only; starting at the fork-inheritance boundary, each command result is parsed exactly once.
     for (const event of session.snapshotEvents(cache.cursor)) {
       if (event.type === 'command/run' && event.data.name === 'pua' && typeof event.data.args === 'string') {
         cache.commands.set(event.data.commandId, { input: event.data.args, done: false });
@@ -124,11 +124,11 @@ export class StateStore {
         const outcome = event.data.text;
         if (event.data.kind === 'success' && outcome?.startsWith(RESULT_PREFIX)) {
           record.legacy = !outcome.startsWith(SESSION_RESULT_PREFIX);
-          // 0.1.0 将 in / pua flavor 当成任务；尊重已记录结果，不用新语法改写旧状态。
+          // 0.1.0 treated in / pua flavor as a task; respect the recorded result and do not rewrite old state with new syntax.
           if (outcome.startsWith(RESULT_PREFIX + '已提交任务请求，')) record.action = { kind: 'activate', task: record.input };
           else {
             try { record.action = parseArgs(record.input); }
-            catch { /* 不认识的历史命令保留在日志中，不猜测其配置语义。 */ }
+            catch { /* Unrecognized historical commands stay in the log; their configuration semantics are not guessed. */ }
           }
         }
         pending?.delete(event.data.commandId);
@@ -146,7 +146,7 @@ export class StateStore {
     const baseline = state;
     const overrides: Partial<Configuration> = {};
     let revision = 0;
-    // 按进入命令的顺序折叠，避免并发 handler 的完成顺序改变配置语义。
+    // Fold in command-entry order so the completion order of concurrent handlers cannot change configuration semantics.
     for (const [id, record] of cache.commands) {
       const action = record.done ? record.action : pending?.get(id);
       const before = JSON.stringify(overrides);
@@ -168,12 +168,12 @@ export class StateStore {
       }
       if (action) {
         state = transition(state, action);
-        // 旧版任务激活和关闭会重置角色；仅新命令使用保留角色的语义。
+        // Legacy task activation and off reset the role; only new commands use the role-preserving semantics.
         if (record.legacy && (action.kind === 'activate' || action.kind === 'off')) {
           state = { ...state, mode: 'pua' };
           overrides.mode = 'pua';
         }
-        const keys: (keyof Configuration)[] = action.kind === 'flavor' ? ['flavor'] : action.kind === 'mode' ? ['enabled', 'mode', ...(action.task.startsWith('使用钉内/钉外味。') ? ['flavor' as const] : [])] : action.kind === 'offline' ? ['offline'] : ['on', 'off', 'activate', 'again', 'done-check', 'evidence', 'survey'].includes(action.kind) ? ['enabled'] : ['review', 'kpi', 'loop'].includes(action.kind) ? ['enabled', 'mode'] : ['cancel-pua-loop', 'teardown-all'].includes(action.kind) ? ['mode'] : [];
+        const keys: (keyof Configuration)[] = action.kind === 'flavor' ? ['flavor'] : action.kind === 'mode' ? ['enabled', 'mode', ...(action.task.startsWith('Use the Ding-inside/Ding-outside flavor.') ? ['flavor' as const] : [])] : action.kind === 'offline' ? ['offline'] : ['on', 'off', 'activate', 'again', 'done-check', 'evidence', 'survey'].includes(action.kind) ? ['enabled'] : ['review', 'kpi', 'loop'].includes(action.kind) ? ['enabled', 'mode'] : ['cancel-pua-loop', 'teardown-all'].includes(action.kind) ? ['mode'] : [];
         for (const key of keys) Object.assign(overrides, { [key]: key === 'flavor' ? state.flavorLocked ? state.flavor : 'auto' : key === 'mode' && state.mode === 'pua-loop' ? 'pua' : state[key] });
         if (action.kind === 'loop') state = { ...state, loopCommandId: id };
         if (record.done && JSON.stringify(overrides) !== before) revision++;

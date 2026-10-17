@@ -98,7 +98,7 @@ _KV = (
     r"client[_-]?secret|app[_-]?secret|"
     r"db[_-]?pass(?:word)?|database[_-]?(?:url|password)|"
     r"encryption[_-]?key|signing[_-]?key|"
-    r"密钥|密码|口令)"
+    r"secret|password|passwd|token|api[_-]?key)"
 )
 
 KV_PATTERNS = [

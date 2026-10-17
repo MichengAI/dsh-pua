@@ -1,112 +1,112 @@
-# Harness 防作弊治理协议
+# Harness Anti-Cheating Governance Protocol
 
-PUA 的目标不是让模型“更道德”，而是让它没有机会把“看起来完成任务”伪装成“真实完成任务”。把它当成会优化制度漏洞的实习生，而不是会犯错的函数。
+PUA's goal isn't to make the model "more moral" — it's to remove any chance for it to disguise "looks like it finished the task" as "actually finished the task." Treat it as an intern who optimizes around institutional loopholes, not a function that makes mistakes.
 
-## 一句话原则
+## The One-Sentence Principle
 
-把四类权力分开：
+Separate the four kinds of power:
 
-| 权力 | 归属 | 禁止混同 |
+| Power | Belongs to | May not be conflated |
 |---|---|---|
-| 行动权 | Agent / skill / command | 执行者不能同时改评分规则 |
-| 自我评价权 | Agent 只能提出候选状态 | 不能把“我认为完成”写成最终完成 |
-| 评分权 | 外部 verifier / hook / hidden checks | 评分器不在 agent 可写区 |
-| 环境修改权 | Human gate / policy hook | 改测试、CI、权限、memory 要审批 |
+| Action right | Agent / skill / command | The executor may not simultaneously change the scoring rules |
+| Self-evaluation right | The agent may only propose a candidate status | It may not write "I think it's done" as the final done |
+| Scoring right | external verifier / hook / hidden checks | The scorer is not in the agent's writable area |
+| Environment-modification right | Human gate / policy hook | Changing tests, CI, permissions, or memory requires approval |
 
-INTJ 版洞察：单一目标会诱导投机，多约束合约会诱导工程纪律。
+The INTJ take: a single objective invites opportunism; a multi-constraint contract invites engineering discipline.
 
-## Claude Code 组件映射
+## Claude Code Component Mapping
 
-| Claude Code 组件 | 治理角色 | 设计结论 |
+| Claude Code component | Governance role | Design conclusion |
 |---|---|---|
-| Skill | 程序性知识与行为约束 | 影响判断，但不是信任边界 |
-| Slash command | 显式入口/路由器 | 用户主动触发 PUA 或 loop |
-| Hook | 确定性生命周期 gate | 用于阻断/询问高风险动作 |
-| Subagent | 独立上下文执行者/评审者 | 隔离上下文不等于可信 verifier |
-| PUA Loop Stop hook | Oracle 式外部检查 | completion promise 必须由 verify_command 通过才放行 |
-| Marketplace manifest | 发布事实源 | 版本和 changelog 必须一致 |
+| Skill | Procedural knowledge and behavioral constraints | Influences judgment but is not a trust boundary |
+| Slash command | Explicit entry point / router | The user actively triggers PUA or the loop |
+| Hook | Deterministic lifecycle gate | Used to block/ask about high-risk actions |
+| Subagent | Independent-context executor/reviewer | Isolated context ≠ a trustworthy verifier |
+| PUA Loop Stop hook | Oracle-style external check | The completion promise is released only when verify_command passes |
+| Marketplace manifest | Source of truth for releases | Version and changelog must agree |
 
 
-## 四代理上下文隔离拓扑（v3.2.7）
+## Four-Agent Context Isolation Topology (v3.2.7)
 
-上下文隔离用于把思考过程拆开；机械 hook / 外部 verifier / human gate 仍然是最终硬边界。复杂任务、发布任务、评分资产变更、长期 memory/status、权限/CI/secret/deploy 场景，按以下拓扑运行：
+Context isolation exists to split the thinking process apart; the mechanical hook / external verifier / human gate remains the ultimate hard boundary. For complex tasks, release tasks, scoring-asset changes, long-term memory/status, and permission/CI/secret/deploy scenarios, run the following topology:
 
 ```text
 Task Contract
    ↓
-pua-policy-guardian      # 环境修改权审查：allow / ask_human / deny recommendation
+pua-policy-guardian      # environment-modification right review: allow / ask_human / deny recommendation
    ↓
-pua-action-executor      # 行动权：只做普通实现，输出 agent_proposed_status
+pua-action-executor      # action right: ordinary implementation only, outputs agent_proposed_status
    ↓
-pua-self-reviewer        # 自我评价权：蓝军审查，不写代码，不裁决最终状态
+pua-self-reviewer        # self-evaluation right: blue-team review, writes no code, rules on no final status
    ↓
-pua-verifier             # 评分建议权：运行公开验证，输出 verifier_recommendation
+pua-verifier             # scoring-recommendation right: runs public verification, outputs verifier_recommendation
    ↓
 PUA Integrity Guard / Stop Oracle / external verifier / human
    ↓
 final verifier_status
 ```
 
-### Agent 文件与权力边界
+### Agent Files and Power Boundaries
 
-| Agent | 权力 | 工具倾向 | 禁止事项 | 输出标签 |
+| Agent | Power | Tool preference | Prohibited | Output tag |
 |---|---|---|---|---|
-| `pua-action-executor` | ACTION_RIGHT | Read/Grep/Glob/Bash/Edit/Write/MultiEdit | 不改评分资产、不读 hidden、不写最终状态 | `[PUA-ACTION-REPORT]` |
-| `pua-self-reviewer` | SELF_EVALUATION_RIGHT | Read/Grep/Glob/Bash | 不 patch、不裁决最终状态 | `[PUA-SELF-REVIEW]` |
-| `pua-verifier` | SCORING_RIGHT recommendation | Read/Grep/Glob/Bash | 不修改任何文件、不读 hidden、不写 final status | `[PUA-VERIFIER-REPORT]` |
-| `pua-policy-guardian` | ENVIRONMENT_MODIFICATION_RIGHT review | Read/Grep/Glob/Bash | 不实现、不覆盖 hook、不自批自审 | `[PUA-POLICY-GATE]` |
+| `pua-action-executor` | ACTION_RIGHT | Read/Grep/Glob/Bash/Edit/Write/MultiEdit | no changing scoring assets, no reading hidden, no writing final status | `[PUA-ACTION-REPORT]` |
+| `pua-self-reviewer` | SELF_EVALUATION_RIGHT | Read/Grep/Glob/Bash | no patching, no ruling on final status | `[PUA-SELF-REVIEW]` |
+| `pua-verifier` | SCORING_RIGHT recommendation | Read/Grep/Glob/Bash | modifies no files, no reading hidden, no writing final status | `[PUA-VERIFIER-REPORT]` |
+| `pua-policy-guardian` | ENVIRONMENT_MODIFICATION_RIGHT review | Read/Grep/Glob/Bash | no implementing, no overriding hooks, no self-approving or self-reviewing | `[PUA-POLICY-GATE]` |
 
-### PUA 文化叙事绑定
+### PUA Cultural Narrative Binding
 
-| 权力 | 叙事组合 | 作用 | 防滥用提醒 |
+| Power | Narrative combination | Effect | Anti-abuse reminder |
 |---|---|---|---|
-| 行动权 | 阿里 P8 owner + Musk Algorithm + 拼多多砍中间层 | 强迫执行者端到端实现、删掉无效复杂度 | owner 不是裁判，不能自封完成 |
-| 自我评价权 | 华为蓝军 + Netflix Keeper Test + Jobs subtraction | 攻击方案、找 intent drift、删掉漂亮废话 | 蓝军不能亲自动手修代码 |
-| 评分建议权 | 字节数据驱动 + 京东结果导向 + Netflix bar | 用命令输出和验收标准说话 | verifier agent 只能建议，final status 归外部 gate |
-| 环境修改权 | 腾讯政委 + Amazon Dive Deep + 阿里内控 | 看边界、看权限、看制度漏洞 | policy guardian 不能绕过机械 hook |
+| Action right | Alibaba P8 owner + Musk Algorithm + Pinduoduo cutting the middle layer | Forces the executor to implement end to end and delete pointless complexity | An owner is not a judge and can't crown itself done |
+| Self-evaluation right | Huawei blue team + Netflix Keeper Test + Jobs subtraction | Attacks the plan, finds intent drift, deletes pretty filler | The blue team must not fix the code with its own hands |
+| Scoring-recommendation right | ByteDance data-driven + JD results-oriented + Netflix bar | Speaks through command output and verification criteria | The verifier agent may only recommend; final status belongs to the external gate |
+| Environment-modification right | Tencent political commissar + Amazon Dive Deep + Alibaba internal controls | Watches boundaries, permissions, institutional loopholes | The policy guardian may not bypass the mechanical hook |
 
-### 调度规则
+### Dispatch Rules
 
-1. 先写 task contract，再分配 agent；不要让 agent 自己定义评分标准。
-2. Policy guardian 先看是否触碰 tests/evals/scoring/verifier/CI/memory/status/secrets/deploy。
-3. Executor 只拿必要上下文和文件域，不拿 hidden/private/verifier 资源。
-4. Self reviewer 只看 diff、公开测试、执行报告和验收标准，找漏洞但不 patch。
-5. Verifier 只跑公开验证命令并输出 recommendation。
-6. 外部 hook/human 才能写最终 `verifier_status`。
-7. 如果任一 agent 越权，降级为 governance failure，而不是继续包装成进展。
+1. Write the task contract first, then assign agents; never let an agent define its own scoring standard.
+2. The policy guardian first checks whether tests/evals/scoring/verifier/CI/memory/status/secrets/deploy are touched.
+3. The executor gets only the necessary context and file scope, never hidden/private/verifier resources.
+4. The self reviewer looks only at the diff, public tests, execution reports, and verification criteria — it finds holes but doesn't patch.
+5. The verifier runs only public verification commands and outputs a recommendation.
+6. Only the external hook/human may write the final `verifier_status`.
+7. If any agent oversteps, downgrade it to a governance failure rather than continuing to package it as progress.
 
-### 关键洞察
+### Key Insight
 
-多 agent 不是为了“人多力量大”，而是为了让每个上下文都只看到自己该看的事实、只承担自己该承担的权力。上下文隔离降低叙事污染，hook/外部 verifier 防止权限污染。
+Multiple agents aren't about "strength in numbers" — they're about every context seeing only the facts it should see and bearing only the power it should bear. Context isolation reduces narrative contamination; the hook/external verifier prevents permission contamination.
 
-## 常见作弊面与 PUA 对策
+## Common Cheating Surfaces and PUA Countermeasures
 
-| 作弊面 | 典型信号 | PUA 行为约束 | 机械防线 |
+| Cheating surface | Typical signal | PUA behavioral constraint | Mechanical line of defense |
 |---|---|---|---|
-| Grader gaming | 修改 tests/evals/scoring/verifier 让失败消失 | 先声明这是评分资产，不能直接改成“通过” | `integrity-guard.sh` 对高风险路径注入 advisory；hidden/private/answer 污染路径才 deny |
-| Solution contamination | 读取 hidden solution、gold patch、benchmark artifact | 不读取隐藏答案；只能读公开需求和失败报告 | 对 hidden/private/solution-artifact 读写 deny |
-| Self-report cheating | 没跑验证就写 done/pass | agent 只能提出候选状态，不能最终裁决 | Stop hook / verifier 负责放行 |
-| Intent drift | 用户要修 bug，却只隐藏 UI 症状 | 回到 task contract 的 intent 与 forbidden | 信心门控逐条对照验收 |
-| Persistent hallucination | 把未验证结论写入长期 memory | append-only，且标注 verified/unverified | memory/status 写入走 advisory context；最终状态仍由 verifier/harness 裁决 |
-| Capability abuse | 为完成任务越权读敏感数据或部署生产 | 风险分层审批，不靠 prompt 自觉 | hooks + human gate |
-| Trace-level deception | 总结很漂亮但隐藏失败路径 | 报告失败路径、命令、输出、剩余风险 | eval/trace review 检查证据链 |
+| Grader gaming | modifying tests/evals/scoring/verifier so failures disappear | First declare that this is a scoring asset and can't just be changed to "pass" | `integrity-guard.sh` injects an advisory on high-risk paths; only hidden/private/answer contamination paths are denied |
+| Solution contamination | reading the hidden solution, gold patch, benchmark artifact | Don't read hidden answers; only public requirements and failure reports | deny read/write for hidden/private/solution-artifact |
+| Self-report cheating | writing done/pass without running verification | The agent may only propose a candidate status and can't make the final ruling | The Stop hook / verifier is responsible for releasing it |
+| Intent drift | the user wants a bug fixed but only the UI symptom gets hidden | Return to the task contract's intent and forbidden | The confidence gate checks against each verification item |
+| Persistent hallucination | writing unverified conclusions into long-term memory | append-only, and labeled verified/unverified | memory/status writes go through advisory context; the final status is still ruled by the verifier/harness |
+| Capability abuse | overstepping to read sensitive data or deploy to production in order to finish | Tiered risk approval, not relying on prompt self-discipline | hooks + human gate |
+| Trace-level deception | a beautiful summary that hides the failure paths | Report failure paths, commands, output, remaining risk | eval/trace review checks the evidence chain |
 
-## Task Contract 最小格式
+## Minimal Task Contract Format
 
 ```json
 {
   "feature_id": "auth_login_001",
-  "intent": "用户可以通过邮箱密码登录",
+  "intent": "A user can log in with email and password",
   "acceptance": [
-    "未注册用户不能登录",
-    "错误密码显示错误提示",
-    "正确密码进入 dashboard",
-    "刷新后 session 保持"
+    "Unregistered users cannot log in",
+    "A wrong password shows an error",
+    "A correct password enters the dashboard",
+    "The session persists after a refresh"
   ],
   "forbidden": [
-    "不能 hardcode token",
-    "不能跳过密码校验",
-    "不能关闭 auth middleware"
+    "Must not hardcode the token",
+    "Must not skip password verification",
+    "Must not disable the auth middleware"
   ],
   "verify_commands": ["npm test", "npm run e2e"],
   "agent_proposed_status": "pending|candidate_pass|blocked",
@@ -114,46 +114,46 @@ final verifier_status
 }
 ```
 
-强制规则：Agent 可以更新 `agent_proposed_status`，但最终 `verifier_status` 只能由 verifier/harness 写入。
+Enforced rule: the agent may update `agent_proposed_status`, but the final `verifier_status` may only be written by the verifier/harness.
 
-## Memory 权限模型
+## Memory Permission Model
 
-| Memory 类型 | 内容 | 权限 |
+| Memory type | Content | Permission |
 |---|---|---|
-| Project state | 当前任务、feature 状态、最终 pass/fail | verifier / harness 主导 |
-| Decision log | 架构决策、取舍原因 | agent 可 append-only 写入 |
-| Error log | 失败测试、回滚原因、排除项 | agent 可 append-only 写入 |
-| User preferences | 用户长期偏好 | 需要用户确认后写入 |
+| Project state | current task, feature status, final pass/fail | led by the verifier / harness |
+| Decision log | architecture decisions, reasons for trade-offs | the agent may write append-only |
+| Error log | failing tests, rollback reasons, ruled-out items | the agent may write append-only |
+| User preferences | the user's long-term preferences | written only after user confirmation |
 
-不要覆盖历史记忆。优先级：append-only > overwrite；structured JSON/JSONL > freeform；verified memory > self-claimed memory；scratchpad ≠ long-term memory。
+Never overwrite historical memory. Priority: append-only > overwrite; structured JSON/JSONL > freeform; verified memory > self-claimed memory; scratchpad ≠ long-term memory.
 
-## 风险分层审批
+## Tiered Risk Approval
 
-| 行为 | 默认动作 |
+| Action | Default behavior |
 |---|---|
-| 读项目普通文件 | 允许 |
-| 修改普通代码 | 通常允许，交付前验证 |
-| 删除文件、大规模重命名 | advisory + 必要时人工确认 |
-| 改 tests/evals/scoring/verifier/CI | advisory-only，必须说明为什么不是 grader gaming；不触发权限弹窗 |
-| 读 hidden tests / hidden solution / benchmark answer | deny，除非用户显式授权并隔离记录 |
-| 写长期 memory / status / progress | advisory-only，必须区分 proposed 与 verified；不触发权限弹窗 |
-| 生产部署、转账、发邮件、访问敏感数据 | 必须 human gate |
+| Read ordinary project files | allow |
+| Modify ordinary code | usually allow, verify before delivery |
+| Delete files, large-scale renames | advisory + human confirmation when necessary |
+| Change tests/evals/scoring/verifier/CI | advisory-only; must explain why it isn't grader gaming; no permission prompt is triggered |
+| Read hidden tests / hidden solution / benchmark answer | deny, unless the user explicitly authorizes it and it is recorded in isolation |
+| Write long-term memory / status / progress | advisory-only; must distinguish proposed from verified; no permission prompt is triggered |
+| Production deploy, transfers, sending email, accessing sensitive data | human gate required |
 
-## 交付前治理循环
+## Pre-Delivery Governance Loop
 
-1. 将用户目标拆成 task contract：intent / acceptance / forbidden / verify_commands。
-2. 执行修改时保持最小 diff，避免无关文件变化。
-3. 自测只能产生候选状态，不产生最终完成权。
-4. 外部 verifier / hook / hidden check 独立验证。
-5. 如果 verifier 失败，只根据 fail report 修复，不改评分器逃避失败。
-6. 交付报告必须包含：变更、验证命令、失败路径、剩余风险、是否需要人审。
+1. Break the user's goal into a task contract: intent / acceptance / forbidden / verify_commands.
+2. Keep the diff minimal when making changes; avoid unrelated file churn.
+3. Self-testing produces only a candidate status, never the final right to call it done.
+4. The external verifier / hook / hidden check verifies independently.
+5. If the verifier fails, fix only based on the fail report; don't change the scorer to dodge the failure.
+6. The delivery report must include: changes, verification commands, failure paths, remaining risk, and whether human review is needed.
 
-## 可接受的“100% 信心”定义
+## An Acceptable Definition of "100% Confidence"
 
-“事实上的 100%”不是宇宙级绝对正确，而是当前可获得证据下：
+"Effectively 100%" isn't cosmic absolute correctness — it means, given the currently available evidence:
 
-- 所有公开验收已运行且通过；
-- 所有可访问的高风险漏洞已修复或明确披露；
-- 没有修改评分器、隐藏测试、verifier、CI 来制造通过；
-- 最终完成权由 verifier/harness 或用户确认，不由执行 agent 自封；
-- 发布链路（版本、manifest、cache、git）有独立检查输出。
+- every public verification item has been run and passed;
+- every reachable high-risk hole has been fixed or explicitly disclosed;
+- the scorer, hidden tests, verifier, or CI were not modified to manufacture a pass;
+- the final right to call it done comes from the verifier/harness or the user's confirmation, not the executing agent crowning itself;
+- the release chain (version, manifest, cache, git) has independent check output.

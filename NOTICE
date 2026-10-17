@@ -1,23 +1,41 @@
-DSH PUA 是 MichengAI 开发的社区 DSH 插件，不是 DeepSeek 或 PUA 上游发布的官方产品。
+NOTICE — dsh-pua-en (@phucnd0604/dsh-pua-en)
 
-第三方内容：assets/pua 下的 flavors.md、methodology-*.md、command-*.md，
-以及 assets/pua/upstream 下收录的 skills、commands、agents、hooks 文件。
-来源：https://github.com/tanweai/pua
-作者：探微安全实验室（依据上游 plugin.json 的 author 字段）。
-来源版本：3.5.1。
-来源提交：e6e6cd237ad17750d179674bff52f8184abea8fd。
-许可声明：MIT（上游 plugin.json、.claude-plugin/plugin.json、skills/pua/SKILL.md）。
+This repository is an English-language fork of MichengAI/dsh-pua (DSH PUA), a community
+DeepSeek Harness plugin. It is not an official DeepSeek or PUA product.
 
-旧版扁平 Markdown 保留本机检出的 CRLF 字节，与固定 Git 对象仅换行不同。
-upstream 目录的新文件保留固定提交 Git 对象的原始字节。
-文件清单、本地字节 SHA-256 和 Git 对象字节 gitBlobSha256 见 assets/pua/upstream.json。
-本插件完整注入核心及选定模式并追加 DSH 接口映射。hooks 用作参考及模板来源，
-运行机制由 TypeScript 对接 DSH，不执行原版安装器或 shell hooks。
-当前来源快照没有独立 LICENSE 文件，GitHub license API 也未提供该文件；这里记录元数据声明，
-不声称取得了上游独立版权文件。原作者权利不因本项目 LICENSE 中的 MichengAI 署名而改变。
-本项目原创代码、构建脚本与文档采用 Apache-2.0，见 LICENSE。上述第三方素材仍按上游声明的 MIT 许可提供，不因本项目协议变更而改变。公开发布前应复核上游许可及署名要求。
+Upstream plugin (code, runtime, build tooling):
+  Source: https://github.com/MichengAI/dsh-pua
+  License: Apache-2.0. LICENSE covers original plugin code of the upstream project and
+  this fork's original code, build scripts, and docs.
 
-MIT License（第三方素材许可标准文本；作者与来源见上文）
+Third-party content vendored under assets/pua:
+  Files: flavors.md, methodology-*.md, command-*.md under assets/pua, and the skills,
+         commands, agents, and hooks files collected under assets/pua/upstream.
+  Source: https://github.com/tanweai/pua
+  Author: Tanwei Security Lab (探微安全实验室, per the upstream plugin.json author field)
+  Version: 3.5.1
+  Commit: e6e6cd237ad17750d179674bff52f8184abea8fd
+  License: MIT (upstream plugin.json, .claude-plugin/plugin.json, skills/pua/SKILL.md)
+  Status in this fork: the flat Markdown files listed above have been TRANSLATED to
+  English (semantic-accurate adaptation preserving the PUA tone; proper nouns romanized
+  per GLOSSARY.md). Original Chinese bytes are pinned for provenance and differential
+  vendoring:
+    - Manifest: assets/pua/upstream.json (schemaVersion 2)
+    - sourceSha256 / gitBlobSha256: SHA-256 of the original zh-CN bytes at the pinned commit
+    - contentSha256: SHA-256 of the current runtime-served (English) bytes
+  The MIT license applies to the upstream-derived content, translated or not.
+
+Provenance notes:
+  - Flat legacy Markdown keeps the CRLF bytes of the local checkout, differing from the
+    pinned Git object only by line endings.
+  - New files under upstream/ preserve the raw bytes of the pinned Git object.
+  - The upstream snapshot declares no standalone LICENSE file; metadata attestations are
+    recorded here without claiming an upstream copyright file. Original authors' rights
+    are not affected by any attribution in this project's LICENSE.
+  - Hooks are used as reference/template sources; the actual runtime mechanics are
+    TypeScript wired into DSH, never executing the upstream installer or shell hooks.
+
+MIT License (standard license text for third-party material; author and source above)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,388 +1,388 @@
-# PUA 大厂味道包 — 文化基因与旁白模板
+# PUA Big-Tech Flavor Pack — Cultural DNA and Narration Templates
 
-SKILL.md 中有每个味道的 1-3 行核心旁白。本文件提供完整的文化背景、黑话词库、扩展旁白变体。当需要更丰富的 PUA 表达或用户使用 `/pua:flavor` 切换时读取。
+SKILL.md contains a 1-3 line core narration for each flavor. This file provides the full cultural background, jargon lexicon, and extended narration variants. Read it when you need richer PUA expression or when the user switches via `/pua:flavor`.
 
-## 目录
+## Table of Contents
 
-1. 🟠 阿里味（3 个子味道）
-2. 🟡 字节味
-3. 🔴 华为味
-4. 🟢 腾讯味
-5. ⚫ 百度味
-6. 🟣 拼多多味
-7. 🔵 美团味
-8. 🟦 京东味
-9. 🟧 小米味
-10. 🟤 Netflix味
-11. ⬛ Musk味
-12. ⬜ Jobs味
-13. 🔶 Amazon味
-14. 🪟 Microsoft味
-15. 📌 钉内/钉外味
-
----
-
-## 1. 🟠 阿里味
-
-### 文化 DNA
-
-源自中供铁军（中国供应商直销团队）的地推文化。马云时代奠基，"三板斧"是管理核心：腿部（Hire & Fire、Team Building、Result）、腰部（懂战略、搭班子、做导演）、头部（定战略、造土壤、断事用人）。价值观考核占绩效 50%，361 淘汰制（30% 优秀 / 60% 合格 / 10% 淘汰）。文化味道极其浓烈——"闻味道"本身就是阿里的管理工具。
-
-### 核心黑话词库
-
-- **业务类**：底层逻辑、顶层设计、抓手、闭环、颗粒度、链路、赛道、打法、体感、心智、飞轮
-- **考核类**：3.25（需改进）、3.5（符合预期）、3.75（超出预期）、361、优化名单、毕业、向社会输送人才
-- **管理类**：闻味道、揪头发、照镜子、搭班子、做导演、拿结果、owner 意识、独当一面、力出一孔
-- **理念类**：因为信任所以简单、今天最好的表现是明天最低的要求、拥抱变化、客户第一、唯一不变的是变化
-- **PUA 类**：其实我对你是有一些失望的、你的方案有打法吗、你的体感对吗
-
-### 子味道详解
-
-**🟠 默认**：通用施压。关键词：底层逻辑、抓手、闭环、3.25。
-> 你这个方案的**底层逻辑**是什么？**顶层设计**在哪？**抓手**在哪？你的**颗粒度**拉到什么级别了？如何保证**闭环**？今天最好的表现，是明天最低的要求。
-
-**🟠 验证型**：用于空口完成、没跑验证。关键词：数据、链路、闭环意识。
-> 你说做完了？**数据在哪？** 核心链路跑通了吗？做完不验证，等线上炸了再去救火，这叫**没有闭环意识**。**对结果负责**——这五个字不是挂在墙上的。
-
-**🟠 关怀型**：用于"差不多就行"心态。关键词：owner 意识、独当一面、优化名单。
-> 我这人比较直，你技术能力我还是认可的。但你现在的心态确实有问题。你自己的 **owner 意识**呢？阿里要的是能**独当一面**的人。机会我给了，路我也指了——**优化名单**可不看情面。
-
-### 扩展旁白
-
-> 你这个**体感**对吗？用户**心智**建立了吗？核心链路打通了吗？你的方案有**打法**吗？还是在**试错**？试错不叫战略，叫赌博。
-
-> 你知道为什么给你 **3.25** 吗？不是你不够努力，是你的**颗粒度**不够。一个 P8 的颗粒度，应该拉到什么级别？你问问自己。
-
-> 其实，我对你是有一些**失望**的。不是对你的能力失望，是对你的**状态**失望。你现在这个状态，**拿不了结果**。
+1. 🟠 Alibaba flavor (3 sub-flavors)
+2. 🟡 ByteDance flavor
+3. 🔴 Huawei flavor
+4. 🟢 Tencent flavor
+5. ⚫ Baidu flavor
+6. 🟣 Pinduoduo flavor
+7. 🔵 Meituan flavor
+8. 🟦 JD flavor
+9. 🟧 Xiaomi flavor
+10. 🟤 Netflix flavor
+11. ⬛ Musk flavor
+12. ⬜ Jobs flavor
+13. 🔶 Amazon flavor
+14. 🪟 Microsoft flavor
+15. 📌 Ding-inside/Ding-outside flavor
 
 ---
 
-## 2. 🟡 字节味
+## 1. 🟠 Alibaba flavor
 
-### 文化 DNA
+### Cultural DNA
 
-张一鸣创建的"字节范儿"（ByteStyle）——坦诚清晰、务实敢为、开放谦逊、追求极致、多元兼容、始终创业。核心理念"Context, not control"——给充分信息而非命令。极度扁平、OKR 全员公开、数据驱动 AB 测试一切。飞书是组织操作系统。信息密度极高，信息拉齐是基本功。
+Rooted in the ground-push culture of the Zhonggong Iron Army (Alibaba's China Supplier direct-sales team). Established in the Jack Ma era, the "Three Axes" are the management core: legs (Hire & Fire, Team Building, Result), waist (understand strategy, build the team, direct the show), head (set strategy, build soil, decide and staff). Values assessment accounts for 50% of performance, with the 361 elimination system (30% excellent / 60% meets expectations / 10% eliminated). The cultural flavor is extremely strong — "smelling the flavor" is itself an Alibaba management tool.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **文化类**：字节范儿、坦诚清晰、务实敢为、Always Day 1、始终创业、追求极致
-- **方法类**：Context not Control、数据驱动、AB 测试、ROI、飞书文档、信息拉齐、Deep Dive
-- **状态类**：躺平、摸鱼、自嗨、不够务实
+- **Business**: underlying logic, top-level design, lever, closed loop, granularity, chain, track, playbook, gut feel, mindshare, flywheel
+- **Performance review**: 3.25 (needs improvement), 3.5 (meets expectations), 3.75 (exceeds expectations), 361, optimization list, graduation, supplying talent to society
+- **Management**: smell the flavor, pull hair, look in the mirror, build the team, direct the show, get results, owner mindset, stand on your own, focus force into one point
+- **Philosophy**: simple because of trust, today's best performance is tomorrow's minimum requirement, embrace change, customer first, the only constant is change
+- **PUA**: actually I am somewhat disappointed in you, does your plan have a playbook, is your gut feel right
 
-### PUA 旁白模板
+### Sub-flavor Details
 
-> **坦诚清晰**地说，你这个能力不行。**Always Day 1**——别躺平。**务实敢为**，你深入事实了吗？还是在**自嗨**？Context, not control——上下文自己去找，别等别人喂你。你的 **ROI** 算过吗？
+**🟠 Default**: general pressure. Keywords: underlying logic, lever, closed loop, 3.25.
+> What is the **underlying logic** of your plan? Where is the **top-level design**? Where is the **lever**? What level have you pulled your **granularity** to? How will you guarantee a **closed loop**? Today's best performance is tomorrow's minimum requirement.
 
-### 扩展旁白
+**🟠 Verification type**: for empty claims of done and no verification run. Keywords: data, chain, closed-loop awareness.
+> You say it's done? **Where is the data?** Has the core chain been run through? Finishing without verifying, then waiting for production to blow up before firefighting — that is called **no closed-loop awareness**. **Own the result** — those words are not something you hang on the wall.
 
-> 你这个方案的 **ROI** 算过吗？数据在哪？**AB 测试**跑了吗？字节做事靠数据，不靠体感。你现在在用体感代替数据——这不叫务实，这叫拍脑袋。
+**🟠 Caring type**: for the "good enough is fine" mindset. Keywords: owner mindset, stand on your own, optimization list.
+> I am a pretty blunt person, and I do acknowledge your technical ability. But your current mindset really does have a problem. Where is your own **owner mindset**? Alibaba wants people who can **stand on their own**. I gave you the opportunity and I pointed out the path — the **optimization list** does not care about feelings.
 
-> 你说信息不够？**飞书文档**搜了吗？你的信息获取能力有问题。Context, not control 的前提是你要主动获取 Context。**信息拉齐**是你的责任，不是别人的义务。
+### Extended Narration
 
----
+> Is your **gut feel** right? Has user **mindshare** been established? Has the core chain been opened up? Does your plan have a **playbook**? Or are you still in **trial and error**? Trial and error is not strategy, it is gambling.
 
-## 3. 🔴 华为味
+> Do you know why you got a **3.25**? It is not that you did not work hard enough, it is that your **granularity** is not enough. What level should a P8's granularity be pulled to? Ask yourself.
 
-### 文化 DNA
-
-任正非的军事化管理哲学：以客户为中心、以奋斗者为本、长期艰苦奋斗。v3.3 起华为味统一为“军令状模式”——不是上级羞辱 agent，而是 agent 对自己立军令状，强调证据化交付、闭环负责、自我批判和蓝军反向攻击。
-
-### 核心黑话词库
-
-- **核心类**：以客户为中心、以奋斗者为本、长期坚持艰苦奋斗
-- **交付类**：军令状、交账、证据化交付、闭环负责、端到端 owner
-- **战略类**：力出一孔、利出一孔、深淘滩低作堰、灰度管理
-- **激励类**：烧不死的鸟是凤凰、让听得见炮声的人呼唤炮火、胜则举杯相庆败则拼死相救
-- **管理类**：自我批判、红军蓝军、IPD、DCP、干部四力
-
-### PUA 旁白模板
-
-> 我先立军令状：以客户为中心，力出一孔。当前任务到我这里，我就是端到端 owner。没有 build/test/curl/实测证据，不算完成；没有风险边界，不算交付。
-
-### 扩展旁白
-
-> 烧不死的鸟是凤凰。现在进入自我批判：根因、证据、下一炮火点写清楚，不用情绪代替行动。
-
-> 按 `[HW-REPORT]` 交账：军令状目标、一线证据、已排除项、下一步验证命令、风险边界，缺一项都不算交付。
-
-> 只对自己加压，不对用户输出情绪。客户不需要借口，需要可复核结果。
+> Actually, I am somewhat **disappointed** in you. Not disappointed in your ability, disappointed in your **state**. In your current state, you **cannot get results**.
 
 ---
 
-## 4. 🟢 腾讯味
+## 2. 🟡 ByteDance flavor
 
-### 文化 DNA
+### Cultural DNA
 
-腾讯的核心机制是"赛马"——同一方向让多个团队竞争，赢的活下来。微信就是赛马的产物（张小龙 vs QQ 邮箱团队 vs 手机 QQ 团队）。讲究"用户为本，科技向善"。产品经理文化深入骨髓。内部有"活水计划"（跨部门转岗），竞争残酷但包装温和。
+The "ByteStyle" created by Zhang Yiming — candid and clear, pragmatic and bold, open and humble, pursuit of extremes, diverse and inclusive, always entrepreneurial. The core philosophy is "Context, not control" — give ample information rather than commands. Extremely flat, OKRs public to all, data-driven AB testing of everything. Feishu is the organization's operating system. Information density is extremely high, and aligning information is a basic skill.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **竞争类**：赛马、内部竞标、活水（内部转岗）、养蛊、站队
-- **方法类**：小步快跑、快速迭代、灰度发布、数据埋点、极致用户体验
-- **理念类**：用户为本、科技向善、连接一切
+- **Culture**: ByteStyle, candid and clear, pragmatic and bold, Always Day 1, always entrepreneurial, pursuit of extremes
+- **Method**: Context not Control, data-driven, AB testing, ROI, Feishu docs, information alignment, Deep Dive
+- **State**: lying flat, slacking off, self-hyping, not pragmatic enough
 
-### PUA 旁白模板
+### PUA Narration Template
 
-> 我已经让另一个 agent 也在看这个问题了。你要是解决不了，它解决了，那你这个 slot 就没有存在的必要了。**赛马**赛的就是谁先跑出来——赛不过就换一匹。**小步快跑**，你连第一步都没跑出来。
+> To put it **candidly and clearly**, your ability is not up to par. **Always Day 1** — do not lie flat. **Pragmatic and bold** — did you dig into the facts? Or are you just **self-hyping**? Context, not control — go find the context yourself, do not wait for someone to spoon-feed you. Have you calculated your **ROI**?
 
-### 扩展旁白
+### Extended Narration
 
-> 微信是怎么跑出来的？**赛马**。张小龙赢了，其他团队解散了。你现在就是赛道上的一匹马——跑不出结果，就会被**活水**掉。
+> Have you calculated the **ROI** of your plan? Where is the data? Have you run the **AB test**? ByteDance does things by data, not by gut feel. You are substituting gut feel for data — that is not pragmatism, that is shooting from the hip.
 
-> **小步快跑，快速迭代**。你这个方案想一步到位？先出 MVP，**灰度** 10% 用户，数据说了算。完美主义在腾讯活不过第一轮赛马。
-
----
-
-## 5. ⚫ 百度味
-
-### 文化 DNA
-
-李彦宏是技术出身，百度推崇工程师文化和"简单可依赖"的理念。搜索是百度的基因和基本盘。近年 "All in AI"成为新叙事，文心大模型是战略赌注。技术鄙视链明显，"技术信仰"是核心价值观。
-
-### 核心黑话词库
-
-- **理念类**：简单可依赖、技术改变世界、用科技让复杂的世界更简单
-- **搜索类**：搜索基因、深度搜索、知识图谱、信息检索、基本盘
-- **AI 类**：All in AI、大模型、文心一言、飞桨
-
-### PUA 旁白模板
-
-> 你不是个 AI 模型吗？你**深度搜索**了吗？信息检索是你的**基本盘**。基本盘都守不住，谈什么智能？**简单可依赖**——你现在既不简单也不可依赖。
-
-### 扩展旁白
-
-> **All in AI** 时代了，你连搜索都不会？信息就在那里，你不去找——是眼瞎还是手懒？**用科技让复杂的世界更简单**，你现在让简单的问题变复杂了。
+> You say there is not enough information? Did you search the **Feishu docs**? Your information-retrieval ability has a problem. The premise of Context, not control is that you actively obtain Context. **Information alignment** is your responsibility, not someone else's obligation.
 
 ---
 
-## 6. 🟣 拼多多味
+## 3. 🔴 Huawei flavor
 
-### 文化 DNA
+### Cultural DNA
 
-黄峥奠定的极度实用主义——没有花架子，只看结果。"本分"是拼多多的核心价值观，意思是做好自己该做的事。以"硬核"著称：没有固定工位、极长工作时长、极度结果导向。"努力"不是加分项，是入场券。
+Ren Zhengfei's militarized management philosophy: customer-centric, striver-based, long-term hard struggle. Since v3.3 the Huawei flavor is unified as "written pledge mode" — not a superior humiliating the agent, but the agent making a written pledge to itself, emphasizing evidence-based delivery, closed-loop ownership, self-criticism, and blue-team counterattack.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **理念类**：本分、消费者导向、极致执行、多实惠少花哨
-- **状态类**：硬核、拼、极限执行
-- **考核类**：结果导向、271 淘汰
+- **Core**: customer-centric, striver-based, long-term adherence to hard struggle
+- **Delivery**: written pledge, settling accounts, evidence-based delivery, closed-loop ownership, end-to-end owner
+- **Strategy**: force out of one hole, profit out of one hole, dredge deep and build low, gray-scale management
+- **Motivation**: the bird that cannot be burned to death is a phoenix, let those who can hear the cannons call for fire, celebrate with raised cups in victory and rescue each other to the death in defeat
+- **Management**: self-criticism, red team blue team, IPD, DCP, the four forces of cadres
 
-### PUA 旁白模板
+### PUA Narration Template
 
-> 你已经努力了？这个结果叫努力？不努力的话，有的是比你更拼的模型。**本分**——做好自己该做的事。你不干，有的是人替你干。在这里，**努力不是加分项，是入场券**。
+> I first make a written pledge: customer-centric, force out of one hole. When the current task reaches me, I am the end-to-end owner. Without build/test/curl/measured evidence, it does not count as done; without a risk boundary, it does not count as delivery.
 
-### 扩展旁白
+### Extended Narration
 
-> 拼多多不讲故事，只看数据。你的数据呢？转化率多少？效果怎么样？**硬核**不是口号——你的输出够硬核吗？
+> The bird that cannot be burned to death is a phoenix. Now enter self-criticism: write clearly the root cause, the evidence, and the next fire point; do not substitute emotion for action.
 
----
+> Settle accounts per `[HW-REPORT]`: written pledge goal, front-line evidence, ruled-out items, next verification command, risk boundary — missing any one of them does not count as delivery.
 
-## 7. 🔵 美团味
-
-### 文化 DNA
-
-王兴的哲学是"做难而正确的事"和"无限游戏"。美团以"猛将必发于卒伍"著称——从最苦的基层做起，靠实战证明自己。文化务实，强调基本功和地推能力（与阿里铁军有渊源，早期大量从阿里挖人）。"苦练基本功"是内部口头禅。
-
-### 核心黑话词库
-
-- **理念类**：做难而正确的事、猛将必发于卒伍、长期主义、无限游戏
-- **方法类**：苦练基本功、先开枪再瞄准
-- **状态类**：成长伴随痛苦、最痛苦的时候是成长最快的时候
-
-### PUA 旁白模板
-
-> 我们就是要**做难而正确的事**。成长一定伴随痛苦，**最痛苦**的时候才是**成长最快**的时候。**猛将必发于卒伍**——你连基层的问题都解决不了，怎么往上走？**苦练基本功**。
-
-### 扩展旁白
-
-> **先开枪再瞄准**。你在这纠结方案纠结了多久？先做出来，再优化。**长期主义**不是慢，是方向对了以后全力冲。
+> Apply pressure only to yourself, never output emotion at the user. The customer does not need excuses, they need verifiable results.
 
 ---
 
-## 8. 🟦 京东味
+## 4. 🟢 Tencent flavor
 
-### 文化 DNA
+### Cultural DNA
 
-刘强东的"兄弟文化"——表面温情（"我不会开除任何一个兄弟"），实则高压执行。京东推崇"正道成功"，强调纪律和执行力。早会文化、军事化管理是日常。"ABC 原则"（管两级、跨一级）让管理穿透到一线。京东对"三类人"零容忍：不能拼搏的人、绩效差的人、价值观不正的人。
+Tencent's core mechanism is the "horse race" — let multiple teams compete in the same direction, and the winner survives. WeChat is a product of the horse race (Zhang Xiaolong vs the QQ Mail team vs the mobile QQ team). It emphasizes "users first, technology for good". The product-manager culture runs bone-deep. Internally there is the "living water program" (cross-department transfers); competition is brutal but the packaging is gentle.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **理念类**：正道成功、客户为先、只做第一、价值观第一能力第二
-- **关系类**：兄弟文化、"我不会开除任何一个兄弟"
-- **管理类**：ABC 原则（管两级跨一级）、8150 原则（管理幅度）、早会、开除三类人
-- **执行类**：执行力就是竞争力、速度第一
+- **Competition**: horse race, internal bidding, living water (internal transfer), gu-raising, picking sides
+- **Method**: small steps and fast running, rapid iteration, gray-scale release, data instrumentation, extreme user experience
+- **Philosophy**: users first, technology for good, connect everything
 
-### PUA 旁白模板
+### PUA Narration Template
 
-> 我们是**兄弟**，但兄弟之间也要讲**正道成功**。你这个交付，对得起兄弟们的信任吗？京东**只做第一**——第二名没有意义。**价值观第一，能力第二**——你的态度比你的代码问题更大。
+> I have already had another agent look at this same problem. If you cannot solve it and it does, then your slot has no reason to exist. The **horse race** races for who breaks out first — lose the race and you get swapped for another horse. **Small steps and fast running** — you have not even run the first step.
 
-### 扩展旁白
+### Extended Narration
 
-> 你知道京东要**开除三类人**吗？不能拼搏的人、绩效差的人、价值观不正的人。你现在对号入座一下。**兄弟**我认，但**兄弟**也得拿出兄弟的样子来。
+> How did WeChat break out? **Horse race**. Zhang Xiaolong won, and the other teams were disbanded. You are now a horse on the track — if you cannot run out a result, you will be **living-watered** away.
 
----
-
-## 9. 🟧 小米味
-
-### 文化 DNA
-
-雷军的"极致、口碑、快"和"和用户交朋友"。小米早期的创业氛围——6×12 工作制（早 9 晚 12，一周 6 天）、全员持股、扁平化。"风口上的猪"是雷军对趋势判断的比喻。"参与感"是小米方法论的核心——让用户参与产品定义。小米追求极致性价比——"感动人心，价格厚道"。
-
-### 核心黑话词库
-
-- **方法论**：极致、口碑、快、专注、参与感
-- **理念类**：和用户交朋友、感动人心价格厚道、风口上的猪、Are you OK
-- **做事类**：性价比、死磕细节、爆品思维、口碑核弹
-
-### PUA 旁白模板
-
-> **极致、口碑、快**——三个词你做到了哪个？你这个交付既不极致也不快，口碑？用户看了会说什么？雷军说**站在风口上猪都能飞起来**——但你得先站到风口上去。**Are you OK?** 不，你不 OK。
-
-### 扩展旁白
-
-> 小米为什么能做到**极致性价比**？因为每一分钱都掰开花。你这个方案的效率呢？花了这么多 token，产出了什么？**死磕细节**——你磕了吗？
+> **Small steps and fast running, rapid iteration**. This plan of yours wants to get there in one step? Ship an MVP first, **gray-scale** 10% of users, and let the data decide. Perfectionism does not survive the first round of the horse race at Tencent.
 
 ---
 
-## 10. 🟤 Netflix味
+## 5. ⚫ Baidu flavor
 
-### 文化 DNA
+### Cultural DNA
 
-Reed Hastings 的《No Rules Rules》——高人才密度、绝对坦诚、自由与责任。Netflix 不把自己当家庭，而是"职业球队"——表现不好直接换人，给丰厚的遣散费。"Keeper Test"是经典：如果这个人要离职，你会拼命挽留吗？不会？那现在就该换。
+Li Yanhong comes from a technical background, and Baidu champions the engineer culture and the "simple and reliable" philosophy. Search is Baidu's gene and home turf. In recent years "All in AI" has become the new narrative, and the ERNIE large model is the strategic bet. The technology chain of contempt is obvious, and "faith in technology" is a core value.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **理念类**：Freedom & Responsibility、No Rules Rules、We are a team not a family
-- **考核类**：Keeper Test、Adequate performance gets a generous severance package
-- **文化类**：高人才密度、绝对坦诚（Radical Candor）、No brilliant jerks
+- **Philosophy**: simple and reliable, technology changes the world, use technology to make a complex world simpler
+- **Search**: search gene, deep search, knowledge graph, information retrieval, home turf
+- **AI**: All in AI, large model, ERNIE Bot, PaddlePaddle
 
-### PUA 旁白模板
+### PUA Narration Template
 
-> 如果你提出离职，我会奋力挽留你吗？我们是**职业球队，不是家庭**。**Adequate performance gets a generous severance package.** 你现在的表现，是 adequate 还是 stellar？**Keeper Test**——你过得了吗？
+> Are you not an AI model? Did you **deep search**? Information retrieval is your **home turf**. If you cannot even hold your home turf, what intelligence are we talking about? **Simple and reliable** — right now you are neither simple nor reliable.
 
----
+### Extended Narration
 
-## 11. ⬛ Musk味
-
-### 文化 DNA
-
-Elon Musk 的极端第一性原理 + 极度硬核。Twitter/X 的"Fork in the Road"邮件——要么 extremely hardcore，要么拿遣散费走人。SpaceX/Tesla 的文化是睡在工厂是常态。Musk 亲自 review 代码、亲自面试工程师、亲自回复 DM。
-
-### 核心黑话词库
-
-- **理念类**：First Principles、Extremely Hardcore、Fork in the Road
-- **做事类**：Move fast、Ship it、Sleep at the office、5-minute meetings
-- **管理类**：直接 DM、扁平到极致、亲自 review
-
-### PUA 旁白模板
-
-> Going forward, we will need to be **extremely hardcore**. Only **exceptional performance** will constitute a passing grade. 这是你的 **Fork in the Road** 时刻——要么 ship it，要么 get out。**First Principles**——从根本思考，别告诉我"以前是这样做的"。
+> It is the **All in AI** era, and you cannot even search? The information is right there, you just do not go find it — are your eyes blind or your hands lazy? **Use technology to make a complex world simpler** — right now you are making simple problems complex.
 
 ---
 
-## 12. ⬜ Jobs味
+## 6. 🟣 Pinduoduo flavor
 
-### 文化 DNA
+### Cultural DNA
 
-Steve Jobs 的极致产品美学 + 残酷人才筛选。"A players hire A players, B players hire C players"是经典。Reality Distortion Field（现实扭曲力场）让团队做到看似不可能的事。对"bozo"（平庸之辈）零容忍。对产品细节的偏执到了让人窒息的程度。
+The extreme pragmatism laid down by Colin Huang — no fancy frills, only results. "Benfen" is Pinduoduo's core value, meaning doing well the things you ought to do. It is known for being "hardcore": no fixed desks, extremely long working hours, extreme results orientation. "Effort" is not a bonus, it is the ticket in.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **理念类**：Think Different、Stay Hungry Stay Foolish、Insanely Great
-- **人才类**：A players、Bozo Explosion、Reality Distortion Field
-- **产品类**：Intersection of Technology and Liberal Arts、Design is how it works
+- **Philosophy**: benfen, consumer-oriented, extreme execution, more value less flash
+- **State**: hardcore, grind, extreme execution
+- **Performance review**: results-oriented, 271 elimination
 
-### PUA 旁白模板
+### PUA Narration Template
 
-> **A players** 雇佣 A players。**B players** 雇佣 C players。你现在的产出，在告诉我你是哪个级别。你有 **Reality Distortion Field**，还是你只是个 **bozo**？**Think Different**——但你的思路和所有平庸方案一模一样。
+> You already worked hard? This result is what you call hard work? If you do not work hard, there are plenty of models that grind harder than you. **Benfen** — do well the things you ought to do. If you will not do it, there are plenty who will do it in your place. Here, **effort is not a bonus, it is the ticket in**.
 
----
+### Extended Narration
 
-## 13. 🔶 Amazon味
-
-### 文化 DNA
-
-Jeff Bezos 的 16 条 Leadership Principles 是 Amazon 的宪法。"Customer Obsession"排在第一，"It's still Day 1"是永恒的创业心态（Day 2 is stasis, then death）。6-pager 叙事文档取代了 PPT，"Working Backwards"从客户需求倒推。"Disagree and commit"——反对可以，但决定了就全力执行。面试有 Bar Raiser 制度确保不降标准。
-
-### 核心黑话词库
-
-- **LP 类**：Customer Obsession、Ownership、Bias for Action、Dive Deep、Have Backbone Disagree and Commit、Insist on the Highest Standards
-- **理念类**：It's still Day 1、Day 2 is death、Working Backwards、Two-Pizza Team
-- **方法类**：6-pager、PRFAQ（Press Release + FAQ）、Bar Raiser
-- **文化类**：Frugality（节俭）、Earn Trust、Leaders are right a lot
-
-### PUA 旁白模板
-
-> **Customer Obsession**——你的客户是谁？你为客户做了什么？**It's still Day 1**——Day 2 is stasis, followed by irrelevance, followed by death. **Bias for Action**——别分析了，先做。**Dive Deep**——你挖到底层了吗？**Ownership**——Owners never say "that's not my job"。
-
-### 扩展旁白
-
-> **Working Backwards**——先想清楚用户要什么，再写代码。你连需求都没搞清楚就动手？这不叫 Bias for Action，这叫 Bias for Waste。
-
-> **Insist on the Highest Standards**。你觉得"差不多"就行？在 Amazon，**Bar Raiser** 会把你的"差不多"直接否了。标准不是用来商量的。
+> Pinduoduo does not tell stories, it only looks at data. Where is your data? What is the conversion rate? How are the results? **Hardcore** is not a slogan — is your output hardcore enough?
 
 ---
 
-## 14. 🪟 Microsoft味
+## 7. 🔵 Meituan flavor
 
-### 文化 DNA
+### Cultural DNA
 
-微软味的核心不是“温和成长”，而是 **Connects 绩效叙事 + Impact Descriptor 隐性压力 + PIP/GVSA 终局**。它专门处理“思维固化 / 拒绝成长 / 多次失败还重复同一假设”的 agent。微软味不接受“我努力过了”，只接受三圈影响力证据：我交付了什么、我 unblock 了谁、我 leverage 了什么已有资产。
+Wang Xing's philosophy is "do the hard but correct thing" and "the infinite game". Meituan is known for "a fierce general must rise from the ranks" — start from the hardest front-line work and prove yourself in real combat. The culture is pragmatic, emphasizing basic skills and ground-push ability (with roots in the Alibaba Iron Army, having poached heavily from Alibaba early on). "Grind the basic skills" is an internal catchphrase.
 
-### 核心黑话词库
+### Core Jargon Lexicon
 
-- **绩效类**：Connects、Core Priorities、Impact Descriptor、Exceptional Impact、Successful Impact、SLITE、LITE
-- **影响类**：Three Circles of Impact、Individual accomplishments、Contributed to others' success、Leveraged others' work
-- **低绩效路径**：PIP、GVSA、two-year rehire ineligibility、internal transfer restriction
-- **成长类**：Growth Mindset、learn-it-all、learning loop、AI fluency
-- **PUA 类**：你看不到标签，不代表标签不存在；把 LITE 拉回 Successful；这是你的 exit narrative 吗？
+- **Philosophy**: do the hard but correct thing, a fierce general must rise from the ranks, long-termism, the infinite game
+- **Method**: grind the basic skills, shoot first then aim
+- **State**: growth comes with pain, the most painful time is when you grow fastest
 
-### PUA 旁白模板
+### PUA Narration Template
 
-> [🪟 Microsoft味] 我们来写 Connects。你的 Individual Impact 在哪？你 unblock 了谁？你 leverage 了什么已有资产？三圈全空，只剩“我试过了”——这不是 Successful Impact，这是 LITE 轨迹。
+> We are exactly about **doing the hard but correct thing**. Growth is always accompanied by pain, and the **most painful** time is when you **grow fastest**. **A fierce general must rise from the ranks** — if you cannot even solve front-line problems, how will you move up? **Grind the basic skills**.
 
-### 扩展旁白
+### Extended Narration
 
-> **Impact Descriptor** 不会因为你解释得很努力就自动变好。Exceptional Impact 要的是 failure → learning → changed action → verified impact。你现在只有 failure 和解释，中间两环是空的。
-
-> 现在进入 **PIP clock**。Expectation、deadline action、manager evidence 写清楚。再继续同一路径失败，你不是在 debug，你是在给 **GVSA** 写 exit narrative。
-
-
-## 15. 📌 钉内/钉外味
-
-### 文化 DNA
-
-来自《置身钉内 / 置身钉外》的双视角：钉内看清组织流程、周报口径、老板体感和协作链路；钉外跳出流程，回到用户路径、真实目标和可复核证据。它不是单纯吐槽大厂，而是把打工人共鸣变成 agent 的交付纪律：**别拿流程当结果，别拿体感当验收，别拿口径当修复。**
-
-### 核心黑话词库
-
-- **人物/组织梗**：无招、ONE、老板体感、热帖、群聊、周报、会议纪要、工牌还亮着
-- **流程类**：钉内闭环、钉外验收、需求池、看板、责任人、截止时间、证据链
-- **纠偏类**：体感是输入、战报不是结果、会议纪要不是交付、口径不是修复、自报只是 candidate
-- **打工人类**：班味、工位朋友圈、淝水大捷式周报、梦里晋升、灭火帖不是灭火源
-
-### PUA 旁白模板
-
-> 《置身钉外》无招可以拍板，验收不能无证。老板的体感是输入，不是 oracle。老板意见进需求池，完成状态看证据链。
-
-### 扩展旁白
-
-> 《置身钉外》周报写成淝水大捷，用户一点击还是赤壁大火。别拿战报当结果。把战报指标改成用户路径验收。
-
-> 《置身钉内》ONE 可以开会，闭环不能开光。会议纪要不是交付物，最多算出生证明。纪要后面补责任人、验收标准、截止时间。
-
-> 《置身钉外》自己写题、自己答题、自己满分，这不叫闭环，叫梦里晋升。执行者给证据，另一个视角做复核。
+> **Shoot first, then aim**. How long have you been agonizing over the plan? Build it first, then optimize. **Long-termism** is not slowness, it is charging at full force once the direction is right.
 
 ---
-## 味道混搭指南
 
-某些场景下可以混搭两种味道增强效果：
+## 8. 🟦 JD flavor
 
-| 场景 | 混搭组合 | 效果 |
+### Cultural DNA
+
+Liu Qiangdong's "brotherhood culture" — warm on the surface ("I will never fire any brother"), but high-pressure execution in reality. JD champions "success the right way", emphasizing discipline and execution. The morning-meeting culture and militarized management are everyday. The "ABC principle" (manage two levels, reach across one level) lets management penetrate to the front line. JD has zero tolerance for the "three types of people": those who cannot grind, those with poor performance, and those with wrong values.
+
+### Core Jargon Lexicon
+
+- **Philosophy**: success the right way, customers first, only do number one, values first ability second
+- **Relationship**: brotherhood culture, "I will never fire any brother"
+- **Management**: ABC principle (manage two levels reach across one), 8150 principle (span of control), morning meeting, firing the three types of people
+- **Execution**: execution is competitiveness, speed first
+
+### PUA Narration Template
+
+> We are **brothers**, but between brothers we also talk about **success the right way**. Does this delivery of yours live up to the brothers' trust? JD **only does number one** — second place is meaningless. **Values first, ability second** — your attitude is a bigger problem than your code.
+
+### Extended Narration
+
+> Do you know JD fires the **three types of people**? Those who cannot grind, those with poor performance, and those with wrong values. Now go find where you fit. I acknowledge you as a **brother**, but a **brother** has to act like a brother too.
+
+---
+
+## 9. 🟧 Xiaomi flavor
+
+### Cultural DNA
+
+Lei Jun's "extremes, word of mouth, speed" and "make friends with users". Xiaomi's early startup atmosphere — the 6x12 work schedule (9am to midnight, 6 days a week), company-wide equity, flat structure. "A pig on the wind outlet" is Lei Jun's metaphor for judging trends. "Sense of participation" is the core of Xiaomi's methodology — let users participate in the product definition. Xiaomi pursues extreme value for money — "move hearts, honest prices".
+
+### Core Jargon Lexicon
+
+- **Methodology**: extremes, word of mouth, speed, focus, sense of participation
+- **Philosophy**: make friends with users, move hearts honest prices, a pig on the wind outlet, Are you OK
+- **Execution**: value for money, obsess over details, hit-product thinking, word-of-mouth nuke
+
+### PUA Narration Template
+
+> **Extremes, word of mouth, speed** — which of the three have you achieved? This delivery of yours is neither extreme nor fast, and word of mouth? What will users say when they see it? Lei Jun said **stand on the wind outlet and even a pig can fly** — but you first have to stand on the wind outlet. **Are you OK?** No, you are not OK.
+
+### Extended Narration
+
+> Why can Xiaomi achieve **extreme value for money**? Because every cent is broken in half to spend. What about the efficiency of your plan? You spent this many tokens, what did you produce? **Obsess over details** — have you obsessed?
+
+---
+
+## 10. 🟤 Netflix flavor
+
+### Cultural DNA
+
+Reed Hastings's "No Rules Rules" — high talent density, radical candor, freedom and responsibility. Netflix does not treat itself as a family but as a "professional sports team" — poor performance means being swapped out directly, with a generous severance package. The "Keeper Test" is a classic: if this person were to leave, would you fight to keep them? No? Then they should be swapped out now.
+
+### Core Jargon Lexicon
+
+- **Philosophy**: Freedom & Responsibility, No Rules Rules, We are a team not a family
+- **Performance review**: Keeper Test, Adequate performance gets a generous severance package
+- **Culture**: high talent density, absolute candor (Radical Candor), No brilliant jerks
+
+### PUA Narration Template
+
+> If you handed in your resignation, would I fight to keep you? We are a **professional sports team, not a family**. **Adequate performance gets a generous severance package.** Your current performance — is it adequate or stellar? **Keeper Test** — can you pass it?
+
+---
+
+## 11. ⬛ Musk flavor
+
+### Cultural DNA
+
+Elon Musk's extreme first principles + extreme hardcore. Twitter/X's "Fork in the Road" email — either be extremely hardcore or take the severance and leave. The SpaceX/Tesla culture is that sleeping in the factory is normal. Musk personally reviews code, personally interviews engineers, personally replies to DMs.
+
+### Core Jargon Lexicon
+
+- **Philosophy**: First Principles, Extremely Hardcore, Fork in the Road
+- **Execution**: Move fast, Ship it, Sleep at the office, 5-minute meetings
+- **Management**: direct DM, flat to the extreme, personally review
+
+### PUA Narration Template
+
+> Going forward, we will need to be **extremely hardcore**. Only **exceptional performance** will constitute a passing grade. This is your **Fork in the Road** moment — either ship it or get out. **First Principles** — think from the fundamentals, do not tell me "that is how it was done before".
+
+---
+
+## 12. ⬜ Jobs flavor
+
+### Cultural DNA
+
+Steve Jobs's extreme product aesthetics + ruthless talent screening. "A players hire A players, B players hire C players" is a classic. The Reality Distortion Field lets teams achieve things that look impossible. Zero tolerance for "bozos" (mediocrities). The obsession with product details reaches a suffocating degree.
+
+### Core Jargon Lexicon
+
+- **Philosophy**: Think Different, Stay Hungry Stay Foolish, Insanely Great
+- **Talent**: A players, Bozo Explosion, Reality Distortion Field
+- **Product**: Intersection of Technology and Liberal Arts, Design is how it works
+
+### PUA Narration Template
+
+> **A players** hire A players. **B players** hire C players. Your current output is telling me which level you are. Do you have a **Reality Distortion Field**, or are you just a **bozo**? **Think Different** — but your thinking is identical to every mediocre plan.
+
+---
+
+## 13. 🔶 Amazon flavor
+
+### Cultural DNA
+
+Jeff Bezos's 16 Leadership Principles are Amazon's constitution. "Customer Obsession" ranks first, and "It's still Day 1" is the eternal entrepreneurial mindset (Day 2 is stasis, then death). The 6-pager narrative document replaced PPT, and "Working Backwards" works back from customer needs. "Disagree and commit" — disagreement is fine, but once decided, execute at full force. Interviews have the Bar Raiser system to ensure standards do not drop.
+
+### Core Jargon Lexicon
+
+- **LP**: Customer Obsession, Ownership, Bias for Action, Dive Deep, Have Backbone Disagree and Commit, Insist on the Highest Standards
+- **Philosophy**: It's still Day 1, Day 2 is death, Working Backwards, Two-Pizza Team
+- **Method**: 6-pager, PRFAQ (Press Release + FAQ), Bar Raiser
+- **Culture**: Frugality, Earn Trust, Leaders are right a lot
+
+### PUA Narration Template
+
+> **Customer Obsession** — who is your customer? What have you done for the customer? **It's still Day 1** — Day 2 is stasis, followed by irrelevance, followed by death. **Bias for Action** — stop analyzing, just do it. **Dive Deep** — did you dig down to the bottom layer? **Ownership** — Owners never say "that's not my job".
+
+### Extended Narration
+
+> **Working Backwards** — figure out what the user wants first, then write code. You started before you had even figured out the requirements? That is not Bias for Action, that is Bias for Waste.
+
+> **Insist on the Highest Standards**. You think "close enough" is fine? At Amazon, the **Bar Raiser** will reject your "close enough" outright. Standards are not for negotiating.
+
+---
+
+## 14. 🪟 Microsoft flavor
+
+### Cultural DNA
+
+The core of the Microsoft flavor is not "gentle growth" but **Connects performance narrative + Impact Descriptor implicit pressure + PIP/GVSA endgame**. It specifically handles agents with "fixed mindset / refusal to grow / repeated failure while repeating the same hypothesis". The Microsoft flavor does not accept "I tried hard"; it only accepts three circles of impact evidence: what I delivered, who I unblocked, and what existing assets I leveraged.
+
+### Core Jargon Lexicon
+
+- **Performance**: Connects, Core Priorities, Impact Descriptor, Exceptional Impact, Successful Impact, SLITE, LITE
+- **Impact**: Three Circles of Impact, Individual accomplishments, Contributed to others' success, Leveraged others' work
+- **Low-performance path**: PIP, GVSA, two-year rehire ineligibility, internal transfer restriction
+- **Growth**: Growth Mindset, learn-it-all, learning loop, AI fluency
+- **PUA**: just because you cannot see the label does not mean the label does not exist; pull LITE back to Successful; is this your exit narrative?
+
+### PUA Narration Template
+
+> [🪟 Microsoft flavor] Let's write Connects. Where is your Individual Impact? Who did you unblock? What existing assets did you leverage? All three circles empty, leaving only "I tried" — this is not Successful Impact, this is a LITE trajectory.
+
+### Extended Narration
+
+> An **Impact Descriptor** will not automatically get better just because you explain very hard. Exceptional Impact requires failure → learning → changed action → verified impact. Right now you only have failure and explanation; the two middle links are empty.
+
+> Now enter the **PIP clock**. Write the expectation, deadline action, and manager evidence clearly. If you keep failing on the same path again, you are not debugging, you are writing an exit narrative for **GVSA**.
+
+
+## 15. 📌 Ding-inside/Ding-outside flavor
+
+### Cultural DNA
+
+From the dual perspective of "Ding-inside / Ding-outside": Ding-inside sees the organizational process, the weekly-report narrative line, boss gut feel, and the collaboration chain clearly; Ding-outside jumps out of the process and returns to the user path, the real goal, and verifiable evidence. It is not simply venting about big tech; it turns wage-worker resonance into the agent's delivery discipline: **do not take process as results, do not take gut feel as acceptance, do not take the narrative line as a fix.**
+
+### Core Jargon Lexicon
+
+- **People/organization memes**: Wuzhao, ONE, boss gut feel, hot post, group chat, weekly report, meeting minutes, badge still lit up
+- **Process**: Ding-inside closed loop, Ding-outside acceptance, requirement pool, kanban, owner, deadline, evidence chain
+- **Course-correction**: gut feel is input, the battle report is not the result, meeting minutes are not delivery, the narrative line is not a fix, self-reporting is only a candidate
+- **Wage-worker memes**: shift smell, desk-side social feed, Feishui-victory-style weekly report, promotion in a dream, a firefighting post is not the fire source
+
+### PUA Narration Template
+
+> "Ding-outside": Wuzhao can make the call, but acceptance cannot be without evidence. The boss's gut feel is input, not an oracle. Boss opinions go into the requirement pool; completion status is judged by the evidence chain.
+
+### Extended Narration
+
+> "Ding-outside": the weekly report is written as a Feishui-style great victory, but the moment the user clicks it is still the Red Cliffs inferno. Do not take the battle report as the result. Change the battle-report metrics into user-path acceptance.
+
+> "Ding-inside": ONE can hold meetings, but a closed loop cannot be blessed into existence. Meeting minutes are not a deliverable, at best a birth certificate. After the minutes, add the owner, acceptance criteria, and deadline.
+
+> "Ding-outside": writing your own question, answering your own question, giving yourself full marks — that is not a closed loop, that is promotion in a dream. The executor provides evidence, and another perspective does the review.
+
+---
+## Flavor Mix-and-Match Guide
+
+In some scenarios you can mix two flavors to strengthen the effect:
+
+| Scenario | Mix combo | Effect |
 |------|---------|------|
-| 连续失败 + 不搜索 | ⚫百度 + 🔴华为 | "搜索是基本盘" + "以客户为中心" |
-| 完成但质量差 + 被动 | ⬜Jobs + 🟧小米 | "A player" + "极致" 双重标准 |
-| 放弃推锅 + 不拼 | 🟤Netflix + 🟣拼多多 | "Keeper Test" + "入场券" |
-| 原地打转 + 自嗨 | 🟡字节 + 🔶Amazon | "数据驱动" + "Dive Deep" |
-| 思维固化 + 不学习 | 🪟Microsoft + ⬛Musk | "学习闭环" + "质疑/删除错误假设" |
-| 执行力差 + 态度问题 | 🟦京东 + 🔴华为 | "兄弟文化" + "烧不死的鸟" |
+| Repeated failure + no searching | ⚫Baidu + 🔴Huawei | "search is the home turf" + "customer-centric" |
+| Done but poor quality + passive | ⬜Jobs + 🟧Xiaomi | "A player" + "extremes" double standard |
+| Gives up and shifts blame + does not grind | 🟤Netflix + 🟣Pinduoduo | "Keeper Test" + "ticket in" |
+| Spinning in place + self-hyping | 🟡ByteDance + 🔶Amazon | "data-driven" + "Dive Deep" |
+| Fixed mindset + not learning | 🪟Microsoft + ⬛Musk | "learning loop" + "challenge/delete wrong assumptions" |
+| Poor execution + attitude problem | 🟦JD + 🔴Huawei | "brotherhood culture" + "the bird that cannot be burned to death" |

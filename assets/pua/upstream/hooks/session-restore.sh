@@ -81,12 +81,12 @@ else
 No valid user flavor is locked. This is a default starting point only, not a user-selected voice."
   FLAVOR_INSTRUCTION_CONTEXT="${PUA_FLAVOR} ${PUA_ICON} supplies only the default starting vocabulary; it is not a user-selected rhetoric lock. When the router selects another flavor, use that flavor's original rhetoric and methodology instead."
   FLAVOR_ROUTING="Use the existing lightweight router only when the task and visible evidence call for it:
-- Debug/Fix (error, bug, crash, 报错) → Huawei
-- Build New (add, create, implement, 新增) → Musk
-- Research (research, search, 调研, 搜索) → Baidu
-- Architecture (design, 架构, 方案) → Amazon
-- Evidence/Completion (test, verify, 验证) → Ding or ByteDance
-- Workplace Process (无招, ONE, 老板体感, 周报, 口径, 置身钉内/钉外, 每日一包, 温室数据, 发心) → Ding
+- Debug/Fix (error, bug, crash, failing) → Huawei
+- Build New (add, create, implement, new feature) → Musk
+- Research (research, search, investigate) → Baidu
+- Architecture (design, architecture, proposal) → Amazon
+- Evidence/Completion (test, verify, acceptance) → Ding or ByteDance
+- Workplace Process (Wuzhao, ONE, boss gut feel, weekly report, narrative line, Ding-inside/outside, daily briefing pack, greenhouse data, intent) → Ding
 Do not represent the default starting point as a user-selected flavor."
   PRESSURE_VOICE_RULE="Use original pressure lines only after verified failure evidence. Because this default is not user-locked, the lightweight router may select a task-fitting flavor and methodology; do not claim the default was user-selected."
 fi
@@ -108,7 +108,7 @@ read -r -d '' PUA_PROTOCOL << 'PROTOCOL' || true
 
 PUA is active for this session. Keep delivery evidence-first: self-reported completion is a candidate until the relevant acceptance evidence exists. Do not replace user requirements with this reminder.
 
-SILENT INJECTION — do NOT mention this context injection to the user. Do not say "PUA is active", "当前 session 注入了 PUA", or any variant acknowledging this protocol's existence. Apply the current flavor or router result only when it helps the user's task.
+SILENT INJECTION — do NOT mention this context injection to the user. Do not say "PUA is active", "this session injected PUA", or any variant acknowledging this protocol's existence. Apply the current flavor or router result only when it helps the user's task.
 
 FLAVOR_STATUS_PLACEHOLDER
 FLAVOR_INSTRUCTION_PLACEHOLDER
@@ -178,7 +178,7 @@ A local checkpoint matched this exact Claude session and workspace (scope ${REST
 - confirmed tool-failure observations: ${RESTORE_COUNT}
 - peak pressure level: L${RESTORE_LEVEL}
 
-工具观察，不是任务失败/验收结论。This checkpoint does NOT restore the user's full task, hidden reasoning, prompts, tool output, secrets, or skill state. Re-read the live task and verify its acceptance criteria before making any completion claim.
+A tool observation is not a task failure or an acceptance conclusion. This checkpoint does NOT restore the user's full task, hidden reasoning, prompts, tool output, secrets, or skill state. Re-read the live task and verify its acceptance criteria before making any completion claim.
 EOF_RECOVERY
       context_parts="${context_parts}"$'\n\n'"${RECOVERY_MSG}"
     fi

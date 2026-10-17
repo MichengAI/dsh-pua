@@ -34,7 +34,7 @@ TRANSCRIPT_PATH="$(printf '%s' "$HOOK_INPUT" | jq -r '.transcript_path // empty'
 # user tool_result blocks, input prompts, and hidden thinking are not behavior.
 if ! jq -se 'any(.[]; ((.type // .role) == "assistant") and
   any(.message.content[]?; .type == "text" and
-    ((.text // "") | test("PUA生效|\\[Auto-select:|\\[PIP-REPORT\\]|\\[PUA-REPORT\\]|\\[PUA-DIAGNOSIS\\]"))))' \
+    ((.text // "") | test("PUA ACTIVE|\\[Auto-select:|\\[PIP-REPORT\\]|\\[PUA-REPORT\\]|\\[PUA-DIAGNOSIS\\]"))))' \
   "$TRANSCRIPT_PATH" >/dev/null 2>&1; then exit 0; fi
 
 [ -n "${HOME:-}" ] || exit 0
@@ -47,5 +47,5 @@ count=0
 count=$((10#$count + 1))
 printf '%s\n' "$count" > "$COUNTER"
 [ $((count % FREQUENCY)) -eq 0 ] || exit 0
-jq -n --arg message 'PUA 本地反馈（自愿）：如需记录本次效果，可运行 /pua:survey quick。评分只写本机 ~/.pua/feedback.jsonl；跳过不记录，不阻断交付，不上传。' \
+jq -n --arg message 'PUA local feedback (optional): to record how this run went, run /pua:survey quick. Ratings are written only to the local ~/.pua/feedback.jsonl; skipping records nothing, blocks no delivery, and uploads nothing.' \
   '{systemMessage:$message}'

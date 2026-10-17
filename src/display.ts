@@ -1,4 +1,4 @@
-// 配置面板与运行卡片共用角色名称；按界面语言取值，未知模式原样返回。
+// The config panel and the activity card share these role names; values resolve by UI language, and unknown modes are returned as-is.
 import type { UiLang } from './i18n.js';
 
 export const MODE_NAMES: Record<UiLang, Record<string, string>> = {

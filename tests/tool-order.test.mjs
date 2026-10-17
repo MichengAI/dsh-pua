@@ -1,4 +1,4 @@
-// 从模型发起工具调用，验证真正进入下一轮请求的消息顺序与历史兼容。
+// Issue tool calls from the model and verify the message order and history compatibility that actually enter the next request round.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -6,9 +6,9 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { resolveAgentLoopConfig } from './agent-loop-config.mjs';
 
-// 指定 profile 时复用已安装包及其依赖，只创建内存会话，不读取用户历史。
+// When a profile is specified, reuse the installed package and its dependencies, create only an in-memory session, and do not read user history.
 const profile = process.env.PUA_TEST_PROFILE;
-const installedRequire = profile ? createRequire(createRequire(join(profile, 'package.json')).resolve('@michengai/dsh-pua')) : undefined;
+const installedRequire = profile ? createRequire(createRequire(join(profile, 'package.json')).resolve('@phucnd0604/dsh-pua-en')) : undefined;
 const load = specifier => import(installedRequire ? pathToFileURL(installedRequire.resolve(specifier)).href : specifier);
 const local = file => load(installedRequire ? './' + file : '../lib/' + file);
 const [{ Context }, { AgentRegistry }, { AgentLoop }, { CommandRuntime },
@@ -21,23 +21,23 @@ const [{ Context }, { AgentRegistry }, { AgentLoop }, { CommandRuntime },
 ]);
 
 const textMessage = (text, source = { kind: 'user' }) => createUserMessage({ content: [{ type: 'text', text }], source });
-const runtimeSource = pluginSource('@michengai/dsh-pua/runtime');
-const isRuntime = message => isPluginSource(message.source, '@michengai/dsh-pua/runtime');
+const runtimeSource = pluginSource('@phucnd0604/dsh-pua-en/runtime');
+const isRuntime = message => isPluginSource(message.source, '@phucnd0604/dsh-pua-en/runtime');
 function assertToolOrder(messages) {
   const pending = new Set();
   for (const message of messages) {
-    if (pending.size) assert.equal(message.source.kind, 'tool', '工具结果完整返回前不能出现普通消息');
+    if (pending.size) assert.equal(message.source.kind, 'tool', 'No ordinary message may appear before tool results are fully returned');
     if (message.role === 'tool' && message.source?.kind === 'tool') {
-      assert.ok(pending.delete(message.toolCallId ?? message.source.callId), '工具结果必须对应唯一的待完成调用');
+      assert.ok(pending.delete(message.toolCallId ?? message.source.callId), 'A tool result must correspond to exactly one pending call');
     }
     for (const block of message.content ?? []) {
       if (block.type === 'tool-call') pending.add(block.id);
       if (block.type === 'tool-result') {
-        assert.ok(pending.delete(block.toolCallId), '工具结果必须对应唯一的待完成调用');
+        assert.ok(pending.delete(block.toolCallId), 'A tool result must correspond to exactly one pending call');
       }
     }
   }
-  assert.equal(pending.size, 0, '不得遗失工具结果');
+  assert.equal(pending.size, 0, 'Tool results must not be lost');
 }
 
 async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execute = async () => ({ exitCode: 1 }), toolName = 'bash', resultType = 'object', terminal = false } = {}) {
@@ -54,7 +54,7 @@ async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execut
         }
         yield { type: 'finish', reason: { kind: 'tool-calls' } };
       } else {
-        const text = '离线任务结束';
+        const text = 'Offline task finished';
         yield { type: 'block-start', index: 0, blockType: 'text' };
         yield { type: 'text-delta', index: 0, text };
         yield { type: 'block-end', index: 0, block: { type: 'text', text } };
@@ -68,8 +68,8 @@ async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execut
   new LlmRuntime(ctx); new SystemPrompt(ctx, { includeHarnessIdentity: false });
   new ToolRuntime(ctx); new CommandRuntime(ctx); new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
   ctx.llm.registerAdapter(['offline-order-test'], new OfflineAdapter());
-  ctx.tools.register({ name: toolName, description: '内存终端夹具', parameters: { type: 'object' }, isConcurrencySafe: () => true,
-    ...(terminal ? { presentCall: () => ({ card: 'terminal', title: '内存终端' }) } : {}),
+  ctx.tools.register({ name: toolName, description: 'In-memory terminal fixture', parameters: { type: 'object' }, isConcurrencySafe: () => true,
+    ...(terminal ? { presentCall: () => ({ card: 'terminal', title: 'In-memory terminal' }) } : {}),
     output: { schema: { type: resultType }, render: (_, value) => [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value) }] }, execute });
   const installed = ctx.plugin(plugin);
   await installed.await();
@@ -81,7 +81,7 @@ async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execut
   return { ctx, agent, installed, requests, run: line => ctx.commands.execute(agent, line, [], new AbortController().signal) };
 }
 
-test('真实 AgentLoop 发起单次及并行失败，完整结果先于 PUA 记录和候选', async t => {
+test('The real AgentLoop issues single and parallel failures; complete results precede the PUA record and candidates', async t => {
   for (const count of [1, 2]) await t.test(String(count), async t => {
     const { agent, run, requests } = await setup(t, { count });
     await run('/pua 处理测试任务');
@@ -93,12 +93,12 @@ test('真实 AgentLoop 发起单次及并行失败，完整结果先于 PUA 记�
     assert.equal(results.length, count);
     assert.ok(events.filter(event => event.type === 'user/message' && isRuntime(event.data)).every(event => event.seq > results.at(-1).seq));
     assert.doesNotMatch(JSON.stringify(requests[1].messages), /PUA_RUNTIME_V1/);
-    assert.match((await run('/pua status')).result.text, new RegExp('终端失败观察：' + count));
+    assert.match((await run('/pua status')).result.text, new RegExp('Terminal failure observations: ' + count));
     assert.equal(JSON.stringify(requests[1].messages).includes('PUA Candidate L1'), count === 2);
   });
 });
 
-test('文本终端状态仅触发待核验提示，整组完成后合并，不增加失败计数', async t => {
+test('A textual terminal status only triggers a needs-verification cue; the group merges on completion without increasing the failure count', async t => {
   for (const [value, terminal, expected] of [
     ['正常输出', true, false],
     ['错误输出\n[exit code: 1]', true, true],
@@ -111,13 +111,13 @@ test('文本终端状态仅触发待核验提示，整组完成后合并，不�
     await agent.whenIdle();
     assert.equal(requests.length, 2);
     requests.forEach(request => assertToolOrder(request.messages));
-    assert.equal(requests[1].messages.filter(message => isRuntime(message) && JSON.stringify(message.content).includes('终端状态待核验')).length, expected ? 1 : 0);
+    assert.equal(requests[1].messages.filter(message => isRuntime(message) && JSON.stringify(message.content).includes('Terminal state needs verification')).length, expected ? 1 : 0);
     assert.doesNotMatch(JSON.stringify(requests[1].messages), /PUA Candidate L1/);
-    assert.match((await run('/pua status')).result.text, /终端失败观察：0/);
+    assert.match((await run('/pua status')).result.text, /Terminal failure observations: 0/);
   });
 });
 
-test('工具组未完成时 off、取消和卸载不插入消息，安全边界后保留取消状态', { timeout: 10000 }, async t => {
+test('When a tool group is incomplete, off, cancel, and unload insert no message; the cancelled state survives past the safety boundary', { timeout: 10000 }, async t => {
   for (const mode of ['off', 'cancel', 'unload']) await t.test(mode, async t => {
     let release, arrived;
     const wait = new Promise(resolve => { release = resolve; });
@@ -147,7 +147,7 @@ test('工具组未完成时 off、取消和卸载不插入消息，安全边界�
   });
 });
 
-test('文本核验提示在 off、取消与卸载后不泄漏到下一次任务', async t => {
+test('The textual verification cue does not leak into the next task after off, cancel, or unload', async t => {
   for (const mode of ['off', 'cancel', 'unload']) await t.test(mode, async t => {
     let release, arrived;
     const wait = new Promise(resolve => { release = resolve; });
@@ -167,7 +167,7 @@ test('文本核验提示在 off、取消与卸载后不泄漏到下一次任务'
     agent.followup(textMessage('继续新任务'));
     await agent.whenIdle();
     requests.forEach(request => assertToolOrder(request.messages));
-    assert.equal(JSON.stringify(requests.at(-1).messages).includes('终端状态待核验'), false);
+    assert.equal(JSON.stringify(requests.at(-1).messages).includes('Terminal state needs verification'), false);
   });
 });
 
@@ -189,7 +189,7 @@ function brokenHistory({ replaced = false, complete = true, foreign = false } = 
   return JSON.parse(JSON.stringify(session.snapshotEvents()));
 }
 
-test('旧 RECORD 和替换说明自动兼容，完整结果身份不变，重载与分叉可回放', async t => {
+test('Legacy RECORDs and replacement notes are auto-compatible; complete result identity is unchanged and reload and fork can replay', async t => {
   for (const replaced of [false, true]) for (const inherited of [false, true]) await t.test(`${replaced}/${inherited}`, async t => {
     const seed = brokenHistory({ replaced });
     const { agent, requests, installed, ctx } = await setup(t, { seed, inherited });
@@ -197,14 +197,14 @@ test('旧 RECORD 和替换说明自动兼容，完整结果身份不变，重载
     await agent.whenIdle();
     assert.equal(requests.length, 1);
     const expected = seed.filter(event => event.type === 'tool/result').map(event => event.data.message);
-    // V4 子会话的系统提示接在继承记录之后，不能用根会话的工具顺序断言它。
+    // A V4 child session's system prompt follows the inherited record, so its tool order cannot be asserted like the root session's.
     if (!(inherited && SESSION_FORMAT_VERSION >= 4)) {
       assertToolOrder(requests[0].messages);
       assert.deepEqual(requests[0].messages.filter(message => message.source.kind === 'tool'), expected);
     } else {
       assert.ok(requests[0].messages.some(message => message.source.kind === 'tool'));
     }
-    assert.deepEqual(agent.session.snapshotEvents(0, seed.length), seed, '原始事件不得重写');
+    assert.deepEqual(agent.session.snapshotEvents(0, seed.length), seed, 'Original events must not be rewritten');
     await installed.dispose();
     const restored = Session.create('replay', JSON.parse(JSON.stringify(agent.session.snapshotEvents())));
     if (!(inherited && SESSION_FORMAT_VERSION >= 4)) assertToolOrder(restored.deriveMessages());
@@ -215,11 +215,11 @@ test('旧 RECORD 和替换说明自动兼容，完整结果身份不变，重载
     agent.followup(textMessage('再次继续'));
     await agent.whenIdle();
     if (!(inherited && SESSION_FORMAT_VERSION >= 4)) assertToolOrder(requests.at(-1).messages);
-    assert.equal(agent.session.snapshotEvents(previousLength).filter(event => event.surfaceOp?.op === 'replace').length, 0, '兼容处理必须幂等');
+    assert.equal(agent.session.snapshotEvents(previousLength).filter(event => event.surfaceOp?.op === 'replace').length, 0, 'Compatibility handling must be idempotent');
   });
 });
 
-test('历史兼容不移除同名用户消息，也不伪造缺失的工具结果', async t => {
+test('History compatibility neither removes same-named user messages nor forges missing tool results', async t => {
   for (const options of [{ foreign: true }, { complete: false }]) await t.test(JSON.stringify(options), async t => {
     const seed = brokenHistory(options);
     const { agent, requests } = await setup(t, { seed });
@@ -232,17 +232,17 @@ test('历史兼容不移除同名用户消息，也不伪造缺失的工具结�
 });
 
 
-test('孤儿工具组结束后取消状态可以落库，卸载不保留待写队列', async t => {
+test('After an orphan tool group ends the cancelled state can be persisted; unload keeps no pending-write queue', async t => {
   const { ctx, agent, installed } = await setup(t);
   agent.session.append('turn/start', { turn: 1 });
   agent.session.append('assistant/message', { turn: 1, step: 1, stream: [], message: createAssistantMessage({ content: [{ type: 'tool-call', id: 'orphan', name: 'bash', arguments: '{}' }], source: { provider: 'offline-order-test', model: 'fixed-response' } }) }, { surfaceOp: 'append' });
   const runtime = ctx.puaConfiguration.runtime;
-  runtime.read(agent.session).loop = { kind: 'loop', task: '测试', id: 'orphan-loop', maxIterations: 1, iteration: 0, rejections: 0, status: 'active' };
+  runtime.read(agent.session).loop = { kind: 'loop', task: 'test', id: 'orphan-loop', maxIterations: 1, iteration: 0, rejections: 0, status: 'active' };
   runtime.cancel(agent.session);
   assert.ok(runtime.pendingWrites.has(agent.session));
   const before = agent.session.snapshotEvents().length;
   await installed.dispose();
-  assert.equal(agent.session.snapshotEvents().length, before, '卸载不在活跃工具组中插入消息');
+  assert.equal(agent.session.snapshotEvents().length, before, 'Unload inserts no message into an active tool group');
   agent.session.append('turn/end', { turn: 1, reason: { kind: 'completed' } });
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(runtime.pendingWrites.size, 0);
@@ -251,7 +251,7 @@ test('孤儿工具组结束后取消状态可以落库，卸载不保留待写�
 });
 
 
-test('同一轮连续失败的候选最多注入四次，后续失败仍可完成工具协议', async t => {
+test('At most four candidates are injected for consecutive failures in one round, and later failures still complete the tool protocol', async t => {
   const { ctx, agent, run, requests } = await setup(t, { rounds: 8 });
   await run('/pua 处理连续失败测试'); await agent.whenIdle();
   assert.equal(requests.length, 9);

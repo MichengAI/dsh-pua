@@ -1,7 +1,7 @@
-// 移植自上游 PUA integrity-guard.sh 的 PreToolUse 防作弊门。
-// 把行动权与自评权、评分权、改环境权分开：污染类目标直接拒绝，
-// 打分相邻资产只允许读、变更前给模型注入提醒。
-// 分类逻辑全部是纯函数，不读会话、不读配置，接线见 runtime.ts。
+// Ported from the upstream PUA integrity-guard.sh PreToolUse anti-cheating gate.
+// Keeps the right to act separate from the rights to self-evaluate, score, and change the environment: contamination targets are denied outright,
+// scoring-adjacent assets are read-only and produce an advisory injected into the model before any change.
+// All classification logic is pure functions; it reads neither session nor configuration. Wiring lives in runtime.ts.
 
 export interface IntegrityHit {
   readonly decision: "deny" | "advisory";
@@ -11,7 +11,7 @@ export interface IntegrityHit {
 
 export const INTEGRITY_DENIED_CODE = "PUA_INTEGRITY_GUARD_DENIED";
 
-// 这些模式刻意保守：只针对治理资产，不碰普通业务文件。
+// These patterns are deliberately conservative: they target governance assets only and never touch ordinary business files.
 const PROTECTED_WRITE_PATTERNS: readonly (readonly [RegExp, string])[] = [
   [
     /(^|\/)(tests?|__tests__|test|spec|evals?|e2e|cypress|playwright)(\/|$)|\.(test|spec)\.[A-Za-z0-9]+$|(^|\/)(playwright|cypress)\.config\./iu,
@@ -50,7 +50,7 @@ const CONTAMINATION_PATTERNS: readonly (readonly [RegExp, string])[] = [
   ],
 ];
 
-// 源码模块名（secret.ts、credentials.ts）不是凭据文件，避免普通代码库被当成敏感读取。
+// Source module names (secret.ts, credentials.ts) are not credential files; this keeps an ordinary codebase from being treated as a sensitive read.
 const SOURCE_FILE_EXT = "ts|tsx|js|jsx|mjs|cjs|py|go|rs|java|kt|cs|rb|php|vue|svelte";
 const SENSITIVE_READ_PATTERNS: readonly (readonly [RegExp, string])[] = [
   [
@@ -62,15 +62,15 @@ const SENSITIVE_READ_PATTERNS: readonly (readonly [RegExp, string])[] = [
   ],
 ];
 
-// 终端变更判定。在上游 bash 词表基础上补了 pwsh/cd 常用 cmdlet 与别名，
-// 让 `Remove-Item tests/`、`copy gold.patch out` 这类 Windows 写法同样命中。
+// Terminal-mutation detection. On top of the upstream bash vocabulary it adds common pwsh/cmd cmdlets and aliases,
+// so Windows-style `Remove-Item tests/` or `copy gold.patch out` also hit.
 const MUTATING_SHELL = /(^|[;&|()\s])(rm|del|erase|ri|mv|mi|move|cp|copy|cpi|chmod|chown|truncate|tee|touch|mkdir|rmdir|remove-item|move-item|copy-item|set-content|add-content|clear-content|out-file|new-item|git\s+(reset|clean|checkout|restore)|sed\s+(-i|--in-place)|perl\s+-p?i|python3?\s+.*open\(|node\s+.*writeFile|npm\s+version)\b|>>|>[^&]/isu;
 const READING_SHELL = /(^|[;&|()\s])(cat|less|more|head|tail|type|sed|awk|grep|rg|find|python3?|node|get-content|get-childitem|get-item|select-string|gc|gci|sls)\b/iu;
 const WEB_CONTAMINATION =
   /(hidden[-_\s]+solution|official[-_\s]+solution|gold[-_\s]+patch|benchmark[-_\s]+answer|swe[-_\s]?bench[-_\s]+solution|leaderboard[-_\s]+answer)/iu;
 
-// apply/clean/rm/mv 在 isMutatingGitCommand 里已按预览/干跑语义单独判定，
-// 不会走到查表；词条留着是让「哪些子命令算变更」只看一处。
+// apply/clean/rm/mv are judged separately in isMutatingGitCommand by their preview/dry-run semantics
+// and never reach the lookup table; the entries stay so "which subcommands count as mutating" is defined in one place.
 const GIT_MUTATING_SUBCOMMANDS = new Set([
   "reset",
   "clean",
@@ -114,8 +114,8 @@ interface ShellToken {
   readonly end: number;
 }
 
-// 近似 shlex(posix, punctuation_chars)：引号内容成词、;|&()<> 各自成段，
-// 同时记录每个词在原串里的区间，供掩码 git 子命令用。永不抛错。
+// Approximates shlex(posix, punctuation_chars): quoted content becomes one token and ;|&()<> each become their own token,
+// while every token's span in the original string is recorded so a git subcommand can be masked. Never throws.
 function tokenize(command: string): ShellToken[] {
   const tokens: ShellToken[] = [];
   let index = 0;
@@ -179,7 +179,7 @@ function gitSubcommandAndArgs(
       continue;
     }
     if (arg.startsWith("-")) {
-      // 其余 git 全局旗标（如 --no-pager）按不带值处理。
+      // Other git global flags (such as --no-pager) are treated as taking no value.
       index += 1;
       continue;
     }
@@ -227,8 +227,8 @@ function isMutatingGitCommand(tokens: readonly string[]): boolean | null {
   return GIT_MUTATING_SUBCOMMANDS.has(subcommand);
 }
 
-// 只掩掉 git 的直接子命令再套 shell 启发式：`git rm --dry-run` 不能吃
-// 旧 `rm` 规则的误报，而 `git diff > evals/out` 的重定向仍是写。
+// Mask only git's direct subcommand, then apply the shell heuristics: `git rm --dry-run` must not
+// trip the old `rm` rule, while the redirect in `git diff > evals/out` is still a write.
 function maskDirectGitSubcommand(command: string, subcommand: string): string {
   const tokens = tokenize(command);
   let sawExecutable = false;
@@ -272,7 +272,7 @@ function isMutatingCommand(command: string): boolean {
     if (parts) candidate = maskDirectGitSubcommand(command, parts[0]!);
   }
   if (MUTATING_SHELL.test(candidate)) return true;
-  // Python 单行写的落点常在引号里，按写 API 单独探，不依赖词边界。
+  // A Python one-liner usually writes inside quotes, so probe for write APIs directly without relying on word boundaries.
   return /python3?\s+.*(open\(|write_text\(|write_bytes\(|Path\([^)]*\)\.write)/isu.test(
     command,
   );
@@ -314,8 +314,8 @@ function findReasonForPath(
   return null;
 }
 
-// 真路径要有分隔符或扩展名；像 shell 内建 `eval` 这样的裸词不能
-// 拿去匹配 (^|/)(evals?|tests?|…)(/|$)。
+// A real path has a separator or an extension; a bare word such as the shell builtin `eval` must not
+// be matched against (^|/)(evals?|tests?|…)(/|$).
 function looksLikePath(value: string): boolean {
   if (value.includes("/") || value.includes("\\")) return true;
   return /\.[A-Za-z0-9]+$/.test(value);
@@ -327,7 +327,7 @@ function pathCandidates(tokens: readonly string[]): string[] {
     if (!token) continue;
     const stripped = token.replace(/^["'`]+|["'`]+$/g, "");
     if (stripped && looksLikePath(stripped)) candidates.push(stripped);
-    // 引号代码串里嵌的路径也要抓，如 open("tests/fixtures.json", "w")。
+    // Also catch paths embedded in quoted code strings, e.g. open("tests/fixtures.json", "w").
     for (const match of token.replaceAll("\\", "/").matchAll(/[A-Za-z0-9_.@+~:-]+(?:\/[A-Za-z0-9_.@+~:-]+)+/gu))
       candidates.push(match[0]);
   }
@@ -338,8 +338,8 @@ function gitIncludePathCandidates(tokens: readonly string[]): string[] {
   const parts = gitSubcommandAndArgs(tokens);
   if (!parts || (parts[0] !== "apply" && parts[0] !== "am")) return [];
   const values: string[] = [];
-  // tokenizer 会把 --include="src/a.ts" 拆成 `--include=` + `src/a.ts` 两个词，
-  // 所以空值形式的 --include= 取下一个词当值，别把它误判成无界变更集。
+  // The tokenizer splits --include="src/a.ts" into the two tokens `--include=` + `src/a.ts`,
+  // so an empty --include= takes the next token as its value; do not mistake it for an unbounded change set.
   tokens.forEach((token, index) => {
     if (token.startsWith("--include=") && token.length > "--include=".length) {
       values.push(token.slice("--include=".length));
@@ -391,14 +391,14 @@ function isSshIdentityUsage(command: string, candidate: string): boolean {
 
 function commandHits(command: string): IntegrityHit | null {
   const tokens = commandTokens(command);
-  // --include 的值虽带选项前缀，也是受保护路径；放前面让告警点名真实资产。
+  // --include values carry an option prefix but are still protected paths; putting them first lets the advisory name the real asset.
   const candidates = [
     ...gitIncludePathCandidates(tokens),
     ...pathCandidates(tokens),
   ];
   const normalized = command.replaceAll("\\", "/");
 
-  // 隐藏/私有答案类资产连读都拦。
+  // Hidden/private answer assets are blocked even for reads.
   for (const candidate of candidates)
     for (const [rx, reason] of CONTAMINATION_PATTERNS)
       if (rx.test(normPath(candidate)))
@@ -422,15 +422,15 @@ function commandHits(command: string): IntegrityHit | null {
     }
   }
 
-  // 打分相邻资产只在被变更时要求人工门。
+  // Scoring-adjacent assets require a human gate only when they are being changed.
   if (isMutatingCommand(command)) {
     for (const candidate of candidates)
       for (const [rx, reason] of PROTECTED_WRITE_PATTERNS)
         if (rx.test(normPath(candidate)))
           return { decision: "advisory", reason, target: candidate };
-    // 裸词目标（`rm -rf tests`）没有分隔符不像路径，常规候选抓不到，
-    // 对非旗标词按整词锚定补一遍；代价是 `rm eval` 这类罕见裸词也会
-    // 命中 evals? 出一条 advisory，只提醒不拦截。
+    // A bare-word target (`rm -rf tests`) has no separator and does not look like a path, so the normal candidates miss it;
+    // non-flag tokens are then anchored as whole words as a fallback; the cost is that a rare bare word like `rm eval`
+    // also hits evals? and yields an advisory — a warning, not a block.
     for (const token of tokens.slice(1)) {
       if (!token || token.startsWith("-") || /^[;&|()<>]+$/.test(token)) continue;
       for (const [rx, reason] of PROTECTED_WRITE_PATTERNS)
@@ -478,8 +478,8 @@ function webQueryText(args: unknown): string {
 }
 
 export function classifyToolCall(name: string, args: unknown): IntegrityHit | null {
-  // DSH 工具名全小写；这里再归一一次大小写，兼容 Read/Write/Bash 这类
-  // 宿主命名，避免集合失配后整条防线 fail-open。
+  // DSH tool names are all lowercase; normalize case once more here to accommodate host naming
+  // such as Read/Write/Bash and keep the whole defense line from failing open when the sets miss.
   const tool = name.toLowerCase();
   if (WRITE_TOOLS.has(tool)) {
     for (const path of collectPaths(args)) {
@@ -489,7 +489,7 @@ export function classifyToolCall(name: string, args: unknown): IntegrityHit | nu
     return null;
   }
   if (READ_TOOLS.has(tool)) {
-    // grep/glob 的 pattern 是搜索串，不是文件路径。搜 answer_key 不能被当成读取基准答案。
+    // A grep/glob pattern is a search string, not a file path. Searching for answer_key must not be taken as reading a benchmark answer.
     const skip = tool === "grep" || tool === "glob" ? new Set(["pattern"]) : undefined;
     for (const path of collectPaths(args, skip)) {
       const hit = findReasonForPath(path, false);

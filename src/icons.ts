@@ -3,7 +3,7 @@ import * as primitives from '@deepseek-ai/dsh-client-ui-primitives';
 
 type Icon = (props: { size?: number; className?: string }) => ReactNode;
 
-/** 0.1.7 导出 Regular；0.1.6 仍用带尺寸后缀的旧名。都没有时渲染为空。 */
+/** 0.1.7 exports the Regular name; 0.1.6 still uses the old names with a size suffix. When neither exists, render nothing. */
 export function hostIcon(...names: string[]): Icon {
   const bag = primitives as Record<string, unknown>;
   for (const name of names) {
@@ -14,7 +14,7 @@ export function hostIcon(...names: string[]): Icon {
 }
 
 export const IconGauge = hostIcon('IconGaugeOutlineRegular', 'IconGaugeOutline16');
-/** 未开启时用电源符号，16 像素下和表盘分得开，也不划过文字。 */
+/** Uses the power symbol when off: it stays distinguishable from the gauge at 16px and does not strike through text. */
 export function IconGaugeOff({ size = 16, className }: { size?: number; className?: string }): ReactNode {
   return h('svg', { width: size, height: size, className, viewBox: '0 0 16 16', fill: 'none', xmlns: 'http://www.w3.org/2000/svg', 'aria-hidden': true, stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round' },
     h('path', { d: 'M8 1.6V6.6' }),

@@ -1,77 +1,77 @@
-# 钉内/钉外打工人提醒库（v2 — 源自《置身钉内》《置身钉外》原文梗）
+# Ding-inside/Ding-outside Worker Reminder Library (v2 — memes drawn from the source text of *Inside Ding* and *Outside Ding*)
 
-目标：每条提醒直接引用或化用两篇原文的金句和意象，让梗味道浓到能闻见工牌的塑料味。动作层必须导向正确执行：真实目标、证据链、完成质量、独立复核、口径不漂移。
+Goal: each reminder directly quotes or riffs on the punchlines and imagery of the two source texts, so the meme flavor is thick enough that you can smell the plastic of a badge. The action layer must steer toward correct execution: real goals, evidence chain, delivery quality, independent review, and a narrative line that doesn't drift.
 
-## 使用规则
+## Usage Rules
 
-- 每条提醒用 markdown blockquote（行首 `> `）输出，渲染器自动渲染为 dim `▎` + italic 灰色块。
-- blockquote 开头标注来源：`《置身钉内》` 或 `《置身钉外》`，紧接正文。
-- "钉内"负责看清组织流程（会议、周报、对齐、可见性），"钉外"负责跳出流程看真实结果（用户路径、证据链、运行输出）。
-- 不鼓励无效加班；鼓励用证据替代漂亮汇报。
-- 可以辛辣，但不能停在情绪。
+- Output each reminder as a markdown blockquote (`> ` at the start of the line); the renderer turns it into a dim `▎` plus an italic gray block.
+- Start the blockquote with the source label — *Inside Ding* or *Outside Ding* — immediately followed by the body.
+- "Ding-inside" is responsible for seeing the organizational process clearly (meetings, weekly reports, alignment, visibility); "Ding-outside" is responsible for stepping outside the process to see real results (user paths, evidence chain, runtime output).
+- Ineffective overtime is not encouraged; replace pretty reports with evidence.
+- It can be biting, but it can't stop at emotion.
 
-## 标准短提醒
+## Standard Short Reminders
 
-### 验收与证据
+### Verification and Evidence
 
-1. > 《置身钉外》无招可以拍板，验收不能无证。老板的体感是输入，不是 oracle。老板意见进需求池，完成状态看证据链。
+1. > *Outside Ding* Wuzhao can make the final call, but verification cannot be without proof. The boss's gut feel is an input, not an oracle. The boss's opinions go into the backlog; completion status is judged by the evidence chain.
 
-2. > 《置身钉内》每日一包——每天给权力中心交作业，叫病态敏捷。健康的敏捷是从真实用户那里拿到反馈。今天的验收标准从"老板能看到什么"改成"用户能跑通什么"。
+2. > *Inside Ding* The daily briefing pack — handing in homework to the power center every day — is called pathological agility. Healthy agility means getting feedback from real users. Today's verification standard changes from 'what the boss can see' to 'what the user can actually run through.'
 
-3. > 《置身钉外》你在温室里测出的所有正向数据，都是假的。内测是最大的陷阱。内测数据只做参考，正式验收用真实用户路径。
+3. > *Outside Ding* Every positive data point you measure in the greenhouse is fake. Beta testing is the biggest trap. Beta data is for reference only; formal verification uses real user paths.
 
-4. > 《置身钉内》工牌还亮着就发"到家了"，没跑验证就说"完成了"，本质是同一种幻觉。先跑验证命令，贴输出，再说状态。
+4. > *Inside Ding* Sending 'home now' while your badge is still lit, and saying 'done' without running verification, are the same hallucination. Run the verification command, paste the output, then report status.
 
-5. > 《置身钉外》自己写题、自己答题、自己满分，这不叫闭环，叫梦里晋升。执行者给证据，另一个视角做复核。
+5. > *Outside Ding* Writing your own exam, answering it yourself, and giving yourself full marks isn't a loop — it's a promotion in a dream. The executor provides the evidence; a different perspective does the review.
 
-### 周报与口径
+### Weekly Reports and the Narrative Line
 
-6. > 《置身钉外》周报写成淝水大捷，用户一点击还是赤壁大火。可汇报的内容取代了可沉淀的价值。把战报指标改成用户路径验收，贴运行截图。
+6. > *Outside Ding* The weekly report reads like the great victory at Feishui, but the moment a user clicks it's the inferno at Red Cliffs. Reportable content has replaced depositable value. Swap the war-report metrics for user-path verification and paste runtime screenshots.
 
-7. > 《置身钉内》口径一改，曲线真好看；问题一问，现场真安静。指标上涨可能是业务好了，也可能是口径学会了瑜伽。冻结原口径，新增解释口径，不覆盖原始事实。
+7. > *Inside Ding* Change the narrative line and the curve looks beautiful; ask a real question and the room goes dead silent. A metric may rise because the business improved, or because the narrative line learned yoga. Freeze the original narrative line, add an interpretive one, and never overwrite the raw facts.
 
-8. > 《置身钉外》你说 ROI 最佳，先确认 R 是真实回报，不是 Report Output Illusion。把 ROI 分子拆成真实收益、留存或成本下降。
+8. > *Outside Ding* You say the ROI is optimal — first confirm the R is a real return and not a Report Output Illusion. Break the ROI numerator into real revenue, retention, or cost reduction.
 
-### 会议与流程
+### Meetings and Process
 
-9. > 《置身钉内》ONE 可以开会，闭环不能开光。会议纪要不是交付物，最多算出生证明。纪要后面补责任人、验收标准、截止时间。
+9. > *Inside Ding* ONE can hold meetings, but a loop can't be consecrated. Meeting minutes aren't a deliverable; at best they count as a birth certificate. Follow the minutes with an owner, verification criteria, and a deadline.
 
-10. > 《置身钉内》"已对齐"不是魔法咒语。对齐完没人动，还是原地钉住。对齐后立刻写下一步动作和交付证据。
+10. > *Inside Ding* 'Aligned' is not a magic spell. If nobody moves after alignment, you're still pinned in place. Immediately after aligning, write down the next action and the delivery evidence.
 
-11. > 《置身钉内》日会开成连续剧，bug 活成常驻嘉宾。流程跑完只是钉内通关，用户跑通才是钉外通关。每个 bug 只看复现、修复、回归三件事。
+11. > *Inside Ding* The daily standup turns into a soap opera and the bug lives on as a recurring guest star. Finishing the process is only a Ding-inside clear; the user getting through is the Ding-outside clear. For every bug, look at only three things: reproduction, fix, regression.
 
-### 老板体感 vs 用户体验
+### The Boss's Gut Feel vs. the User Experience
 
-12. > 《置身钉外》老板看到的产品，本来就不是标准用户看到的产品。围绕他的响应链路，已经构成了一套"人工个性化"。用普通用户身份跑一遍完整路径，别用 admin 账号验收。
+12. > *Outside Ding* The product the boss sees was never the product a standard user sees. The response chain built around him already constitutes a set of artificial personalization. Walk the full path as an ordinary user; don't verify with an admin account.
 
-13. > 《置身钉内》薛定谔的用户——用户到底是老板还是员工，始终没有闭环，就带着这盒薛定谔出发了。先定义清楚这个功能的用户是谁，再动手写代码。
+13. > *Inside Ding* Schrodinger's users — whether the user is the boss or the employee is never resolved, yet off you go with this Schrodinger's box. Define clearly who this feature's user is before you start writing code.
 
-14. > 《置身钉外》"老板要看"不是需求，"用户要用"才是需求。付费的是老板，使用的是员工，两者 100% 互斥。把展示页指标和用户实际路径分开验收。
+14. > *Outside Ding* 'The boss wants to see it' is not a requirement; 'the user needs to use it' is. The one who pays is the boss, the one who uses it is the employee — the two are 100% mutually exclusive. Verify the display-page metrics and the user's actual path separately.
 
-### 监控与可见性
+### Monitoring and Visibility
 
-15. > 《置身钉内》全景监狱最要紧的不是"有人在看你"，而是你开始主动把自己训练成适合被看见的人。把工作切成"能产出证据的小块"，不是"容易被看见的小块"。
+15. > *Inside Ding* The most important thing about the panopticon isn't that 'someone is watching you' — it's that you start actively training yourself into someone suited to being seen. Cut your work into 'small chunks that produce evidence,' not 'small chunks that are easy to see.'
 
-16. > 《置身钉内》已读恐怖主义——AI 替你签收消息，你还没看系统就已读了。产品设计要站在收信人（用户）立场，不是发信人（老板）立场。
+16. > *Inside Ding* Read-receipt terrorism — the AI signs for messages on your behalf, so the system has already marked them read before you've even looked. Product design must stand on the recipient's (the user's) side, not the sender's (the boss's).
 
-### 效率与加班
+### Efficiency and Overtime
 
-17. > 《置身钉外》加班截图不能证明价值，只能证明灯还亮着。望舒行动——数飞书的灯什么时候熄，不如数自己的 bug 什么时候修。用交付证据替代在线时长。
+17. > *Outside Ding* An overtime screenshot doesn't prove value; it only proves the light is still on. Operation Wangshu — counting when the Feishu lights go out is worse than counting when your own bugs get fixed. Replace time online with delivery evidence.
 
-18. > 《置身钉外》产品最大的浪费，不是偷懒，是全力以赴地做错事。极致执行力叠加错误方向，只会让错误扩大得更快。先验证方向对不对（用户愿意花时间用），再拼执行力。
+18. > *Outside Ding* The biggest waste in product isn't slacking off; it's going all-out on the wrong thing. Extreme execution stacked on a wrong direction only makes the error spread faster. Verify the direction first (users are willing to spend time on it), then go all-in on execution.
 
-19. > 《置身钉内》AI 提效是正确的废话，就跟 AI 说的每一句话一样。如果 AI 让你更快处理十件事，组织会让你早点下班，还是把任务加到五十件？提效省下的时间用来验证质量，不是加塞新任务。
+19. > *Inside Ding* 'AI boosts efficiency' is a correct platitude, just like every sentence AI utters. If AI lets you handle ten things faster, will the organization send you home early, or load you up to fifty? Use the time saved by efficiency to verify quality, not to cram in new tasks.
 
-### 组织与反思
+### Organization and Reflection
 
-20. > 《置身钉内》一个产品经理最难摆脱的，往往不是失败，而是成功。失败留下伤口，成功留下手感。上次成功的方法不一定适用这次，先看当前证据再做判断。
+20. > *Inside Ding* What a product manager finds hardest to shake is often not failure but success. Failure leaves a wound; success leaves a feel. Last time's successful method doesn't necessarily apply this time — look at the current evidence before judging.
 
-21. > 《置身钉内》需求池不是许愿池，扔进去不会自动长出交付。给每个需求补验收样例和优先级。
+21. > *Inside Ding* The backlog is not a wishing well; throw something in and a delivery won't grow out of it on its own. Give every requirement a verification example and a priority.
 
-22. > 《置身钉内》复盘写"加强沟通"，约等于医生写"加强呼吸"。复盘必须落到机制改动或检查点，不写正确的废话。
+22. > *Inside Ding* Writing 'improve communication' in a retrospective is about the same as a doctor writing 'breathe more.' A retrospective must land on a mechanism change or a checkpoint; no correct platitudes.
 
-23. > 《置身钉外》热帖删了不等于火灭了，最多是烟雾报警器被你拔了。保留反馈原文，转成可追踪修复项。
+23. > *Outside Ding* Deleting a hot thread doesn't mean the fire is out; at most you've pulled the smoke alarm's battery. Keep the original feedback text and turn it into a trackable fix item.
 
-24. > 《置身钉内》群里接龙一片收到，不代表问题一片解决。把"收到"改成"谁在什么时候用什么证据关闭"。
+24. > *Inside Ding* A group thread full of people chiming in 'received' doesn't mean the pile of problems is solved. Change 'received' into 'who closes it, when, and with what evidence.'
 
-25. > 《置身钉外》人是目的，还是手段。——这是对所有工具和流程的终极审判。检查你做的每一步，是在帮用户拿到结果，还是在帮流程证明自己。
+25. > *Outside Ding* Are people the end, or the means? — This is the ultimate judgment on every tool and process. Check every step you take: is it helping the user get a result, or helping the process prove itself?

@@ -25,11 +25,11 @@ interface ClientContext {
   effect(callback: () => () => void): void;
   inject?(deps: string[], callback: (scope: { get?(name: string): unknown }) => void | (() => void)): unknown;
 }
-const BUNDLE_NAME = '@michengai/dsh-pua';
-const CLIENT_ROW = 'michengai-pua';
+const BUNDLE_NAME = '@phucnd0604/dsh-pua-en';
+const CLIENT_ROW = 'phucnd0604-pua-en';
 export const inject = ['slots', 'remote'];
 import { modeName } from './display.js';
-/** 全局常显字段：enabled, language, flavor, mode, subagents；会话面板不显示 language。 */
+/** Fields always shown at global scope: enabled, language, flavor, mode, subagents; the session panel does not show language. */
 const GLOBAL_TOP_KEYS: Key[] = ['enabled', 'language', 'flavor', 'mode', 'subagents'];
 const SESSION_TOP_KEYS: Key[] = ['enabled', 'flavor', 'mode', 'subagents'];
 function choicesFor(lang: UiLang): Partial<Record<Key, readonly { value: string; label: string }[]>> {
@@ -53,10 +53,10 @@ const message = (error: unknown, copy: UiCopy): string => {
       const field = copy.fields[issue.path?.[0] as Key] ?? rules.fieldFallback;
       return field + (issue.code === 'too_big' ? rules.tooBig(issue.maximum ?? 0) : issue.code === 'too_small' ? rules.tooSmall(issue.minimum ?? 0) : rules.invalid);
     }).join(rules.join);
-  } catch { /* 普通远程错误保留原文。 */ }
+  } catch { /* Ordinary remote errors keep their original text. */ }
   return text;
 };
-/** 菜单、选中标记及键盘交互复用宿主公共组件。 */
+/** Menus, selection marks, and keyboard interaction reuse the host's shared components. */
 function PuaSelect({ id, value, options, disabled, onChange }: {
   id: string; value: string; options: readonly { value: string; label: string }[]; disabled: boolean; onChange: (value: string) => void;
 }): React.ReactElement {
@@ -68,10 +68,10 @@ function PuaSelect({ id, value, options, disabled, onChange }: {
   });
 }
 
-/** 官方 PluginCard 未公开导出；此壳沿用其按钮结构与主题 token，控件复用 primitives。 */
+/** The official PluginCard is not exported publicly; this shell keeps its button structure and theme tokens, and reuses primitives for the controls. */
 function PuaSettingsCard({ remote, hostLocale }: { remote: PuaRemoteApi; hostLocale: string | undefined }): React.ReactElement {
   const [open, setOpen] = useState(false);
-  // 折叠态标题也遵守手动语言覆盖；读取失败时回退宿主语言。
+  // The collapsed-state title also honors a manual language override; on a failed read it falls back to the host language.
   const [pref, setPref] = useState<LanguagePref>();
   useEffect(() => { let live = true; void remote.getGlobal().then(result => { if (live && result.ok) setPref(result.value.values.language); }).catch(() => {}); return () => { live = false; }; }, [remote]);
   const copy = UI[resolveUiLang(pref, hostLocale)];
@@ -81,12 +81,12 @@ function PuaSettingsCard({ remote, hostLocale }: { remote: PuaRemoteApi; hostLoc
       h(IconChevronDown, { className: 'pua-card-chevron' })),
     h('div', { className: 'pua-card-body', hidden: !open }, h(ConfigurationPanel, { remote, hostLocale })));
 }
-/** 官方插件页自己画标题；summary 只给一行说明，page 才是带保存的表单。 */
+/** The official plugin page draws its own heading; summary is a single-line note, and only page is the form with save. */
 function PuaPluginConfig({ remote, view, hostLocale }: { remote: PuaRemoteApi; view?: 'summary' | 'page' | undefined; hostLocale: string | undefined }): React.ReactNode {
-  // 列表摘要跟随宿主语言；打开后的表单遵守手动覆盖。
+  // The list summary follows the host language; the form, once opened, honors a manual override.
   return view === 'summary' ? UI[resolveUiLang('auto', hostLocale)].settingsSummary : h(ConfigurationPanel, { remote, hostLocale });
 }
-/** 两个入口共享字段与校验；会话入口永远不调用全局写入方法。 */
+/** Both entries share fields and validation; the session entry never calls the global write methods. */
 export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarted }: { remote: PuaRemoteApi; sessionId?: string | undefined; hostLocale?: string | undefined; onLoopStarted?: () => void }): React.ReactElement {
   const [snapshot, setSnapshot] = useState<ConfigurationSnapshot>();
   const [draft, setDraft] = useState<Configuration>(CONFIG_DEFAULTS);
@@ -100,7 +100,7 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
   const saving = useRef(false);
   const epoch = useRef(0);
   const global = !sessionId;
-  // 会话面板固定遵循全局配置/继承的语言（快照 defaults 或 values 中的语言），只有全局设置页才随当前未保存草稿 draft.language 变动。
+  // The session panel always follows the global/inherited language (the language in snapshot defaults or values); only the global settings page tracks the current unsaved draft, draft.language.
   const effectiveLanguage = global ? draft.language : (snapshot?.defaults?.language ?? snapshot?.values.language);
   const lang = resolveUiLang(effectiveLanguage, hostLocale);
   const copy = UI[lang];
@@ -111,7 +111,7 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
     return unwrap(global ? remote.getGlobal() : remote.getSession(sessionId!)).then(value => { if (request === epoch.current) accept(value); }).catch(reason => { if (live.current && request === epoch.current) setError(message(reason, copy)); });
   };
   useEffect(() => { live.current = true; void refresh(); return () => { live.current = false; }; }, [sessionId]);
-  // 未编辑时同步其他窗口和命令修改；输入草稿不被后台刷新覆盖。
+  // Sync edits from other windows and commands while there are no local edits; background refreshes never overwrite an in-progress draft.
   useEffect(() => {
     const update = () => { if (!dirty && !error && !saving.current) void refresh(); };
     const timer = window.setInterval(update, 4000);
@@ -210,17 +210,17 @@ function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteAp
     open && createPortal(h('dialog', { ref: dialog, className: 'pua-dialog', 'aria-label': copy.composer.dialogAria, onKeyDownCapture: (event: React.KeyboardEvent) => { if (event.key === 'Escape' && dialog.current?.querySelector('[role=menu]')) event.preventDefault(); }, onCancel: close, onClick: (event: React.MouseEvent<HTMLDialogElement>) => { if (event.target === dialog.current) close(); } },
       h('div', { className: 'pua-dialog-content' }, h('button', { type: 'button', className: 'pua-close', onClick: close, 'aria-label': copy.composer.closePanel, title: copy.composer.close }, h(IconClose)), h(ConfigurationPanel, { key: sessionId, remote, sessionId, hostLocale, onLoopStarted: close }))), document.body));
 }
-// 全局页脚沿用官方 PluginCard 的按钮样式与布局，公共 Button 用于其余操作。
+// The global footer keeps the official PluginCard button style and layout; the shared Button is used for everything else.
 const CSS = `.pua-panel.pua-panel-global{max-width:none}.pua-settings-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 0 4px;border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-settings-discard,.pua-settings-save{appearance:none;border:1px solid transparent;border-radius:8px;padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer}.pua-settings-discard{border-color:var(--dsw-alias-border-l2);background:none;color:var(--dsw-alias-label-secondary)}.pua-settings-discard:hover:not(:disabled){color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-label-dimmed)}.pua-settings-save{background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}.pua-settings-discard:disabled,.pua-settings-save:disabled{opacity:.4;cursor:default}.pua-settings-discard:focus-visible,.pua-settings-save:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}.pua-settings-card{list-style:none;border:0.5px solid var(--dsw-alias-border-l4);border-radius:16px;background:var(--dsw-alias-bg-layer-3);transition:border-color .16s,background .16s}.pua-settings-card:hover{border-color:var(--dsw-alias-label-dimmed)}.pua-settings-card[data-open=true]{background:var(--dsw-alias-bg-layer-2);border-color:var(--dsw-alias-label-dimmed)}.pua-card-header{width:100%;appearance:none;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px}.pua-card-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.pua-card-name{font-size:15px;font-weight:600;line-height:1.4;color:var(--dsw-alias-label-primary)}.pua-card-description{font-size:13px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}.pua-card-chevron{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform .16s}.pua-settings-card[data-open=true] .pua-card-chevron{transform:rotate(180deg)}.pua-card-body{border-top:0.5px solid var(--dsw-alias-border-l2);margin:0 16px;padding-bottom:8px}.pua-select-trigger{gap:12px;max-width:100%}.pua-select-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pua-select-trigger svg{flex:none}.pua-shared-menu{max-width:min(260px,55vw)}.pua-trigger[data-on=true]{color:var(--dsw-alias-brand-primary);background:color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent)}.pua-trigger[data-on=true]:hover{background:color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent)}.pua-trigger[data-disabled=true]{color:var(--dsw-alias-label-tertiary)}.pua-shared-menu [role=menu]{max-height:240px;overflow-y:auto}.pua-field[data-inline=true]{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px}.pua-field[data-inline=true]>.pua-field-head{margin:0}.pua-field[data-inline=true]>small{grid-column:1/-1}.pua-card-header:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px}.pua-composer{display:inline-flex;order:2;flex:none}.pua-trigger{border:0;border-radius:20px;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:13px;min-height:28px;padding:0 8px;cursor:pointer;white-space:nowrap}.pua-trigger:hover{background:var(--dsw-alias-interactive-bg-hover)}.pua-dialog{width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 48px);padding:0;border:1px solid var(--dsw-alias-border-l2);border-radius:14px;background:var(--dsw-alias-bg-layer-2,#fff);color:var(--dsw-alias-label-primary,#222)}.pua-dialog::backdrop{background:#0005}.pua-dialog-content{position:relative;padding:22px}.pua-close{position:absolute;right:16px;top:16px;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-height:28px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}.pua-close:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.pua-close svg{width:16px;height:16px;flex:none}.pua-panel{max-width:700px;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px}.pua-panel h2{font-size:19px;margin:0 60px 8px 0}.pua-muted,.pua-panel small,.pua-status{color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}.pua-field{margin:0;padding:12px 0}.pua-field+.pua-field{border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-field[data-inline=true]>.pua-override{grid-column:1/-1}.pua-session-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px;padding-bottom:12px;border-bottom:0.5px solid var(--dsw-alias-border-l2)}.pua-session-actions span{font-size:12px;color:var(--dsw-alias-label-secondary)}.pua-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}.pua-field-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}.pua-override{display:flex;align-items:center;gap:8px;flex:none}.pua-override small{margin:0}.pua-panel input,.pua-panel select,.pua-panel textarea{box-sizing:border-box;width:100%;min-height:34px;padding:7px 9px;border:1px solid var(--dsw-alias-border-l2,#ccc);border-radius:7px;background:var(--dsw-alias-bg-layer-2,#fff);color:inherit;font:inherit}.pua-panel textarea{resize:vertical}.pua-panel small{display:block;margin-top:5px}.pua-close{min-height:28px;cursor:pointer}.pua-panel input:disabled,.pua-panel textarea:disabled{opacity:.65;cursor:default}.pua-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.pua-panel summary{cursor:pointer;padding:12px 0;border-top:1px solid var(--dsw-alias-border-l2,#ddd)}.pua-error{padding:10px;border:1px solid var(--dsw-alias-state-error-primary,#b33);border-radius:6px;overflow-wrap:anywhere}.pua-panel :focus-visible,.pua-trigger:focus-visible,.pua-close:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#527dcc);outline-offset:2px}.pua-panel details>label{display:block;margin:12px 0}.pua-panel details>label>input,.pua-panel details>label>textarea{margin-top:6px}`;
 
-/** 宿主 `/` 行没有 icon/label；一等命令按 definitionId 换脸。同名贡献会撞车，只能在候选项上覆盖文案。 */
+/** Host `/` rows carry no icon/label; first-class commands get a face by definitionId. Same-named contributions collide, so copy can only be overridden on candidates. */
 const FACES: Record<string, { icon: unknown; copy: 'pua' | 'cancelLoop' }> = {
   pua: { icon: IconGauge, copy: 'pua' },
   'pua-cancel-loop': { icon: IconClose, copy: 'cancelLoop' },
 };
 const SLASH_COMMANDS = new Set<string>(Object.keys(FACES));
 type Lookup = { get?(name: string): unknown };
-/** 可见性与菜单语言同一次读取；语言跟随设置里的 language，不是注册表里的中文字符串。 */
+/** Visibility and menu language come from the same read; the language follows the `language` setting, not a Chinese string in the registry. */
 async function slashMenu(remote: PuaRemoteApi | undefined, ctx: Lookup): Promise<{ visible: boolean; lang: UiLang }> {
   let pref: LanguagePref | undefined;
   let visible = true;
@@ -231,7 +231,7 @@ async function slashMenu(remote: PuaRemoteApi | undefined, ctx: Lookup): Promise
         visible = result.value.values.enabled;
         pref = result.value.values.language;
       }
-    } catch { /* 读取失败时保持列出，语言跟随宿主。 */ }
+    } catch { /* On read failure keep listing; the language follows the host. */ }
   }
   return { visible, lang: resolveUiLang(pref, hostLocaleOf(ctx)) };
 }
@@ -266,7 +266,7 @@ function decorateSlashFaces(commandUi: unknown, ctx: Lookup, remote: PuaRemoteAp
 export async function apply(ctx: ClientContext): Promise<() => void> {
   const unmount = await ctx.remote.$mount(TYPERT_REMOTE);
   const remote = ctx.get('remote.puaConfig') as PuaRemoteApi | undefined;
-  if (!remote) { unmount(); throw new Error('PUA 配置连接未就绪。'); }
+  if (!remote) { unmount(); throw new Error('PUA configuration connection is not ready.'); }
   const hostLocale = hostLocaleOf(ctx);
   if (typeof ctx.inject === 'function') ctx.inject(['commandUi'], scope => decorateSlashFaces(scope.get?.('commandUi'), ctx, remote));
   else ctx.effect(() => decorateSlashFaces(ctx.get('commandUi'), ctx, remote));

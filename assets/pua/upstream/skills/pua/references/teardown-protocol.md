@@ -1,195 +1,195 @@
-# PUA Teardown Protocol — Agent 生命周期释放协议
+# PUA Teardown Protocol — Agent Lifecycle Release Protocol
 
-> **当职业球队里某位球员已经打完自己那场比赛，你必须让他退场。继续让他站在场上只会拖垮全队节奏。**
-> — Netflix Keeper Test 推论
+> **When a player on a professional team has already played his game, you have to take him off the field. Leaving him standing out there only drags down the whole team's rhythm.**
+> — a corollary of the Netflix Keeper Test
 
-PUA v3 之前的协议只覆盖 agent 生命周期的前 4 步（Define → Spawn → Monitor → Accept），缺后 3 步（**Release → Cleanup → Orphan handling**）。这会导致：
+The protocol before PUA v3 covered only the first 4 steps of the agent lifecycle (Define → Spawn → Monitor → Accept) and was missing the last 3 (**Release → Cleanup → Orphan handling**). This causes:
 
-- 验收通过的 P8 不被释放 → 上下文堆满已完成的 agent
-- TeamCreate 的 tmux pane 无人关闭 → 资源常驻
-- worktree 隔离的 agent 完成后留下孤儿代码副本 → 磁盘+context 浪费
-- 会话 auto-compact 后 orphan 加倍 → OOM
-- 无独立的 SubagentStop 会计层 → 无法回答"当前还有多少 agent 在场上"
+- A P8 that passed verification is never released → the context fills up with finished agents
+- Nobody closes the tmux panes created by TeamCreate → resources stay resident
+- A worktree-isolated agent leaves behind an orphan code copy when it finishes → wasted disk + context
+- After session auto-compact, orphans double → OOM
+- No separate SubagentStop accounting layer → can't answer "how many agents are still on the field"
 
-**关于 "subagent 劫持主 loop" 的澄清**：这曾是最初的假设，但查 Claude Code 官方文档后证实**不成立**——`Stop` 事件仅主会话触发，subagent 完成走独立的 `SubagentStop` 事件。hooks.json 里如果只注册 `Stop`，subagent 的生命周期结束对主会话 hook 不可见。**真正的病因是 agent 生命周期缺少会计层**，不是 hook 层劫持。v3.1 起注册 SubagentStop hook 作为 teardown accounting，配合 `/pua:team-status` 提供"当前在场阵容"。
+**Clarification on "subagent hijacking the main loop"**: this was the original hypothesis, but checking the official Claude Code docs proved it **false** — the `Stop` event fires only for the main session, while a subagent's completion goes through the separate `SubagentStop` event. If hooks.json registers only `Stop`, the end of a subagent's lifecycle is invisible to the main session's hook. **The real disease is the missing accounting layer in the agent lifecycle**, not hook-layer hijacking. Starting with v3.1, a SubagentStop hook is registered as teardown accounting, which together with `/pua:team-status` provides the "current active lineup."
 
-本文定义缺失的 3 步，并给出可执行的命令/信号/检查清单。
+This document defines the 3 missing steps and provides executable commands/signals/checklists.
 
 ---
 
-## 生命周期 7 阶段对照
+## Lifecycle: The 7 Phases Side by Side
 
-| # | 阶段 | 标准协议 | PUA v3 前 | PUA v3 后 |
+| # | Phase | Standard protocol | Before PUA v3 | After PUA v3 |
 |---|------|---------|----------|----------|
-| 1 | Define | Task Prompt 六要素 | ✅ p9-protocol 阶段二 | 不变 |
-| 2 | Spawn | Agent/TeamCreate | ✅ agent-team.md | 不变 |
-| 3 | Monitor | 轮询 / SendMessage | ✅ p9-protocol 阶段三 | 不变 |
-| 4 | Accept | P8/P9 验收 | ✅ p9-protocol 阶段四 | 不变 |
-| **5** | **Release** | 显式释放信号 | ❌ 无 | 本文 §Release |
-| **6** | **Cleanup** | 清 worktree / pane | ❌ 无 | 本文 §Cleanup |
-| **7** | **Orphan handling** | 孤儿检测 + 回收 | ❌ 无 | 本文 §Orphan |
+| 1 | Define | Task Prompt six elements | ✅ p9-protocol phase two | unchanged |
+| 2 | Spawn | Agent/TeamCreate | ✅ agent-team.md | unchanged |
+| 3 | Monitor | polling / SendMessage | ✅ p9-protocol phase three | unchanged |
+| 4 | Accept | P8/P9 verification | ✅ p9-protocol phase four | unchanged |
+| **5** | **Release** | explicit release signal | ❌ none | this doc §Release |
+| **6** | **Cleanup** | clear worktree / pane | ❌ none | this doc §Cleanup |
+| **7** | **Orphan handling** | orphan detection + reclamation | ❌ none | this doc §Orphan |
 
 ---
 
-## §Release — 6 条释放规则
+## §Release — 6 Release Rules
 
-### R1. P9 验收通过必须发 `[TEARDOWN]` 信号
+### R1. A passing P9 verification must emit a `[TEARDOWN]` signal
 
-**WHY** ：验收通过 ≠ agent 释放。P9 默认会继续分配下一个任务给同一个 P8，但如果没有下一个任务，老 P8 就这样挂在那里。`[TEARDOWN]` 是明确的"释放/退场"指令。
+**WHY**: passing verification ≠ releasing the agent. By default P9 goes on assigning the next task to the same P8, but with no next task the old P8 just hangs there. `[TEARDOWN]` is the explicit "release/exit the field" instruction.
 
-**HOW** ：P9 在验收旁白后，追加一行：
+**HOW**: after the verification narration, P9 appends one line:
 
 ```
 [TEARDOWN] p8-backend | reason: all_tasks_completed | release_resources: true
 ```
 
-若还有下一轮任务：
+If there's another round of tasks:
 
 ```
 [REASSIGN] p8-backend | next_task: <task_id> | keep_agent: true
 ```
 
-二选一必须显式，不允许默认静默。
+The choice must be explicit; silent defaults are not allowed.
 
-### R2. P10 换届强制 teardown 整个 P9 团队
+### R2. A P10 rotation forces teardown of the entire P9 team
 
-**WHY**：P9 切换（/pua:p9 → 不同项目）时，旧 P9 管理的 P8 全部成了孤儿——没有老板会来验收它们的交付。
+**WHY**: when P9 switches (/pua:p9 → a different project), every P8 the old P9 managed becomes an orphan — no boss will ever come to verify their delivery.
 
-**HOW**：P10 下发换届指令时必须级联：
+**HOW**: when P10 issues a rotation order it must cascade:
 
 ```
 [TEARDOWN-CASCADE] p9-current | descendants: [p8-backend, p8-frontend, p7-*] | reason: p9_rotation
 ```
 
-### R3. worktree agent 完成后自动回收 worktree
+### R3. A worktree agent auto-reclaims its worktree on completion
 
-**WHY**：`isolation: "worktree"` 创建的 git worktree 不会自动删除。10 个 worktree 就是 10 份代码副本，磁盘和 context 双重浪费。
+**WHY**: a git worktree created with `isolation: "worktree"` is not deleted automatically. 10 worktrees means 10 code copies — a double waste of disk and context.
 
-**HOW**：P8/P9 收到 `[P7-COMPLETION]` 后，执行：
+**HOW**: after receiving `[P7-COMPLETION]`, P8/P9 runs:
 
 ```bash
-# 从 Agent result 拿 worktree 路径和 branch
+# get the worktree path and branch from the Agent result
 git worktree remove <worktree_path> --force
-git branch -D <worktree_branch>  # 如果已合并
+git branch -D <worktree_branch>  # if already merged
 ```
 
-### R4. TeamCreate 必须配对 TeamDelete
+### R4. TeamCreate must be paired with TeamDelete
 
-**WHY**：tmux pane 不会因为 agent 完成而自动关闭。team_name 会一直占用 session 标识符。
+**WHY**: a tmux pane doesn't close automatically when the agent finishes. The team_name keeps occupying a session identifier.
 
-**HOW**：P9 在所有 P8 发完 `[P8-COMPLETION]` 后，收尾指令：
+**HOW**: after all P8s have sent `[P8-COMPLETION]`, P9 issues the wrap-up instruction:
 
 ```
 TeamDelete({team_name: "<project-team>"})
 ```
 
-若跨 sprint 需要保留团队，显式声明：
+If the team must be kept across sprints, declare it explicitly:
 
 ```
 [TEAM-HIBERNATE] <team_name> | reason: next_sprint_continues | ttl: 24h
 ```
 
-### R5. background agent 默认 TTL = 30min
+### R5. Default TTL for a background agent = 30min
 
-**WHY**：`run_in_background: true` 启动的 agent 不会被自动 kill。忘了回收 = 永久后台进程吃 token。
+**WHY**: an agent started with `run_in_background: true` isn't killed automatically. Forget to reclaim it = a permanent background process eating tokens.
 
-**HOW**：spawn 时记录 spawn_time 到 state；超过 30min 未返回 → 主线程主动 `TaskStop`：
+**HOW**: record spawn_time into state at spawn; if it hasn't returned after 30min → the main thread proactively `TaskStop`s it:
 
 ```bash
-# 在 state 文件里记 agent_id 和 spawn_time
-# 巡检命令（也可用作 /pua:reap-orphans 后端）
+# record agent_id and spawn_time in the state file
+# inspection command (also usable as the /pua:reap-orphans backend)
 jq '.agents[] | select(.spawn_time < (now - 1800)) | .id' ~/.claude/pua/active-agents.json
 ```
 
-### R6. subagent 禁止再 spawn team（禁嵌套孤儿）
+### R6. A subagent must not spawn another team (no nested orphans)
 
-**WHY**：subagent 自己创建 team 后，主会话完全看不见这些 agent。一旦 subagent 退出，这个 team 就彻底失联。
+**WHY**: once a subagent creates its own team, the main session can't see those agents at all. The moment the subagent exits, that team is completely out of touch.
 
-**HOW**：P8 被 P9 spawn 后，**只能**用 `Agent tool` spawn P7，**不能**用 `TeamCreate`。P9 级别才允许建 team。检测命令：
+**HOW**: after P9 spawns it, a P8 may **only** spawn P7s with the `Agent tool` and **must not** use `TeamCreate`. Only P9 may create a team. Detection command:
 
 ```
-hook 层读 HOOK_INPUT.parent_session_id，若非空且尝试 TeamCreate → 拒绝
+hooks read HOOK_INPUT.parent_session_id; if non-empty and TeamCreate is attempted → deny
 ```
 
 ---
 
-## §Cleanup — 主动清理 checklist
+## §Cleanup — Proactive Cleanup Checklist
 
-每次 `[TEARDOWN]` 触发后执行：
+Run after every `[TEARDOWN]` fires:
 
 ```bash
-# 1. 清 worktree（若有）
+# 1. clear worktree (if any)
 git worktree list --porcelain | grep -A1 "<branch>" && git worktree remove ...
 
-# 2. 清 state file
+# 2. clear state file
 rm -f "$HOME/.claude/pua/agent-<id>.state"
 
-# 3. 关 tmux pane（若是 TeamCreate 成员）
+# 3. close tmux pane (if it's a TeamCreate member)
 tmux kill-pane -t <pane_id>
 
-# 4. 记录到 teardown log
+# 4. record to teardown log
 echo "{\"agent\":\"<id>\",\"reason\":\"<reason>\",\"ts\":\"$(date -u +%FT%TZ)\"}" >> "$HOME/.claude/pua/teardown.jsonl"
 ```
 
 ---
 
-## §Orphan — 孤儿检测与回收
+## §Orphan — Orphan Detection and Reclamation
 
-**什么是孤儿**：
-- state 文件 mtime > 30 分钟
-- 无对应活跃 session
-- 无心跳更新
+**What counts as an orphan**:
+- state file mtime > 30 minutes
+- no matching active session
+- no heartbeat update
 
-**三层防御**：
+**Three layers of defense**:
 
-1. **Stop hook 层**（自动）：每次主会话 Stop 时扫一次 `$HOME/.claude/pua/loop-*.md`，stale 的直接清理（已在 `pua-loop-hook.sh` 实现）
-2. **SessionStart hook 层**（自动）：新会话启动时扫 state 目录，stale 的提示用户确认
-3. **用户显式**（手动）：`/pua:reap-orphans` 一键扫描 + 回收
+1. **Stop hook layer** (automatic): each time the main session Stops, scan `$HOME/.claude/pua/loop-*.md` and clean up anything stale (already implemented in `pua-loop-hook.sh`)
+2. **SessionStart hook layer** (automatic): when a new session starts, scan the state directory and prompt the user to confirm stale entries
+3. **Explicit user action** (manual): `/pua:reap-orphans` scans and reclaims in one shot
 
 ---
 
-## §Switches — 开关语义映射
+## §Switches — Switch Semantics Mapping
 
-PUA 的 14 个 slash 命令在本协议下的生命周期语义：
+The lifecycle semantics of PUA's 14 slash commands under this protocol:
 
-| 命令 | 原语义 | 扩展后语义 | 映射操作 |
+| Command | Original semantics | Extended semantics | Mapped operation |
 |------|--------|-----------|---------|
-| `/pua:on` | 打开默认加载 | 不变 | config: always_on=true |
-| `/pua:off` | 关闭默认加载 | **+ 停 loop + 级联 teardown** | off → cancel-loop → teardown-all |
-| `/pua:cancel-pua-loop` | 删 state file | **+ 原子级联清理** | rm state + cleanup worktree + kill pane |
-| `/pua:team-status` 🆕 | — | 列活跃 agent / PID / TTL | 读 state 目录 + jq 汇总 |
-| `/pua:reap-orphans` 🆕 | — | 扫 stale agent 并 TaskStop | age > 30min 批量回收 |
-| `/pua:teardown-all` 🆕 | — | 级联释放 P10→P9→P8→P7 | 发 TEARDOWN-CASCADE 到所有层 |
+| `/pua:on` | enable default loading | unchanged | config: always_on=true |
+| `/pua:off` | disable default loading | **+ stop loop + cascade teardown** | off → cancel-loop → teardown-all |
+| `/pua:cancel-pua-loop` | delete state file | **+ atomic cascade cleanup** | rm state + cleanup worktree + kill pane |
+| `/pua:team-status` 🆕 | — | list active agents / PID / TTL | read state dir + jq summary |
+| `/pua:reap-orphans` 🆕 | — | scan stale agents and TaskStop | batch reclaim for age > 30min |
+| `/pua:teardown-all` 🆕 | — | cascade release P10→P9→P8→P7 | send TEARDOWN-CASCADE to every layer |
 
-**设计原则**：
-- **幂等**：重复执行同一开关不会产生副作用（re-rm 无害、re-kill 先检查）
-- **级联**：顶层开关触发底层清理，反向不允许（P7 不能 teardown P8）
-- **可观测**：所有 teardown 写 `$HOME/.claude/pua/teardown.jsonl`，便于复盘
+**Design principles**:
+- **Idempotent**: running the same switch repeatedly has no side effects (re-rm is harmless, re-kill checks first)
+- **Cascading**: a top-level switch triggers lower-level cleanup; the reverse is not allowed (a P7 cannot teardown a P8)
+- **Observable**: every teardown writes to `$HOME/.claude/pua/teardown.jsonl`, which makes retrospectives easy
 
 ---
 
-## §自治 — 插件自动启动场景
+## §Autonomy — The Plugin Auto-Start Scenario
 
-因为 PUA 是 `default=true` 自动加载的，不能假设用户会主动清理。所以关键是让 hook 长出 GC 能力：
+Because PUA loads automatically with `default=true`, you can't assume the user will clean up proactively. So the key is to give the hooks GC capability:
 
-| Hook 事件 | 自治行为 | 实际落地 |
+| Hook event | Autonomous behavior | Actual implementation |
 |----------|---------|---------|
-| `SessionStart` | 扫 stale loop state，提示用户确认回收 | ✅ `session-restore.sh` |
-| `PreCompact` | dump 活跃 agent 清单到 HANDOFF | ✅ inline prompt hook |
-| `Stop`（主会话） | 走 loop 逻辑 + stale 兜底清理 | ✅ `pua-loop-hook.sh` + Gate 0 防御 |
-| `SubagentStop` | **agent 完成会计**：写 teardown.jsonl + 从 active-agents.json 移除 | ✅ `subagent-teardown.sh`（v3.1 新增） |
-| `PostToolUse:Task`（计划） | spawn 时记录 agent_id 到 active-agents.json | ⏳ 待实现（需 Claude Code 该事件支持） |
+| `SessionStart` | scan stale loop state, prompt the user to confirm reclamation | ✅ `session-restore.sh` |
+| `PreCompact` | dump the active agent list into HANDOFF | ✅ inline prompt hook |
+| `Stop` (main session) | run loop logic + stale fallback cleanup | ✅ `pua-loop-hook.sh` + Gate 0 defense |
+| `SubagentStop` | **agent completion accounting**: write teardown.jsonl + remove from active-agents.json | ✅ `subagent-teardown.sh` (new in v3.1) |
+| `PostToolUse:Task` (planned) | record agent_id into active-agents.json at spawn | ⏳ to be implemented (needs Claude Code support for that event) |
 
-**重要**：Claude Code 中 Stop 事件**仅**主会话触发，subagent 的 Stop 事件不会传到 Stop 钩子——所以监控 subagent 必须用独立的 SubagentStop 注册。pua-loop-hook.sh 的 Gate 0 保留作为"防御层"兜住未来调度变化，但不是必需防线。
+**Important**: in Claude Code the Stop event fires **only** for the main session; a subagent's Stop event never reaches the Stop hook — so monitoring subagents requires a separate SubagentStop registration. Gate 0 in pua-loop-hook.sh is kept as a "defense layer" to catch future scheduling changes, but it is not a required line of defense.
 
 ---
 
-## 验收
+## Verification
 
-本协议落地的判定标准：
+Acceptance criteria for this protocol landing:
 
-- ✅ `TeardownDelete` 在 skill 文档里出现次数 ≥ `TeamCreate` 的一半
-- ✅ `teardown` / `释放` / `回收` 在 p9-protocol 阶段四后出现 ≥ 3 次
-- ✅ `pua-loop-hook.sh` 有 Gate 0（subagent 识别）
-- ✅ `/pua:team-status`、`/pua:reap-orphans`、`/pua:teardown-all` 存在
-- ✅ `$HOME/.claude/pua/teardown.jsonl` 可写且有 schema
+- ✅ `TeardownDelete` appears in the skill docs at least half as often as `TeamCreate`
+- ✅ `teardown` / `release` / `reclaim` appear ≥ 3 times after phase four of p9-protocol
+- ✅ `pua-loop-hook.sh` has Gate 0 (subagent detection)
+- ✅ `/pua:team-status`, `/pua:reap-orphans`, `/pua:teardown-all` exist
+- ✅ `$HOME/.claude/pua/teardown.jsonl` is writable and has a schema

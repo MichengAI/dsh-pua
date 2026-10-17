@@ -80,15 +80,15 @@ async function setup(t, reply = () => "离线测试回复", settings = false) {
   return { ctx, agent, run, say, create, requests, installed };
 }
 
-test('Loop 使用会话默认值并冻结启动快照，全局变化不改变活动参数', async t => {
+test('Loop uses session defaults and freezes the startup snapshot; global changes do not alter active parameters', async t => {
   const { ctx, agent, run } = await setup(t, () => '等待用户补充', true);
-  await ctx.settings.update('michengai-pua', { maxIterations: 3, verificationTimeout: 8 });
+  await ctx.settings.update('phucnd0604-pua-en', { maxIterations: 3, verificationTimeout: 8 });
   await run('/pua config {"maxIterations":2}');
   await run('/pua loop "测试快照"'); await agent.whenIdle();
   const runtime = ctx.puaConfiguration.runtime;
   assert.equal(runtime.read(agent.session).loop.maxIterations, 2);
   assert.equal(runtime.read(agent.session).loop.verificationTimeout, 8);
-  await ctx.settings.update('michengai-pua', { maxIterations: 7, verificationTimeout: 30 });
+  await ctx.settings.update('phucnd0604-pua-en', { maxIterations: 7, verificationTimeout: 30 });
   assert.equal(runtime.read(agent.session).loop.maxIterations, 2);
   assert.equal(runtime.read(agent.session).loop.verificationTimeout, 8);
   assert.equal(ctx.puaConfiguration.store.configuration(agent.session).verificationTimeout, 30);
@@ -103,7 +103,7 @@ test('Loop 使用会话默认值并冻结启动快照，全局变化不改变活
   assert.equal(runtime.activity(agent.session).loop, null);
 });
 
-test("原版 hook 四级模板、15 风味均可展开；候选保留条件门控和锁定边界", () => {
+test("Original hook four-level templates expand for all 15 flavors; candidates keep the conditional gate and locked boundaries", () => {
   const hooks = new HookContent(new SourceCatalog());
   for (const flavor of FLAVORS)
     for (const flavorLocked of [true, false]) {
@@ -112,18 +112,18 @@ test("原版 hook 四级模板、15 风味均可展开；候选保留条件门�
       for (const count of [2, 3, 4, 5]) {
         const text = hooks.candidate(count, state);
         assert.match(text, /Candidate Only/);
-        assert.match(text, /不是本任务\/子目标失败计数/);
+        assert.match(text, /not a task\/sub-goal failure count/);
         assert.doesNotMatch(text, /\$\{/);
         if (flavorLocked) assert.match(text, /locked|user-selected|user lock/i);
       }
     }
   assert.match(
     hooks.frustrationPrompt({ flavor: "huawei", flavorLocked: true }),
-    /我先立军令状/,
+    /First I make a written pledge/,
   );
 });
 
-test("只识别真实终端失败，排除文本伪造、嵌套退出码、取消和拒绝", () => {
+test("Recognizes only real terminal failures, excluding forged text, nested exit codes, cancellation, and denial", () => {
   const ok = (value) => ({ isError: false, value, content: [] });
   for (const value of [
     { stdout: "exitCode: 1 error failed" },
@@ -149,7 +149,7 @@ test("只识别真实终端失败，排除文本伪造、嵌套退出码、取�
     );
 });
 
-test("Loop 参数保留 Windows 路径，拒绝未闭合引号和重复选项", () => {
+test("Loop arguments preserve Windows paths and reject unclosed quotes and duplicate options", () => {
   const action = parseArgs(
     'loop "修复测试" --verify "node D:\\tools\\check.js" --max-iterations 5',
   );
@@ -163,75 +163,75 @@ test("Loop 参数保留 Windows 路径，拒绝未闭合引号和重复选项", 
     assert.throws(() => parseArgs(text));
 });
 
-test("settings 默认与会话覆盖分离；命令不写全局，未覆盖项动态继承", async (t) => {
+test("settings defaults stay separate from session overrides; commands do not write global values, and uncovered items are inherited dynamically", async (t) => {
   const { ctx, agent, run, say, create, requests, installed } = await setup(
     t,
     undefined,
     true,
   );
   assert.equal(
-    ctx.settings.describe().find((item) => item.ns === "michengai-pua").value
+    ctx.settings.describe().find((item) => item.ns === "phucnd0604-pua-en").value
       .alwaysOn,
     true,
   );
   await say("初始任务");
   assert.equal(ctx.puaConfiguration.store.read(agent.session).enabled, false);
-  assert.doesNotMatch(JSON.stringify(requests.at(-1)), /风味未锁定/);
+  assert.doesNotMatch(JSON.stringify(requests.at(-1)), /Flavor not locked/);
   await run("/pua on");
   await say("开启后才注入");
-  assert.match(requestSystem(requests.at(-1)), /风味未锁定/);
+  assert.match(requestSystem(requests.at(-1)), /Flavor not locked/);
   await run("/pua flavor huawei");
-  assert.equal(ctx.settings.get("michengai-pua").flavor, "auto");
+  assert.equal(ctx.settings.get("phucnd0604-pua-en").flavor, "auto");
   const second = await create("new-session");
   await say("另一个任务", second);
   assert.equal(ctx.puaConfiguration.store.read(second.session).enabled, false);
-  assert.doesNotMatch(JSON.stringify(requests.at(-1)), /风味未锁定/);
+  assert.doesNotMatch(JSON.stringify(requests.at(-1)), /Flavor not locked/);
   await run("/pua on", second);
-  await ctx.settings.update('michengai-pua', { flavor: 'tencent', mode: 'p9' });
+  await ctx.settings.update('phucnd0604-pua-en', { flavor: 'tencent', mode: 'p9' });
   await say('读取全局变化', second);
-  assert.match(requestSystem(requests.at(-1)), /用户锁定风味：tencent/);
+  assert.match(requestSystem(requests.at(-1)), /User-locked flavor: tencent/);
   await say('保留我的风味', agent);
-  assert.match(requestSystem(requests.at(-1)), /用户锁定风味：huawei/);
-  assert.match(requestSystem(requests.at(-1)), /当前 DSH 模式：p9/);
+  assert.match(requestSystem(requests.at(-1)), /User-locked flavor: huawei/);
+  assert.match(requestSystem(requests.at(-1)), /Current DSH mode: p9/);
   await run('/pua reset flavor');
   await say('重新跟随全局', agent);
-  assert.match(requestSystem(requests.at(-1)), /用户锁定风味：tencent/);
+  assert.match(requestSystem(requests.at(-1)), /User-locked flavor: tencent/);
   await run("/pua off");
-  assert.equal(ctx.settings.get('michengai-pua').alwaysOn, true);
+  assert.equal(ctx.settings.get('phucnd0604-pua-en').alwaysOn, true);
   await run('/pua offline');
-  assert.equal(ctx.settings.get('michengai-pua').offline, false);
-  await ctx.settings.update("michengai-pua", {
+  assert.equal(ctx.settings.get('phucnd0604-pua-en').offline, false);
+  await ctx.settings.update("phucnd0604-pua-en", {
     alwaysOn: true,
     flavor: "auto",
   });
   await say("再试试", agent);
-  assert.match(requestSystem(requests.at(-1)), /已关闭/);
+  assert.match(requestSystem(requests.at(-1)), /mode is off/);
   assert.doesNotMatch(
     JSON.stringify(requests.at(-1).messages.at(-1)),
     /User Frustration Signal/,
   );
   await installed.dispose();
   assert.equal(
-    ctx.settings.describe().some((item) => item.ns === "michengai-pua"),
+    ctx.settings.describe().some((item) => item.ns === "phucnd0604-pua-en"),
     false,
   );
 });
 
-test("全局关闭后 /pua 不能打开当前会话，也不注入提示词", async (t) => {
+test("After a global shutdown, /pua cannot enable the current session and injects no prompt", async (t) => {
   const { ctx, agent, run, requests } = await setup(t, () => "普通回复", true);
-  await ctx.settings.update("michengai-pua", { alwaysOn: false });
+  await ctx.settings.update("phucnd0604-pua-en", { alwaysOn: false });
   const blocked = await run("/pua 修复登录");
   assert.equal(blocked.result.kind, "error");
-  assert.match(blocked.result.text, /允许使用 PUA/);
-  assert.doesNotMatch(blocked.result.text, /打开 PUA 并开启/);
+  assert.match(blocked.result.text, /Allow PUA/);
+  assert.match(blocked.result.text, /Open @phucnd0604\/dsh-pua-en under Plugins/);
   assert.equal(requests.length, 0);
   assert.equal(ctx.puaConfiguration.store.read(agent.session).enabled, false);
   const status = await run("/pua status");
   assert.equal(status.result.kind, "success");
-  assert.match(status.result.text, /已关闭/);
+  assert.match(status.result.text, /off;/);
 });
 
-test("资料工具真实注册、读取完整正文、拒绝脚本与越界，卸载后消失", async (t) => {
+test("Reference tool is really registered, reads the full body, rejects scripts and out-of-range paths, and disappears after uninstall", async (t) => {
   const { ctx, agent, installed } = await setup(t);
   const execute = (path) =>
     ctx.tools.execute({
@@ -249,7 +249,7 @@ test("资料工具真实注册、读取完整正文、拒绝脚本与越界，�
   assert.equal(ctx.tools.get("pua_reference"), undefined);
 });
 
-test("候选失败只在开启后注入，调用去重、成功清零、关停不再次注入", async (t) => {
+test("Candidate failures are injected only after enabling; calls are deduplicated, success resets the count, and stopping does not inject again", async (t) => {
   const { ctx, agent, run, say, requests } = await setup(t);
   ctx.tools.register({
     name: "bash",
@@ -277,27 +277,27 @@ test("候选失败只在开启后注入，调用去重、成功清零、关停�
   await run("/pua flavor huawei");
   await execute("failure-1");
   await execute("failure-1");
-  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
   const unguard = ctx.tools.guard(() => 'the user rejected tool "bash"');
   const rejected = await execute('denied');
   assert.equal(rejected.isError, true);
   assert.equal(rejected.error.info, undefined);
   assert.equal(isTerminalFailure(rejected), false);
-  assert.match((await run('/pua status')).result.text, /终端失败观察：1/);
+  assert.match((await run('/pua status')).result.text, /Terminal failure observations: 1/);
   unguard();
   await execute("success", 0);
-  assert.match((await run("/pua status")).result.text, /终端失败观察：0/);
+  assert.match((await run("/pua status")).result.text, /Terminal failure observations: 0/);
   await execute("failure-2");
   await execute("failure-2b");
   await say("继续");
   assert.match(JSON.stringify(requests.at(-1)), /PUA Candidate L1/);
-  assert.match(JSON.stringify(requests.at(-1)), /我先立军令状/);
+  assert.match(JSON.stringify(requests.at(-1)), /First I make a written pledge/);
   await run("/pua off");
   await execute("failure-3");
-  assert.match((await run("/pua status")).result.text, /终端失败观察：2/);
+  assert.match((await run("/pua status")).result.text, /Terminal failure observations: 2/);
 });
 
-test("真正停止边界继续 Loop；Oracle 拒绝后再验收通过，记录可回放", {
+test("Real stop boundaries continue the Loop; after Oracle rejection a later acceptance passes and the record replays", {
   timeout: 10000,
 }, async (t) => {
   const { ctx, agent, run, requests } = await setup(
@@ -334,7 +334,7 @@ test("真正停止边界继续 Loop；Oracle 拒绝后再验收通过，记录�
   await agent.whenIdle();
   assert.equal(checks, 2);
   assert.equal(requests.length, 2);
-  assert.match(JSON.stringify(requests[1]), /PROMISE 被 Oracle 拒绝/);
+  assert.match(JSON.stringify(requests[1]), /PROMISE rejected by the Oracle/);
   for (const request of requests)
     assert.doesNotMatch(
       JSON.stringify(request.messages),
@@ -346,7 +346,7 @@ test("真正停止边界继续 Loop；Oracle 拒绝后再验收通过，记录�
   );
   assert.match(
     (await run("/pua status")).result.text,
-    /Loop：complete.*Oracle 拒绝 1 次/,
+    /Loop: complete.*Oracle rejections 1/,
   );
   assert.ok(
     agent.session
@@ -354,10 +354,10 @@ test("真正停止边界继续 Loop；Oracle 拒绝后再验收通过，记录�
       .some(
         (event) =>
           event.type === "user/message" &&
-          JSON.stringify(event.data).includes("Oracle 独立验收通过"),
+          JSON.stringify(event.data).includes("Oracle independent acceptance passed"),
       ),
   );
-  // 脱离插件重建宿主上下文，替换关系仍然有效，完整状态仍可回放。
+  // Rebuilding the host context without the plugin keeps the replacement relation valid and the full state replayable.
   const restored = Session.create(
     "oracle-restored",
     JSON.parse(JSON.stringify(agent.session.snapshotEvents())),
@@ -368,7 +368,7 @@ test("真正停止边界继续 Loop；Oracle 拒绝后再验收通过，记录�
   );
 });
 
-test("旧版 RECORD 在下一次请求前替换，保留用户同名文本和历史状态", async (t) => {
+test("Legacy RECORD is replaced before the next request, preserving user text with the same name and historical state", async (t) => {
   const { agent, say, run, requests } = await setup(t);
   const record =
     "PUA_RUNTIME_V1 " +
@@ -380,7 +380,7 @@ test("旧版 RECORD 在下一次请求前替换，保留用户同名文本和历
     JSON.stringify(requests.at(-1).messages),
     /PUA_RUNTIME_V1|legacy-call/,
   );
-  // 新建运行实例验证兼容恢复，避免依赖当前实例已经初始化的缓存。
+  // Create a fresh runtime instance to verify compatible restore without relying on caches the current instance already initialized.
   const context = new Context();
   t.after(() => context.fiber.dispose());
   const runtime = new PuaRuntime(
@@ -398,7 +398,7 @@ test("旧版 RECORD 在下一次请求前替换，保留用户同名文本和历
   assert.equal((await run("/pua status")).result.kind, "success");
 });
 
-test("hook 模板结构变化时明确报错；首次失败遵循原版不注入", () => {
+test("Reports a clear error when the hook template structure changes; the first failure follows the original and injects nothing", () => {
   const catalog = new SourceCatalog();
   const state = { flavor: "alibaba", flavorLocked: false };
   assert.equal(new HookContent(catalog).candidate(1, state), "");
@@ -414,14 +414,14 @@ test("hook 模板结构变化时明确报错；首次失败遵循原版不注入
     };
     assert.throws(
       () => new HookContent(modified).candidate(2, state),
-      /原版失败候选模板结构不匹配/,
+      /Original failure-candidate template structure mismatch/,
     );
   }
 });
 
-test("真实 Windows Oracle 保留双引号、反引号、换行及带空格路径", {
+test("Real Windows Oracle preserves double quotes, backticks, newlines, and paths with spaces", {
   skip: process.platform !== "win32",
-  // 四次独立 PowerShell 启动需要总预算；不改变单条命令的运行超时。
+  // Four independent PowerShell launches need a total budget; this does not change a single command's run timeout.
   timeout: 60000,
 }, async (t) => {
   const ctx = new Context();
@@ -444,7 +444,7 @@ test("真实 Windows Oracle 保留双引号、反引号、换行及带空格路�
       new AbortController().signal,
     );
     assert.equal(result.ok, true, result.detail);
-    // 仅统一行尾；不能用 trim() 隐藏 BOM 或实际输出中的空格。
+    // Only normalize line endings; do not use trim() to hide a BOM or real spaces in the output.
     assert.equal(
       JSON.parse(result.detail).stdout.replaceAll("\r\n", "\n"),
       expected + "\n",
@@ -453,7 +453,7 @@ test("真实 Windows Oracle 保留双引号、反引号、换行及带空格路�
   }
 });
 
-test("真实 Windows Oracle 原生引号校验读取无 BOM 文件，不依赖 stdin", {
+test("Real Windows Oracle native quote validation reads a BOM-less file without relying on stdin", {
   skip: process.platform !== "win32",
   timeout: 15000,
 }, async (t) => {
@@ -463,7 +463,7 @@ test("真实 Windows Oracle 原生引号校验读取无 BOM 文件，不依赖 s
   const directory = mkdtempSync(join(tmpdir(), "dsh-pua-oracle-"));
   t.after(() => rmdirSync(directory));
   const file = join(directory, "quoted 'input file.txt");
-  // Node 的 utf8 写入不带 BOM，避免 PowerShell 5.1 的 -Encoding utf8 差异。
+  // Node's utf8 write adds no BOM, avoiding PowerShell 5.1's -Encoding utf8 difference.
   writeFileSync(file, "a\r\nb\r\na b\r\n", "utf8");
   try {
     const literalPath = "'" + file.replaceAll("'", "''") + "'";
@@ -497,7 +497,7 @@ test("真实 Windows Oracle 原生引号校验读取无 BOM 文件，不依赖 s
   }
 });
 
-test("真实 Windows Oracle 使用 PowerShell 管道匹配，未匹配显式失败", {
+test("Real Windows Oracle uses PowerShell pipeline matching and fails explicitly on no match", {
   skip: process.platform !== "win32",
   timeout: 15000,
 }, async (t) => {
@@ -508,7 +508,7 @@ test("真实 Windows Oracle 使用 PowerShell 管道匹配，未匹配显式失�
     ["a b", 0, "a b\n"],
     ["missing", 1, ""],
   ]) {
-    // Select-String 未匹配不自动返回失败退出码，验收脚本必须主动表达失败。
+    // Select-String does not return a failure exit code on no match, so the acceptance script must signal failure itself.
     const command = `$puaMatch = "a b" | Select-String -SimpleMatch -Pattern "${pattern}"; if ($null -eq $puaMatch) { exit 1 }; Write-Output $puaMatch.Line`;
     const result = await verifyLoop(
       subprocess,
@@ -528,7 +528,7 @@ test("真实 Windows Oracle 使用 PowerShell 管道匹配，未匹配显式失�
   }
 });
 
-test("无 Oracle 如实记录 honor system；轮次上限阻止无限续轮", async (t) => {
+test("Without an Oracle it honestly records the honor system; the iteration cap prevents endless continuation", async (t) => {
   const { agent, run, requests } = await setup(t, (number) =>
     number <= 2 ? "还没完成" : "<promise>LOOP_DONE</promise>",
   );
@@ -545,12 +545,12 @@ test("无 Oracle 如实记录 honor system；轮次上限阻止无限续轮", as
       .some(
         (event) =>
           event.type === "user/message" &&
-          JSON.stringify(event.data).includes("不是独立验证通过"),
+          JSON.stringify(event.data).includes("not an independently verified pass"),
       ),
   );
 });
 
-test("Oracle 等待期间 off 取消验证；不续轮、不把取消当失败", {
+test("Turning off while the Oracle waits cancels verification; no continuation and cancellation is not treated as failure", {
   timeout: 5000,
 }, async (t) => {
   const { ctx, agent, run, requests } = await setup(
@@ -584,11 +584,11 @@ test("Oracle 等待期间 off 取消验证；不续轮、不把取消当失败",
   assert.equal(requests.length, 1);
   assert.match(
     (await run("/pua status")).result.text,
-    /cancelled.*Oracle 拒绝 0 次/,
+    /cancelled.*Oracle rejections 0/,
   );
 });
 
-test("暂停可回放但不跨分叉自动运行；用户补充后恢复同会话", async (t) => {
+test("Pause is replayable but does not auto-run across a fork; after the user follows up it resumes in the same session", async (t) => {
   const { agent, run, say, requests } = await setup(t, (number) =>
     number === 1
       ? "<loop-pause>需要配置</loop-pause>"
@@ -628,7 +628,7 @@ test("暂停可回放但不跨分叉自动运行；用户补充后恢复同会�
   assert.match((await run("/pua status")).result.text, /complete/);
 });
 
-test("取消别名覆盖尚未开始的 Loop，不能由排队的旧请求复活", {
+test("The cancel alias covers a Loop that has not started and cannot be revived by a queued old request", {
   timeout: 5000,
 }, async (t) => {
   let entered, release;
@@ -652,11 +652,11 @@ test("取消别名覆盖尚未开始的 Loop，不能由排队的旧请求复活
   release();
   await agent.whenIdle();
   assert.equal(requests.length, 2);
-  assert.match((await run("/pua status")).result.text, /Loop：未启动/);
-  assert.match(requestSystem(requests[1]), /当前 DSH 模式：pua。/);
+  assert.match((await run("/pua status")).result.text, /Loop: not started/);
+  assert.match(requestSystem(requests[1]), /Current DSH mode: pua\./);
 });
 
-test("用户取消及卸载取消活动 Loop，不在下一条普通输入时恢复", {
+test("User cancellation and unload cancel the active Loop, and it is not restored on the next ordinary input", {
   timeout: 5000,
 }, async (t) => {
   for (const mode of ["user", "unload"]) {
@@ -687,12 +687,12 @@ test("用户取消及卸载取消活动 Loop，不在下一条普通输入时恢
     if (mode === "unload") await ctx.plugin(plugin).await();
     await say("普通输入");
     assert.equal(requests.length, 2);
-    assert.match(requestSystem(requests[1]), /当前 DSH 模式：pua。/);
+    assert.match(requestSystem(requests[1]), /Current DSH mode: pua\./);
     assert.match((await run("/pua status")).result.text, /cancelled/);
   }
 });
 
-test("真实 Oracle：非零退出码、命令不存在与超时都不会误判成功", {
+test("Real Oracle: non-zero exit codes, a missing command, and a timeout are never mistaken for success", {
   timeout: 15000,
 }, async (t) => {
   const ctx = new Context();
@@ -726,23 +726,23 @@ test("真实 Oracle：非零退出码、命令不存在与超时都不会误判�
     100,
   );
   assert.equal(timeout.ok, false);
-  assert.match(timeout.detail, /timedOut.*true|超时/);
+  assert.match(timeout.detail, /timedOut.*true/);
 });
 
-test("反馈只依据可见旁白，不唤醒模型；离线模式关闭提醒", async (t) => {
+test("Feedback relies only on visible narration and does not wake the model; offline mode turns reminders off", async (t) => {
   const { ctx, agent, run, say, requests } = await setup(
     t,
     () => "[PUA-DIAGNOSIS] 可见诊断及交付",
     true,
   );
-  await ctx.settings.update("michengai-pua", { feedbackFrequency: 1 });
+  await ctx.settings.update("phucnd0604-pua-en", { feedbackFrequency: 1 });
   await run("/pua on");
   await say("完成任务");
   const reminders = () =>
     agent.session
       .deriveMessages()
       .filter((message) =>
-        JSON.stringify(message).includes("PUA 本地反馈（自愿）"),
+        JSON.stringify(message).includes("PUA local feedback (voluntary)"),
       );
   assert.equal(reminders().length, 1);
   assert.equal(requests.length, 1);
@@ -771,21 +771,21 @@ async function seedTerminalFailure(ctx, agent, run, callId) {
 }
 
 for (const event of ["agent/session-start", "agent/created"]) {
-  test(`${event} 压缩保留观察，clear 清除计数且不复活旧循环`, async (t) => {
+  test(`${event} compaction keeps observations, clear resets the count and does not revive the old loop`, async (t) => {
     const { ctx, agent, run } = await setup(t);
     await seedTerminalFailure(ctx, agent, run, `${event}-clear-failure`);
-    assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+    assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
     ctx.emit(event, { agent, source: "compact" });
-    assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+    assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
     ctx.emit(event, { agent, source: "clear" });
     assert.match(
       (await run("/pua status")).result.text,
-      /终端失败观察：0.*未启动/,
+      /Terminal failure observations: 0.*not started/,
     );
   });
 }
 
-test("旧宿主 agent/created 不带 source 时不处理生命周期", async (t) => {
+test("Legacy host agent/created without source skips lifecycle handling", async (t) => {
   const { ctx, agent, run } = await setup(t);
   await seedTerminalFailure(ctx, agent, run, "created-nosource-failure");
   let injected = 0;
@@ -795,11 +795,11 @@ test("旧宿主 agent/created 不带 source 时不处理生命周期", async (t)
     return inject(message);
   };
   ctx.emit("agent/created", { agent });
-  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
   assert.equal(injected, 0);
 });
 
-test("会话生命周期处理失败只记日志，不向外抛出", async (t) => {
+test("Session lifecycle handling failure only logs and does not throw outward", async (t) => {
   const { ctx, agent, run } = await setup(t);
   await run("/pua on");
   const warnings = [];
@@ -812,10 +812,10 @@ test("会话生命周期处理失败只记日志，不向外抛出", async (t) =
     throw new Error("inject failed");
   };
   ctx.emit("agent/created", { agent, source: "compact" });
-  assert.match(String(warnings.at(-1)), /不影响宿主创建/);
+  assert.match(String(warnings.at(-1)), /host creation is unaffected/);
 });
 
-test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复旧配置", {
+test("Consecutively queued Loops only let the newest command start the loop; old tasks do not restore old config", {
   timeout: 5000,
 }, async (t) => {
   let entered, release;
@@ -847,7 +847,7 @@ test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复�
         event.type === "user/message" &&
         event.surfaceOp === "append" &&
         JSON.stringify(event.data).includes(
-          "显式启动 Loop；验证配置以用户命令为准。",
+          "Loop started explicitly; the verification config follows the user command.",
         ),
     );
   assert.equal(starts.length, 1);
@@ -855,7 +855,7 @@ test("连续排队Loop只允许最新命令启动循环，旧任务不会恢复�
 });
 
 
-test('真实宿主任务开始显示运行卡片，结束隐藏，状态读取不追加会话消息', async t => {
+test('Real host task start shows the running card, end hides it, and status reads append no session messages', async t => {
   let release;
   const gate = new Promise(resolve => { release = resolve; });
   const { ctx, agent, say, run } = await setup(t, async () => { await gate; return '任务完成'; }, true);

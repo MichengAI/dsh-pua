@@ -1,6 +1,6 @@
 import type { ActivitySnapshot, ConfigurationSnapshot, PuaRemoteApi } from './remote-contract.js';
 
-/** 聊天入口独立读取全局可见性；新会话未就绪时快速重试，稳定后低频同步。 */
+/** The chat entry reads global visibility on its own; it retries quickly while a new session is not ready and syncs at low frequency once stable. */
 export function watchComposerConfiguration(
   remote: Pick<PuaRemoteApi, 'getGlobal' | 'getSession'>,
   sessionId: string,
@@ -18,7 +18,7 @@ export function watchComposerConfiguration(
     clearTimeout(timer);
     pending = true;
     let failed = false;
-    // 不用 Promise.all 将可见性绑在 Agent 的加载生命周期上。
+    // Do not use Promise.all here: that would tie visibility to the agent load lifecycle.
     const global = Promise.resolve().then(() => remote.getGlobal()).then(result => {
       if (!result.ok) throw new Error(result.error.message);
       if (active) { onGlobal(result.value.values.enabled); onError(''); }
@@ -39,7 +39,7 @@ export function watchComposerConfiguration(
   return { refresh, dispose: () => { active = false; clearTimeout(timer); } };
 }
 
-/** 当前会话的短轮询；卸载后忽略在途结果，连接失败时不保留过期运行状态。 */
+/** Short polling for the current session; in-flight results are ignored after unmount and a failed connection never keeps stale running state. */
 export function watchActivity(remote: Pick<PuaRemoteApi, 'getActivity'>, sessionId: string,
   receive: (value: ActivitySnapshot | null) => void): () => void {
   let active = true;

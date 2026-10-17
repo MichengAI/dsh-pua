@@ -1,6 +1,6 @@
 ---
-description: "PUA 切换味道 — 从 15 种味道中选择，包括阿里/字节/华为/腾讯/Netflix/Musk/Jobs/Microsoft/钉内钉外。"
+description: "PUA flavor switch — choose from 15 flavors, including Alibaba/ByteDance/Huawei/Tencent/Netflix/Musk/Jobs/Microsoft/Ding-inside-Ding-outside."
 argument-hint: "[alibaba|bytedance|huawei|tencent|ding|...]"
 ---
 
-读取本次实际插件根目录下的 `skills/pua/references/flavors.md` 并让用户选择切换味道；根目录来自宿主的 `CLAUDE_PLUGIN_ROOT`（插件根目录）或本命令真实安装位置，不相对当前业务目录猜路径。支持 `ding` / `钉味` / `置身钉外` / `置身钉内`，写入 `~/.pua/config.json` 时保留其他字段。用户本任务明确锁定风味后，不因自动路由或失败升级覆盖其选择。
+Read `skills/pua/references/flavors.md` under this run's actual plugin root and let the user choose a flavor to switch to; the root comes from the host's `CLAUDE_PLUGIN_ROOT` (plugin root directory) or the real install location of this command — do not guess a path relative to the current business directory. Supports `ding` / `Ding flavor` / `Standing Outside the Ding` / `Standing Inside the Ding`; preserve other fields when writing `~/.pua/config.json`. Once the user explicitly locks in a flavor for this task, do not override that choice because of automatic routing or failure escalation.

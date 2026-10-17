@@ -1,8 +1,8 @@
 import type { ToolExecutionResult } from '@deepseek-ai/dsh-tools';
 
-export const TERMINAL_REVIEW_PROMPT = 'PUA · 终端状态待核验：输出包含非零退出、超时或 shell 异常结束的文本标记，但文本也可能由命令自行打印。先结合实际错误、当前子目标和必要的独立检查判断，再选择修复方法；不要仅凭标记宣称失败次数、升级压力或声称验收通过。';
+export const TERMINAL_REVIEW_PROMPT = 'PUA · Terminal state needs verification: the output carries text markers for a non-zero exit, a timeout, or an abnormally ended shell, but the command itself may have printed them. Judge against the real error, the current sub-goal, and whatever independent check you need before picking a fix; never claim a failure count, pressure escalation, or passing acceptance from a marker alone.';
 
-/** 持久终端仅返回文本时提供核验线索；绝不将可伪造的输出算成结构化失败。 */
+/** Gives a verification cue when a persistent terminal returns text only; forgeable output is never counted as a structured failure. */
 export function terminalTextNeedsReview(result: Readonly<ToolExecutionResult>): boolean {
   if (result.isError || typeof result.value !== 'string') return false;
   const value = result.value.trim();

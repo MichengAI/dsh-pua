@@ -1,16 +1,16 @@
 #!/bin/bash
-# PUA SubagentStop hook — 真正的 teardown 会计层
+# PUA SubagentStop hook - the real teardown accounting layer
 #
-# 职责（单一）：subagent 完成时写一条 accounting 到 teardown.jsonl
-# 不 block，不干扰主流程，纯 append-only 记录。
+# Responsibility (single): when a subagent finishes, append one accounting record to teardown.jsonl
+# Never blocks and never disturbs the main flow; pure append-only recording.
 #
-# 数据去向：
-#   $HOME/.claude/pua/teardown.jsonl   — 供 /pua:team-status 汇总
-#   $HOME/.claude/pua/active-agents.json — 从 in_progress 集合移除
+# Where the data goes:
+#   $HOME/.claude/pua/teardown.jsonl   - aggregated by /pua:team-status
+#   $HOME/.claude/pua/active-agents.json - removed from the in_progress set
 #
-# 输入字段（来自 Claude Code SubagentStop payload）：
+# Input fields (from the Claude Code SubagentStop payload):
 #   session_id, transcript_path, cwd, hook_event_name="SubagentStop"
-#   agent_id, agent_type, agent_transcript_path (SubagentStop 独有)
+#   agent_id, agent_type, agent_transcript_path (SubagentStop only)
 
 set -uo pipefail
 
@@ -20,7 +20,7 @@ HOOK_INPUT=$(cat)
 PUA_DIR="${HOME}/.claude/pua"
 mkdir -p "$PUA_DIR" 2>/dev/null || exit 0
 
-# 提取关键字段（全部 fail-safe 空字符串）
+# Extract the key fields (all fail-safe empty strings)
 AGENT_ID=$(echo "$HOOK_INPUT" | jq -r '.agent_id // ""' 2>/dev/null || echo "")
 AGENT_TYPE=$(echo "$HOOK_INPUT" | jq -r '.agent_type // ""' 2>/dev/null || echo "")
 SESSION_ID=$(echo "$HOOK_INPUT" | jq -r '.session_id // ""' 2>/dev/null || echo "")
@@ -44,7 +44,7 @@ jq -cn \
     ts: $ts
   }' >> "$PUA_DIR/teardown.jsonl" 2>/dev/null || true
 
-# 若 active-agents.json 存在，尝试从中移除 agent_id（best-effort）
+# If active-agents.json exists, try to remove agent_id from it (best-effort)
 ACTIVE_FILE="$PUA_DIR/active-agents.json"
 if [[ -f "$ACTIVE_FILE" ]] && [[ -n "$AGENT_ID" ]]; then
   TMP="$ACTIVE_FILE.tmp.$$"

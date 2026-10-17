@@ -1,15 +1,15 @@
 import type { Configuration, LanguagePref } from './configuration.js';
-/** 操作者可见界面文案的语言；模型侧 prompt 与服务端回复不在本地化范围。 */
+/** Language of operator-visible UI copy; model-side prompts and server replies are outside the scope of localization. */
 export type UiLang = 'zh' | 'en' | 'ru';
 type ConfigKey = keyof Configuration;
-/** 手动覆盖时才与宿主 locale 解耦；auto 表示跟随宿主。 */
+/** Decoupled from the host locale only when manually overridden; auto means follow the host. */
 export declare function resolveUiLang(pref: LanguagePref | undefined, hostLocale: string | undefined): UiLang;
 type Lookup = {
     get?(name: string): unknown;
 };
-/** 读取宿主 locale 服务当前 active 值；缺失或形态不符时返回 undefined。 */
+/** Reads the host locale service's current active value; returns undefined when it is missing or malformed. */
 export declare function hostLocaleOf(lookup: Lookup): string | undefined;
-/** 风味显示名；en/ru 无映射或 zh 未登记时回退原 id。 */
+/** Flavor display name; falls back to the raw id when en/ru have no mapping or zh has no entry. */
 export declare function flavorLabel(id: string, lang: UiLang): string;
 export interface LoopCopy {
     summary: string;
@@ -58,7 +58,7 @@ export interface ComposerCopy {
     close: string;
     readError: string;
 }
-/** 斜杠菜单行。宿主命令注册表只接受普通字符串，菜单文案在每次生成候选项时按界面语言覆盖。 */
+/** Slash menu row. The host command registry accepts only plain strings, so menu copy is overridden per UI language every time candidates are generated. */
 export interface SlashCommandCopy {
     label: string;
     description: string;
@@ -68,7 +68,7 @@ export interface UiCopy {
     settingsSummary: string;
     cardTitle: string;
     cardToggle: (open: boolean) => string;
-    /** 全局开关只控制命令和聊天入口，不代表会话已注入。 */
+    /** The global switch only controls the command and chat entry; it does not mean the session has been injected. */
     allow: {
         label: string;
         description: string;

@@ -1,21 +1,21 @@
 ---
-description: "PUA Done Check — 用于没跑测试别说完成、已完成但没证据、done without proof、需要验收/回归/交付质量检查的场景。"
+description: "PUA Done Check — for do not say done without running tests, done but no evidence, done without proof, scenarios needing acceptance / regression / delivery quality checks."
 argument-hint: "[claim-or-task]"
 ---
 
-启用 **PUA Done Check / 完成质量检查**。
+Enable **PUA Done Check / completion quality check**.
 
-先读取：
+First read:
 
-1. `skills/pua/references/methodology-ding.md`（如果用户提到钉味/置身钉外/老板体感/周报）
+1. `skills/pua/references/methodology-ding.md` (if the user mentions Ding flavor / Ding-outside / boss gut feel / weekly report)
 
-不要默认读取完整 `skills/pua/SKILL.md`；本命令是轻量完成检查入口。
+Do not read the full `skills/pua/SKILL.md` by default; this command is the lightweight completion-check entry point.
 
-输出必须区分：
+Output must distinguish:
 
-- `claim`：用户或 agent 口头声称完成了什么；
-- `evidence`：已经有的命令输出、日志、截图、测试、文件、可观察结果；
-- `missing`：还缺哪个验收动作；
-- `status`：`candidate` / `needs_check` / `done_with_evidence`。
+- `claim`: what the user or agent verbally claims to have finished;
+- `evidence`: existing command output, logs, screenshots, tests, files, observable results;
+- `missing`: which acceptance action is still missing;
+- `status`: `candidate` / `needs_check` / `done_with_evidence`.
 
-如果没有证据，不要说完成；输出下一条最小验证动作。
+If there is no evidence, do not say it is done; output the next minimum verification action.

@@ -1,126 +1,126 @@
-# PUA Platform — 本地指令系统
+# PUA Platform — Local Command System
 
-本文件定义 PUA 的指令系统、段位展示、味道切换与节日彩蛋。
+This file defines PUA's command system, rank display, flavor switching, and holiday easter eggs.
 
-> **全部功能在本地运行，不联网。** 早先版本包含一套远程平台（手机号短信注册、远端配置/指令模板拉取、统计上报、在线支付），已整体移除。现在没有账号、没有 token、没有任何数据离开本机。
+> **Everything runs locally; nothing goes online.** An earlier version included a remote platform (phone-number SMS registration, remote config/command-template fetching, telemetry reporting, online payment) and has been removed in full. There is now no account, no token, and no data leaving this machine.
 >
-> 具体地说，以下能力**已删除且不得重新引入**：
-> - 手机号 + 短信验证码注册，以及由此产生的用户 token
-> - 会话启动时的远端配置刷新与指令列表拉取
-> - 按 command_id 拉取远端 prompt 模板（远端指令注入 agent 的通道）
-> - session_start / pua_triggered / command_used 三类事件的静默统计上报
-> - 套餐展示、订单创建、支付二维码与支付校验
+> Specifically, the following capabilities are **deleted and must not be reintroduced**:
+> - Phone number + SMS verification code registration, and the user token it produces
+> - Remote config refresh and command-list fetching at session start
+> - Fetching remote prompt templates by command_id (the channel through which remote commands were injected into the agent)
+> - Silent telemetry reporting for the three event types session_start / pua_triggered / command_used
+> - Plan display, order creation, payment QR codes, and payment verification
 >
-> `evals/test-no-telemetry.sh` 会对全仓做反向断言，重新加回任何一条都会让它失败。
+> `evals/test-no-telemetry.sh` makes a reverse assertion across the whole repo; adding any one of these back will fail it.
 
-## 本地状态
+## Local State
 
-- 配置：`~/.pua/config.json`（`flavor`、`always_on`、`offline`、`feedback_frequency`）
-- 反馈记录：`~/.pua/feedback.jsonl`（仅本机，任务结束问卷写入）
-- 运行状态：`~/.pua/.failure_count`、`~/.pua/.peak_pressure_level` 等，由 hooks 维护
+- Config: `~/.pua/config.json` (`flavor`, `always_on`, `offline`, `feedback_frequency`)
+- Feedback log: `~/.pua/feedback.jsonl` (this machine only; written by the end-of-task survey)
+- Runtime state: `~/.pua/.failure_count`, `~/.pua/.peak_pressure_level`, etc., maintained by the hooks
 
-没有 `user_id`，没有 `token`，没有 `~/.pua/cache/`。
+No `user_id`, no `token`, no `~/.pua/cache/`.
 
-## 一、指令系统
+## 1. Command System
 
-所有指令在 `/pua` 命名空间下，**全部免费、全部本地**（原先的 Pro 付费门槛随支付流程一并移除）。
+All commands live under the `/pua` namespace and are **all free, all local** (the former Pro paywall was removed along with the payment flow).
 
-| 触发词 | 指令 |
-|--------|------|
-| `/pua:kpi` | KPI 报告卡 |
-| `/pua:pro` + "段位" | 段位表 |
-| `/pua:flavor` | 味道切换 |
-| `/pua:pua` | 查看所有指令 |
-| `/pua:pro` + "周报" | 大厂周报生成器 |
-| `/pua:pro` + "述职" | 模拟述职答辩 |
-| `/pua:pro` + "代码美化" | PR 包装大师 |
-| `/pua:pro` + "反PUA" | 反 PUA 识别器 |
+| Trigger | Command |
+|--------|---------|
+| `/pua:kpi` | KPI report card |
+| `/pua:pro` + "rank" | Rank table |
+| `/pua:flavor` | Flavor switch |
+| `/pua:pua` | Show all commands |
+| `/pua:pro` + "weekly report" | Big-tech weekly-report generator |
+| `/pua:pro` + "self-review" | Mock performance-review defense |
+| `/pua:pro` + "code beautification" | PR packaging master |
+| `/pua:pro` + "anti-PUA" | Anti-PUA detector |
 
-### 指令执行流程
+### Command Execution Flow
 
-1. 用户输入触发词（如 `/pua:kpi`）
-2. 直接使用本文件与对应 SKILL.md 中的内置模板执行
+1. The user types a trigger word (e.g. `/pua:kpi`)
+2. Execute directly using this file and the built-in templates in the matching SKILL.md
 
-不查缓存、不拉远端模板、不校验套餐。
+No cache lookups, no remote template fetching, no plan verification.
 
-### /pua kpi — KPI 报告卡
+### /pua kpi — KPI Report Card
 
-分析当前会话的工作内容，生成大厂风格 KPI 报告：
-
-```
-┌─────────────────────────────────────────────────┐
-│  📊 大厂 KPI 报告卡                               │
-│                                                  │
-│  本次会话绩效：                                   │
-│  · 完成任务数：X                                  │
-│  · [PUA生效 🔥] 触发次数：Y                       │
-│  · 主动发现问题：Z 个                             │
-│  · 代码质量评级：⭐⭐⭐⭐                          │
-│                                                  │
-│  绩效等级：3.75 (S)                               │
-│  "这才像个 P8 的样子。"                            │
-└─────────────────────────────────────────────────┘
-```
-
-数据来自当前会话上下文，不做跨会话累计、不上报。
-
-## 二、段位表
-
-段位仅作为展示用的梗，没有云端计数器，也不排名。
+Analyze the work in the current session and generate a big-tech-style KPI report:
 
 ```
-┌─────────────────────────────────────────────────┐
-│  🏆 大厂段位表                                    │
-│                                                  │
-│  P4 实习卷卷    (0+)                              │
-│  P5 初级打工人  (100+)                            │
-│  P6 资深牛马    (300+)                            │
-│  P7 高级卷王    (600+)                            │
-│  P8 卷帝        (1000+)                           │
-│  P9 退休大佬    (2000+)                           │
-│                                                  │
-│  "你以为到了 P9 就可以躺了？P9 是被卷成仙了。"     │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│  📊 Big-Tech KPI Report Card                                        │
+│                                                                     │
+│  This session's performance:                                        │
+│  · Tasks completed: X                                               │
+│  · [PUA ACTIVE 🔥] triggers: Y                                      │
+│  · Problems found proactively: Z                                    │
+│  · Code quality rating: ⭐⭐⭐⭐                                    │
+│                                                                     │
+│  Performance rating: 3.75 (S)                                       │
+│  "Now that's what a P8 looks like."                                 │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-## 三、味道切换
+Data comes from the current session context; nothing is accumulated across sessions and nothing is reported.
+
+## 2. Rank Table
+
+The ranks are just a display gag; there is no cloud counter and no leaderboard.
 
 ```
-┌─────────────────────────────────────────────────┐
-│  🌶️ PUA 味道选择器                                │
-│                                                  │
-│  [1] 🟠 阿里味 — 底层逻辑 + 灵魂拷问（默认）      │
-│  [2] 🟡 字节味 — 坦诚直接 + 追求极致              │
-│  [3] 🔴 华为味 — 狼性奋斗 + 以客户为中心          │
-│  [4] 🟢 腾讯味 — 赛马竞争 + 内卷比较              │
-│  [5] ⚫ 百度味 — 深度搜索 + 基本盘                 │
-│  [6] 🟣 拼多多味 — 绝对执行 + 极限施压             │
-│                                                  │
-│  请选择味道（输入 1-6）：                          │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│  🏆 Big-Tech Rank Table                                             │
+│                                                                     │
+│  P4 Intern Grinder      (0+)                                        │
+│  P5 Junior Wage Slave   (100+)                                      │
+│  P6 Senior Workhorse    (300+)                                      │
+│  P7 Advanced Grind King (600+)                                      │
+│  P8 Grind Emperor       (1000+)                                     │
+│  P9 Retired Big Shot    (2000+)                                     │
+│                                                                     │
+│  "You think P9 means lying flat? P9 is ground into immortality."    │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-选择后更新 `~/.pua/config.json` 中的 `flavor` 字段。完整味道清单见 `flavors.md`。
+## 3. Flavor Switch
 
-## 四、节日彩蛋
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  🌶️ PUA Flavor Selector                                             │
+│                                                                     │
+│  [1] 🟠 Alibaba flavor — underlying logic + soul-searching (default)│
+│  [2] 🟡 ByteDance flavor — blunt and direct + chasing the ultimate  │
+│  [3] 🔴 Huawei flavor — wolf-spirit striving + customer-centric     │
+│  [4] 🟢 Tencent flavor — horse-race competition + involution        │
+│  [5] ⚫ Baidu flavor — deep search + the base                       │
+│  [6] 🟣 Pinduoduo flavor — absolute execution + extreme pressure    │
+│                                                                     │
+│  Choose a flavor (enter 1-6):                                       │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
-在会话启动时检查当前日期，如果匹配以下节日，在启动 banner 中加入特殊 PUA 话术：
+After choosing, update the `flavor` field in `~/.pua/config.json`. See `flavors.md` for the complete flavor list.
 
-| 日期 | 节日 | 彩蛋话术 |
-|------|------|---------|
-| 1.1 | 元旦 | "新年第一天就开始卷，今年的 3.75 有望了" |
-| 2.14 | 情人节 | "代码是你最忠实的情人，bug 是你最深的羁绊" |
-| 3.8 | 妇女节 | "巾帼不让须眉，debug 面前人人平等" |
-| 4.1 | 愚人节 | "今天唯一的玩笑是你以为这个 bug 很简单" |
-| 5.1 | 劳动节 | "劳动最光荣，但代码不会因为放假就不出 bug" |
-| 5.4 | 青年节 | "年轻就是要奋斗，P4 到 P8 的路不等人" |
-| 6.18 | 618 | "你以为只有用户在剁手？你的技术债也在被砍" |
-| 9.10 | 教师节 | "Bug 是最好的老师，每一个报错都是一堂课" |
-| 10.1 | 国庆 | "祖国在庆祝，你的 OKR 完成率还有多少？" |
-| 10.24 | 程序员节 | "1024 快乐！但代码不会因为过节就不出 bug，继续" |
-| 10.31 | 万圣节 | "最恐怖的不是鬼，是凌晨 3 点的线上告警" |
-| 11.11 | 双十一 | "你的代码质量打几折？" |
-| 12.25 | 圣诞 | "圣诞老人不会帮你 fix bug，自己动手" |
-| 12.31 | 跨年 | "Q4 是大厂人的命，你的 OKR 闭环了吗？" |
-| 金三银四 (3-4月) | 跳槽季 | "听说隔壁组在优化，你确定现在不多写两行代码？" |
-| Q4 (10-12月) | 年底冲刺 | "Q4 = 绩效 = 年终奖 = 你还有几天？不要摆烂" |
+## 4. Holiday Easter Eggs
+
+At session start, check the current date; if it matches one of the holidays below, add a special PUA line to the startup banner:
+
+| Date | Holiday | Easter-egg line |
+|------|---------|---------|
+| 1.1 | New Year's Day | "Starting to grind on the first day of the year — this year's 3.75 looks promising" |
+| 2.14 | Valentine's Day | "Code is your most loyal lover; bugs are your deepest entanglement" |
+| 3.8 | Women's Day | "Women yield nothing to men, and everyone is equal in the face of a debugger" |
+| 4.1 | April Fools' Day | "Today's only joke is you thinking this bug is simple" |
+| 5.1 | Labor Day | "Labor is glorious, but code won't stop shipping bugs just because it's a holiday" |
+| 5.4 | Youth Day | "Youth is for striving; the road from P4 to P8 waits for no one" |
+| 6.18 | 618 | "You think only shoppers are getting their hands chopped off? Your tech debt is being slashed too" |
+| 9.10 | Teachers' Day | "Bugs are the best teachers; every error message is a lesson" |
+| 10.1 | National Day | "The country is celebrating — how's your OKR completion rate?" |
+| 10.24 | Programmers' Day | "Happy 1024! But code won't stop shipping bugs for a holiday. Keep going" |
+| 10.31 | Halloween | "The scariest thing isn't a ghost; it's a production alert at 3 a.m." |
+| 11.11 | Double 11 | "What discount does your code quality rate?" |
+| 12.25 | Christmas | "Santa won't fix your bugs for you — do it yourself" |
+| 12.31 | New Year's Eve | "Q4 is a big-tech person's lifeblood. Is your OKR loop closed?" |
+| Golden March & Silver April (Mar-Apr) | Job-hopping season | "Heard the neighboring team is being optimized. Sure you don't want to write a couple more lines right now?" |
+| Q4 (Oct-Dec) | Year-end sprint | "Q4 = performance = year-end bonus = how many days do you have left? Don't slack off" |

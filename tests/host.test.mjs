@@ -30,7 +30,7 @@ const prompt = async (ctx, a) => {
   return renderPrompt(assembly);
 };
 
-test('真实命令和提示词服务：默认关闭、显式激活、选择风味、关闭、卸载', async t => {
+test('Real command and prompt services: off by default, explicit activation, flavor selection, off, unload', async t => {
   const { ctx, installed } = await setup(t);
   const a = agent();
   assert.equal(await prompt(ctx, a), '');
@@ -39,22 +39,22 @@ test('真实命令和提示词服务：默认关闭、显式激活、选择风�
   assert.equal((await run(ctx, a, '/pua 修复登录')).result.kind, 'success');
   assert.equal(a.messages[0].mode, 'followup');
   const sourceName = source => source.kind === 'plugin' ? source.plugin : source.kind.slice('plugin:'.length);
-  assert.equal(sourceName(a.messages[0].source), '@michengai/dsh-pua');
+  assert.equal(sourceName(a.messages[0].source), '@phucnd0604/dsh-pua-en');
   assert.match(a.messages[0].content[0].text, /修复登录/);
   const active = await prompt(ctx, a);
-  assert.match(active, /华为/);
+  assert.match(active, /Huawei/);
   assert.match(active, /PUA-DIAGNOSIS/);
-  assert.doesNotMatch(active, /## 2\. 🟡 字节味/);
+  assert.doesNotMatch(active, /## 2\. 🟡 ByteDance Flavor/);
   assert.equal((await run(ctx, a, '/pua off')).result.kind, 'success');
-  assert.match(await prompt(ctx, a), /已关闭/);
-  assert.doesNotMatch(await prompt(ctx, a), /军令状/);
+  assert.match(await prompt(ctx, a), /PUA mode is off/);
+  assert.doesNotMatch(await prompt(ctx, a), /written-pledge mode/);
   assert.equal(a.messages.length, 1);
   await installed.dispose();
   assert.equal(ctx.commands.find(a, 'pua'), undefined);
   assert.equal(await prompt(ctx, a), '');
 });
 
-test('隔离与恢复：相同目录的不同会话不串状态，同会话重建恢复，分叉不继承', async t => {
+test('Isolation and restore: different sessions in the same directory do not cross state; rebuilding the same session restores; a fork inherits nothing', async t => {
   const { ctx } = await setup(t);
   const a = agent('a');
   await run(ctx, a, '/pua on');
@@ -62,15 +62,15 @@ test('隔离与恢复：相同目录的不同会话不串状态，同会话重�
   assert.equal(await prompt(ctx, agent('b')), '');
   const history = JSON.parse(JSON.stringify(a.session.snapshotEvents()));
   const restored = agent('a', history);
-  assert.match(await prompt(ctx, restored), /军令状/);
+  assert.match(await prompt(ctx, restored), /written-pledge mode/);
   const fork = agent('fork', history, { parentSession: 'a' }, history.length);
-  assert.match(await prompt(ctx, fork), /已关闭/);
-  assert.doesNotMatch(await prompt(ctx, fork), /军令状/);
+  assert.match(await prompt(ctx, fork), /PUA mode is off/);
+  assert.doesNotMatch(await prompt(ctx, fork), /written-pledge mode/);
   await run(ctx, restored, '/pua off');
-  assert.match(await prompt(ctx, a), /军令状/);
+  assert.match(await prompt(ctx, a), /written-pledge mode/);
 });
 
-test('空命令与质量入口投递当前步骤；开关、状态和帮助不发起模型调用', async t => {
+test('The empty command and quality entries deliver the current step; switch, status, and help start no model call', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   for (const command of ['on', 'status', 'help', 'flavor', 'off']) {
@@ -82,11 +82,11 @@ test('空命令与质量入口投递当前步骤；开关、状态和帮助不�
   }
   assert.equal(a.messages.length, 4);
   assert.ok(a.messages.every(m => m.mode === 'steer'));
-  assert.match(a.messages[2].content[0].text, /验收/);
-  assert.match(a.messages[3].content[0].text, /证据/);
+  assert.match(a.messages[2].content[0].text, /completion quality check/);
+  assert.match(a.messages[3].content[0].text, /evidence/);
 });
 
-test('取消、参数错误和投递失败不激活；失败状态不在重启后恢复', async t => {
+test('Cancellation, argument errors, and delivery failures do not activate; failure state is not restored after a restart', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   for (const command of ['/pua flavor ../../secret', '/pua off all']) {
@@ -94,24 +94,24 @@ test('取消、参数错误和投递失败不激活；失败状态不在重启�
   }
   const aborted = AbortSignal.abort();
   await assert.rejects(() => run(ctx, a, '/pua on', aborted));
-  a.steer = () => { throw new Error('入队失败'); };
+  a.steer = () => { throw new Error('enqueue failed'); };
   assert.equal((await run(ctx, a, '/pua')).result.kind, 'error');
   assert.equal(await prompt(ctx, a), '');
   assert.equal(await prompt(ctx, agent('a', a.session.snapshotEvents())), '');
 });
 
-test('并发命令保持先后状态，不恢复未完成的命令', async t => {
+test('Concurrent commands keep their sequential state and do not restore an unfinished command', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   await Promise.all([run(ctx, a, '/pua on'), run(ctx, a, '/pua flavor huawei'), run(ctx, a, '/pua off')]);
-  assert.match(await prompt(ctx, a), /已关闭/);
+  assert.match(await prompt(ctx, a), /PUA mode is off/);
   const restored = agent('a', a.session.snapshotEvents());
-  assert.match(await prompt(ctx, restored), /已关闭/);
+  assert.match(await prompt(ctx, restored), /PUA mode is off/);
   restored.session.append('command/run', { commandId: 'incomplete', name: 'pua', args: ' on', source: { kind: 'user' } });
-  assert.match(await prompt(ctx, restored), /已关闭/);
+  assert.match(await prompt(ctx, restored), /PUA mode is off/);
 });
 
-test('误输入不唤醒或激活；重复前缀风味列表不被发成任务', async t => {
+test('Mistyped input neither wakes nor activates; a repeated-prefix flavor list is not submitted as a task', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   for (const line of ['/pua in', '/pua onn', '/pua loop']) assert.equal((await run(ctx, a, line)).result.kind, 'error');
@@ -120,36 +120,36 @@ test('误输入不唤醒或激活；重复前缀风味列表不被发成任务',
   assert.equal(await prompt(ctx, a), '');
 });
 
-test('升级后按历史成功结果恢复旧版误输入，不用新语法重写既有开关', async t => {
+test('After upgrade, legacy mistyped input is recovered from the historical success result, and existing switches are not rewritten with new syntax', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   a.session.append('command/run', { commandId: 'legacy', name: 'pua', args: ' pua flavor', source: { kind: 'user' } });
   a.session.append('command/done', { commandId: 'legacy', kind: 'success', text: 'PUA · 已提交任务请求，风味：阿里。请查看 Agent 后续结果。' });
   assert.match(await prompt(ctx, a), /PUA-DIAGNOSIS/);
   await run(ctx, a, '/pua off');
-  assert.match(await prompt(ctx, a), /已关闭/);
+  assert.match(await prompt(ctx, a), /PUA mode is off/);
 });
 
-test('原版快速入口的输出协议进入实际投递内容', async t => {
+test('The original fast entry point output protocol enters the actual delivered content', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   await run(ctx, a, '/pua again');
-  assert.match(a.messages[0].content[0].text, /路径 A/);
-  assert.match(a.messages[0].content[0].text, /路径 B/);
+  assert.match(a.messages[0].content[0].text, /Path A/);
+  assert.match(a.messages[0].content[0].text, /Path B/);
   await run(ctx, a, '/pua done-check');
   for (const key of ['claim', 'evidence', 'missing', 'done_with_evidence']) assert.ok(a.messages[1].content[0].text.includes(key));
   await run(ctx, a, '/pua evidence');
   assert.match(a.messages[2].content[0].text, /needs_check/);
 });
 
-test('审查入口发送只读任务，缺少 Git 服务时明确标注证据不可用', async t => {
+test('The review entry sends a read-only task and clearly marks evidence as unavailable when the Git service is missing', async t => {
   const { ctx } = await setup(t);
   const a = agent();
   assert.equal((await run(ctx, a, '/pua review')).result.kind, 'success');
   assert.equal(a.messages.length, 1);
   assert.equal(a.messages[0].mode, 'followup');
-  assert.match(a.messages[0].content[0].text, /只读审查/);
-  assert.match(a.messages[0].content[0].text, /未获取 Git 证据/);
+  assert.match(a.messages[0].content[0].text, /read-only review/);
+  assert.match(a.messages[0].content[0].text, /No Git evidence collected/);
 });
 
 function delayedSubprocess(ctx) {
@@ -162,13 +162,13 @@ function delayedSubprocess(ctx) {
       spec.signal.addEventListener('abort', () => resolve({ exitCode: null, signal: 'SIGTERM' }), { once: true });
     });
     start();
-    // 空根目录使预检停止，便于精确控制唯一的异步等待点。
+    // An empty root directory stops the precheck, making the single async wait point precisely controllable.
     return { done, collected: { stdout: { readFrom: () => ({ text: '', lossy: false }) } } };
   } });
   return { started, release: () => release() };
 }
 
-test('审查预检等待期间不激活；晚到的 off 在审查完成及重建后仍生效', async t => {
+test('No activation while the review precheck waits; a late off still takes effect after review completion and rebuild', async t => {
   const { ctx } = await setup(t);
   const delayed = delayedSubprocess(ctx);
   const a = agent();
@@ -179,11 +179,11 @@ test('审查预检等待期间不激活；晚到的 off 在审查完成及重建
   delayed.release();
   assert.equal((await reviewing).result.kind, 'success');
   assert.equal(a.messages.length, 1);
-  assert.match(await prompt(ctx, a), /已关闭/);
-  assert.match(await prompt(ctx, agent('restored', a.session.snapshotEvents())), /已关闭/);
+  assert.match(await prompt(ctx, a), /PUA mode is off/);
+  assert.match(await prompt(ctx, agent('restored', a.session.snapshotEvents())), /PUA mode is off/);
 });
 
-test('宿主拒绝激活期根事件时仍注册 /pua', async t => {
+test('/pua is still registered when the host denies root events during activation', async t => {
   const ctx = new Context();
   new CommandRuntime(ctx);
   new SystemPrompt(ctx, { includeHarnessIdentity: false });
@@ -218,7 +218,7 @@ test('宿主拒绝激活期根事件时仍注册 /pua', async t => {
   assert.equal((await run(ctx, a, '/pua help')).result.kind, 'success');
 });
 
-test('根事件的其他错误仍阻止激活', async t => {
+test('Other root-event errors still block activation', async t => {
   const ctx = new Context();
   new CommandRuntime(ctx);
   new SystemPrompt(ctx, { includeHarnessIdentity: false });
@@ -244,7 +244,7 @@ test('根事件的其他错误仍阻止激活', async t => {
   await assert.rejects(ctx.plugin(plugin).await(), /root listener failed/);
 });
 
-test('预检期间取消或卸载，不投递任务且不恢复开启状态', async t => {
+test('Cancel or unload during the precheck delivers no task and does not restore the enabled state', async t => {
   for (const mode of ['cancel', 'unload']) {
     const { ctx, installed } = await setup(t);
     const delayed = delayedSubprocess(ctx);

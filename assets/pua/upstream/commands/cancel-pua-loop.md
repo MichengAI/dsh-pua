@@ -1,15 +1,15 @@
 ---
-description: "取消当前活跃的 PUA Loop（原子级联：state + worktree + 记录）。/pua:cancel-pua-loop。Triggers on: '/pua:cancel-pua-loop', 'cancel pua loop', '取消 pua 循环', '停掉 loop'."
+description: "Cancel the currently active PUA Loop (atomic cascade: state + worktree + record). /pua:cancel-pua-loop. Triggers on: '/pua:cancel-pua-loop', 'cancel pua loop', 'stop pua loop', 'kill the loop'."
 allowed-tools: ["Bash(test:*)", "Bash(rm:*)", "Bash(ls:*)", "Bash(find:*)", "Bash(date:*)", "Bash(mkdir:*)", "Bash(grep:*)", "Bash(cat:*)"]
 ---
 
-# Cancel PUA Loop — 原子级联取消
+# Cancel PUA Loop — atomic cascade cancel
 
-v3 语义：不只是删 state，还要清理相关资源、记录 teardown 事件。保证幂等。
+v3 semantics: not just deleting state, but also cleaning the related resources and recording a teardown event. Guaranteed idempotent.
 
-## 执行步骤
+## Steps
 
-1. **扫描所有可能的 loop state**：
+1. **Scan every possible loop state**:
    ```bash
    mkdir -p "$HOME/.claude/pua"
    LOOP_FILES=$(find "$HOME/.claude/pua/" -name "loop-*.md" 2>/dev/null)
@@ -17,46 +17,46 @@ v3 语义：不只是删 state，还要清理相关资源、记录 teardown 事�
    test -f .claude/pua-loop.local.md && LEGACY_FILE=".claude/pua-loop.local.md"
    ```
 
-2. **若全部为空**：
+2. **If all of them are empty**:
    > No active PUA loop found.
 
-3. **若存在**：
-   - 对每个文件读一下 iteration（grep `^iteration:`）
-   - 删除文件：
+3. **If any exist**:
+   - For each file, read the iteration (grep `^iteration:`)
+   - Delete the files:
      ```bash
      find "$HOME/.claude/pua/" -name "loop-*.md" -delete 2>/dev/null
      rm -f .claude/pua-loop.local.md 2>/dev/null
      ```
-   - 清 active-agents 记录：
+   - Clear the active-agents record:
      ```bash
      rm -f "$HOME/.claude/pua/active-agents.json" 2>/dev/null
      ```
-   - 记录取消事件：
+   - Record the cancel event:
      ```bash
      echo "{\"event\":\"loop_cancelled\",\"iteration_at_cancel\":<N>,\"ts\":\"$(date -u +%FT%TZ)\"}" \
        >> "$HOME/.claude/pua/teardown.jsonl"
      ```
 
-4. **输出报告**：
+4. **Output report**:
 
    ```
    > [PUA CANCEL] Loop cancelled:
    >   - loop-<session>.md (was at iteration N)
    >   - active-agents.json cleared
-   > 已落盘到 ~/.claude/pua/teardown.jsonl
+   > Written to ~/.claude/pua/teardown.jsonl
    ```
 
-## 设计原则
+## Design principles
 
-- **原子性**：要么全清要么不动，不允许"删了 state 但漏了 active-agents"
-- **幂等性**：重复执行无副作用（rm -f / find -delete 对不存在的路径不报错）
-- **可观测**：所有取消事件落盘 teardown.jsonl，便于复盘
+- **Atomicity**: all cleared or nothing touched; "state deleted but active-agents missed" is not allowed
+- **Idempotency**: repeated runs have no side effects (rm -f / find -delete do not error on non-existent paths)
+- **Observability**: every cancel event lands in teardown.jsonl, convenient for retrospectives
 
-## 与其他命令对比
+## Compared with other commands
 
-| 命令 | 停 loop | 清 worktree | 清 config | 场景 |
+| Command | Stop loop | Clear worktree | Clear config | Scenario |
 |------|---------|------------|----------|------|
-| `/pua:cancel-pua-loop` | ✅ | ❌ | ❌ | 单次刹车 |
-| `/pua:off` | ✅ | ❌ | ✅ | 下班 |
-| `/pua:teardown-all` | ✅ | ✅ | ❌ | 彻底收工 |
-| `/pua:reap-orphans` | 仅 stale | ❌ | ❌ | 定期保洁 |
+| `/pua:cancel-pua-loop` | ✅ | ❌ | ❌ | Single brake |
+| `/pua:off` | ✅ | ❌ | ✅ | Off work |
+| `/pua:teardown-all` | ✅ | ✅ | ❌ | Full wrap-up |
+| `/pua:reap-orphans` | stale only | ❌ | ❌ | Periodic housekeeping |

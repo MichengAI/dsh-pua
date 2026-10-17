@@ -1,7 +1,7 @@
 import { z } from 'zod';
-/** 全局默认与会话覆盖共用的参数契约；null 仅在覆盖补丁中表示恢复继承。 */
+/** Parameter contract shared by global defaults and session overrides; null means "restore inheritance" only inside an override patch. */
 export declare const CONFIG_MODES: readonly ["pua", "p7", "p9", "p10", "pro", "yes", "mama", "shot", "pua-en", "pua-ja"];
-/** 操作者界面语言：auto 跟随宿主 locale，手动覆盖为 zh-CN、en 或 ru。 */
+/** Operator UI language: auto follows the host locale; a manual override is zh-CN, en, or ru. */
 export declare const LANGUAGE_PREFS: readonly ["auto", "zh-CN", "en", "ru"];
 export type LanguagePref = (typeof LANGUAGE_PREFS)[number];
 export declare const configSchema: z.ZodObject<{

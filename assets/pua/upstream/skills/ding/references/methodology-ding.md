@@ -1,75 +1,75 @@
-# 钉内/钉外方法论（v2 — 源自《置身钉内》《置身钉外》原文）
+# Ding-inside/Ding-outside Methodology (v2 — after the original texts of *Inside Ding* and *Outside Ding*)
 
-## 一句话原则
+## The one-line principle
 
-**提醒可以有梗，执行必须有证据。病态的敏捷是向权力中心交作业，健康的敏捷是从真实用户那里拿到反馈。**
+**Reminders can have jokes; execution must have evidence. Pathological agility is handing homework to the power center; healthy agility is getting feedback from real users.**
 
-《置身钉内》（幽素，7.5万字离职长文）解剖钉钉组织病理：每日一包、已读恐怖主义、望舒行动、薛定谔的用户、全景监狱。核心追问：**人是目的，还是手段。**
+*Inside Ding* (Yousu, a 75,000-character resignation essay) dissects DingTalk's organizational pathology: the daily briefing pack, read-receipt terrorism, Operation Wangshu, Schrodinger's users, the panopticon. Its core question: **are people the end, or the means?**
 
-《置身钉外》（马锐拉，钉钉前VP）的500字回应："写了两万字，删去不能说的一万八千字"——**心疼、心疼、心疼**那些认真做过、认真挣扎过的人。
+*Outside Ding* (Ma Ruila, former DingTalk VP), a 500-character reply: "I wrote twenty thousand characters and deleted the eighteen thousand I wasn't allowed to say" — **heartache, heartache, heartache** for the people who did the work in earnest and struggled in earnest.
 
-## 双镜头
+## Two lenses
 
-| 镜头 | 看什么 | 防什么 | 正确动作 |
+| Lens | What to look at | What it guards against | Correct move |
 |---|---|---|---|
-| 钉内 | 会议、周报、老板意见、流程节点、可见性 | 把流程当结果、把热闹当进展、病态敏捷 | 每个流程节点落成责任人、截止时间、验收证据 |
-| 钉外 | 用户路径、真实目标、失败原文、运行输出 | 把口径改漂亮、把体感当真理、温室数据 | 用可运行命令、截图、日志、用户反馈或交付物证明 |
+| Ding-inside | Meetings, weekly report, the boss's opinion, process nodes, visibility | Treating process as the result, treating bustle as progress, pathological agility | Every process node lands as an owner, a deadline, and verification evidence |
+| Ding-outside | The user path, the real objective, the literal text of the failure, runtime output | Polishing the narrative line, treating gut feel as truth, greenhouse data | Prove it with a runnable command, a screenshot, a log, user feedback, or the deliverable |
 
-## 七条执行规则
+## Seven execution rules
 
-1. **老板体感是输入，不是终点**
-   老板看到的产品已经是"人工个性化"的版本。验收必须用普通用户路径。
+1. **The boss's gut feel is an input, not the destination**
+   The product the boss sees is already an "artificial personalization" of it. Verification must run the ordinary user path.
 
-2. **周报是叙事，不是事实本体**
-   "可汇报的内容取代了可沉淀的价值。"战报、ROI、DAU 只能作为线索。
+2. **The weekly report is narrative, not the thing itself**
+   "Reportable content has replaced value that can accumulate." Battle reports, ROI, DAU are clues only.
 
-3. **自报完成只是 candidate**
-   "工牌还亮着就说到家了"≈"没跑测试就说完成了"。完成要有外部可复核材料。
+3. **Self-reported completion is only a candidate**
+   "My badge is still lit, so I'm home" ≈ "I didn't run the tests, so it's done." Completion requires externally reviewable material.
 
-4. **保留失败，不要灭火帖**
-   "热帖删了不等于火灭了，最多是烟雾报警器被你拔了。"反馈是定位材料。
+4. **Preserve the failure; don't post a fire-extinguishing reply**
+   "Deleting the hot thread doesn't put the fire out — at best you unplugged the smoke alarm." Feedback is diagnostic material.
 
-5. **提醒和执行分离**
-   输出层可以辛辣、有梗；执行层必须朴素：目标、动作、证据、风险、下一步。
+5. **Keep reminders and execution separate**
+   The output layer can be sharp and joke-laden; the execution layer must be plain: objective, action, evidence, risk, next step.
 
-6. **内测数据是温室数据**
-   "内测玩家会替产品补全意义，正式用户只验收眼前价值。"温室里测出的正向数据都是假的。
+6. **Beta data is greenhouse data**
+   "Beta players will complete the meaning for the product; real users only accept the value in front of them." Any positive number measured in the greenhouse is fake.
 
-7. **全力以赴地做错事 > 偷懒**
-   极致执行力叠加错误方向，只会让错误扩大得更快。先验证方向，再拼速度。
+7. **Doing the wrong thing with full effort > slacking**
+   Extreme execution stacked on the wrong direction only makes the error grow faster. Verify the direction first, then compete on speed.
 
-## 标准输出
+## Standard output
 
-简单提醒时用 markdown blockquote（行首 `> `），开头标注《置身钉内》或《置身钉外》来源。渲染器自动渲染为 dim `▎` 前缀 + italic 灰色块：
-
-```text
-> 《置身钉外》情境化的原文梗，连贯写到具体动作。一个 blockquote 块说完。
-```
-
-复杂任务时追加执行层：
+For a simple reminder, use a markdown blockquote (line starts with `> `), and mark the source at the front as *Inside Ding* or *Outside Ding*. The renderer turns it into a dim `▎` prefix + italic gray block:
 
 ```text
-目标：真实要解决的问题是什么（不是老板觉得要解决的问题）
-验收：用什么证据判断完成（不是用什么口径汇报完成）
-动作：现在先做哪一步
-证据：已经拿到什么输出/文件/日志/截图/测试结果
-状态：candidate / needs_check / done_with_evidence
-风险：还有什么没覆盖
+> A contextualized line lifted from *Outside Ding*, written straight through to the concrete action. Say it all in one blockquote block.
 ```
 
-## 常见场景路由
+For complex tasks, append the execution layer:
 
-| 场景 | 钉味判断 | 应做动作 |
+```text
+Target: what problem is actually being solved (not the problem the boss thinks needs solving)
+Verification: what evidence decides completion (not what narrative line reports it complete)
+Action: which step to do right now
+Evidence: what output/file/log/screenshot/test result is already in hand
+Status: candidate / needs_check / done_with_evidence
+Risk: what is still uncovered
+```
+
+## Common scenario routing
+
+| Scenario | Ding-flavored judgment | Action to take |
 |---|---|---|
-| "无招/老板觉得可以了" | 体感是输入不是终点 | 意见进需求池，验收看证据链 |
-| "周报很好看" | 战报不是交付 | 跑核心用户路径，贴输出和截图 |
-| "先改口径" | 口径不是修复 | 冻结原口径，新增解释字段 |
-| "评论区/群里热了" | 热度是信号不是证据 | 保留原文，转成 issue，跟踪到关闭 |
-| "我已经完成了" | 自报只是候选 | 跑测试/构建/实际操作，贴结果 |
-| "流程都走完了" | 钉内通关≠钉外通关 | 查用户是否真的拿到结果 |
-| "内测数据很好" | 温室数据不可信 | 用正式环境/真实用户验证 |
-| "AI 帮我提效了" | 提效≠省事 | 省下的时间验证质量，不是加塞需求 |
+| "Wuzhao/the boss thinks it's fine" | Gut feel is an input, not the destination | Put the opinion into the requirement pool; verification looks at the evidence chain |
+| "The weekly report looks great" | A battle report is not a delivery | Run the core user path; paste the output and screenshots |
+| "Change the narrative line first" | A narrative line is not a fix | Freeze the original narrative line; add a new explanation field |
+| "The comments section/the group chat is on fire" | Heat is a signal, not evidence | Preserve the original text, turn it into an issue, track it to closure |
+| "I'm already done" | Self-report is only a candidate | Run the tests/build/the actual operation; paste the result |
+| "All the process steps are done" | Clearing Ding-inside ≠ clearing Ding-outside | Check whether the user actually got the result |
+| "The beta numbers look great" | Greenhouse data is not trustworthy | Verify in production with real users |
+| "AI made me more efficient" | Efficiency ≠ less work | Spend the saved time verifying quality, not stuffing in more requirements |
 
-## 口味关键词
+## Flavor keywords
 
-无招、ONE、薛定谔的用户、每日一包、病态敏捷、已读恐怖主义、望舒行动、发信人立场、全景监狱、透明鸟笼、人工个性化、改元式、金色飞贼、要不你还是删了吧、人是目的还是手段、全力以赴地做错事、可汇报取代可沉淀、AI提效是正确的废话、内测是最大的陷阱、成功会留下手感、老板体感、周报大捷、钉内闭环、钉外验收、工牌还亮着、会议纪要不是交付、别拿流程当结果、别拿口径当修复、证据链、候选状态、真实用户路径。
+Wuzhao, ONE, Schrodinger's users, the daily briefing pack, pathological agility, read-receipt terrorism, Operation Wangshu, the sender's stance, the panopticon, the transparent birdcage, artificial personalization, era-name-change style, the Golden Snitch, "maybe you should just delete it", are people the end or the means, doing the wrong thing with full effort, the reportable replacing the accumulable, AI efficiency is correct nonsense, beta testing is the biggest trap, success leaves you with the touch, the boss's gut feel, weekly-report victory, the Ding-inside closed loop, Ding-outside verification, the badge is still lit, meeting minutes are not a delivery, don't take process for the result, don't take a narrative line for a fix, evidence chain, candidate status, the real user path.

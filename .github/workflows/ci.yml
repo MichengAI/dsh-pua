@@ -1,4 +1,4 @@
-name: 检查
+name: Check
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       full:
-        description: 执行完整检查
+        description: Run the full check suite
         type: boolean
         default: true
   workflow_call:
@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   changes:
-    name: 变更范围
+    name: Change scope
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            // 手动检查及发布调用始终执行完整检查；普通推送只跳过展示文档。
+            // Manual invocations and publish calls always run the full check; ordinary pushes only skip presentation docs.
             if (${{ inputs.full == true }}) {
               core.setOutput('run_tests', 'true');
               return;
@@ -55,7 +55,7 @@ jobs:
             const presentation = /^(?:README(?:\.[^/]+)?\.md|CHANGELOG(?:\.[^/]+)?\.md|docs\/.*|assets\/(?:branding|screenshots)\/.*)$/;
             const run = files.some(file => !presentation.test(file));
             core.setOutput('run_tests', String(run));
-            core.info(run ? '执行完整检查' : '仅说明或展示图片变更，跳过完整测试');
+            core.info(run ? 'Running full check' : 'Only docs or presentation images changed; skipping full tests');
 
   check:
     needs: changes

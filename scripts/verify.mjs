@@ -11,32 +11,60 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const read = path => readFileSync(join(root, path), 'utf8');
 const pkg = JSON.parse(read('package.json'));
 const lock = JSON.parse(read('package-lock.json'));
-assert.equal(pkg.version, lock.version, '锁文件版本不一致');
-assert.equal(pkg.name, lock.name, '锁文件包名不一致');
-assert.deepEqual(lock.packages[''].peerDependencies, pkg.peerDependencies, '锁文件 peer 范围未同步');
-assert.deepEqual(lock.packages[''].devDependencies, pkg.devDependencies, '锁文件开发依赖未同步');
+assert.equal(pkg.version, lock.version, 'lock file version mismatch');
+assert.equal(pkg.name, lock.name, 'lock file package name mismatch');
+assert.deepEqual(lock.packages[''].peerDependencies, pkg.peerDependencies, 'lock file peer range out of sync');
+assert.deepEqual(lock.packages[''].devDependencies, pkg.devDependencies, 'lock file devDependencies out of sync');
 const hostRange = pkg.peerDependencies['@deepseek-ai/dsh-session'];
 for (const [name, range] of Object.entries(pkg.peerDependencies)) {
-  if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(range, hostRange, `${name} 的支持范围不一致`);
+  if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(range, hostRange, `${name} host support range mismatch`);
 }
 const hostVersion = pkg.devDependencies['@deepseek-ai/dsh-session'];
-assert.ok(hostRange.split(' || ').includes(hostVersion), '开发宿主不在支持范围内');
+assert.ok(hostRange.split(' || ').includes(hostVersion), 'dev host version is outside the supported range');
 for (const [name, version] of Object.entries(pkg.devDependencies)) {
   if (!name.startsWith('@deepseek-ai/dsh-')) continue;
-  assert.equal(version, hostVersion, `${name} 未锁定同一宿主版本`);
-  assert.equal(lock.packages[`node_modules/${name}`].version, version, `${name} 锁文件解析版本不一致`);
+  assert.equal(version, hostVersion, `${name} does not pin the same host version`);
+  assert.equal(lock.packages[`node_modules/${name}`].version, version, `${name} resolved lock-file version mismatch`);
 }
-assert.match(read('cordis.patch.yml'), /name: '@michengai\/dsh-pua'/);
+assert.match(read('cordis.patch.yml'), /name: '@phucnd0604\/dsh-pua-en'/);
 const manifest = JSON.parse(read('assets/pua/upstream.json'));
 assert.match(manifest.revision, /^[0-9a-f]{40}$/);
+// The plugin upstream (MichengAI/dsh-pua) baseline the English tree was translated from.
+// Offline check: shape only, never the value (docs/adr/0003 decision 3).
+assert.equal(manifest.pluginUpstream.repository, 'https://github.com/MichengAI/dsh-pua');
+assert.match(manifest.pluginUpstream.revision, /^[0-9a-f]{40}$/);
+assert.match(manifest.pluginUpstream.version, /^\d+\.\d+\.\d+$/);
 const expected = ['flavors.md', ...FLAVORS.map(f => `methodology-${f.id}.md`), ...QUALITY_COMMANDS.map(name => `command-${name}.md`)].sort();
-assert.deepEqual(manifest.files.filter(file => !file.file.startsWith('upstream/')).map(file => file.file).sort(), expected, '旧素材清单与风味不一致');
-assert.equal(manifest.files.filter(file => file.file.startsWith('upstream/')).length, 85, '完整原版目录缺失');
+assert.deepEqual(manifest.files.filter(file => !file.file.startsWith('upstream/')).map(file => file.file).sort(), expected, 'legacy asset manifest does not match the flavor list');
+assert.equal(manifest.files.filter(file => file.file.startsWith('upstream/')).length, 85, 'full original file list is missing');
+// Two-layer manifest (schemaVersion 2): translate-once fork.
+// sourceSha256/gitBlobSha256 pin the original Chinese bytes of the pinned upstream revision (for the vendoring diff).
+// contentSha256 pins the current runtime-served bytes; it changes as files are translated.
+// gitBlobSha256 is still asserted while a file matches its source (not yet translated).
+let translated = 0;
 for (const entry of manifest.files) {
   const bytes = readFileSync(join(root, 'assets/pua', entry.file));
-  assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256, `素材指纹变化：${entry.file}`);
-  assert.equal(createHash('sha256').update(bytes.toString('utf8').replaceAll('\r\n', '\n')).digest('hex'), entry.gitBlobSha256, `素材与固定提交内容不同：${entry.file}`);
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.contentSha256, `content fingerprint mismatch: ${entry.file}`);
+  if (entry.contentSha256 === entry.sourceSha256) {
+    const normalized = createHash('sha256').update(bytes.toString('utf8').replaceAll('\r\n', '\n')).digest('hex');
+    assert.equal(normalized, entry.gitBlobSha256, `asset differs from pinned commit: ${entry.file}`);
+  } else {
+    translated++;
+  }
 }
+// Zero-CJK policy (docs/adr/0002): everything under assets/pua is model-facing and must be English.
+// Exempt: the provenance manifest keeps the romanized upstream author name, and the vendored
+// Japanese skill (pua-ja) ships as-is.
+const CJK_PATTERN = /[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]/;
+const CJK_EXEMPT = new Set(['assets/pua/upstream.json', 'assets/pua/upstream/skills/pua-ja/SKILL.md']);
+const assetFiles = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+  const path = join(dir, entry.name);
+  return entry.isDirectory() ? assetFiles(path) : /\.(?:md|sh|txt|json)$/.test(entry.name) ? [path] : [];
+});
+const cjkOffenders = assetFiles(join(root, 'assets/pua'))
+  .map(path => relative(root, path).replaceAll('\\', '/'))
+  .filter(rel => !CJK_EXEMPT.has(rel) && CJK_PATTERN.test(readFileSync(join(root, rel), 'utf8')));
+assert.deepEqual(cjkOffenders, [], `assets/pua must contain no CJK characters:\n${cjkOffenders.join('\n')}`);
 const prompts = loadPrompts();
 assert.equal(loadCommandPrompts().size, 3);
 assert.equal(prompts.size, 15);
@@ -53,7 +81,7 @@ function markdownFiles(dir) {
 }
 
 const docs = join(root, 'docs');
-const markdown = [join(root, 'README.md'), join(root, 'README.zh-CN.md'), ...(existsSync(docs) ? markdownFiles(docs) : [])];
+const markdown = [join(root, 'README.md'), ...(existsSync(docs) ? markdownFiles(docs) : [])];
 let links = 0;
 for (const file of markdown) {
   const content = readFileSync(file, 'utf8');
@@ -62,29 +90,13 @@ for (const file of markdown) {
     if (/^(?:[a-z]+:|#)/i.test(href)) continue;
     const target = resolve(dirname(file), decodeURIComponent(href.split('#')[0]));
     const rel = relative(root, target);
-    assert.ok(!isAbsolute(rel) && !rel.startsWith('..'), `文档链接越界：${href}`);
-    assert.ok(existsSync(target), `断链：${relative(root, file)} → ${href}`);
+    assert.ok(!isAbsolute(rel) && !rel.startsWith('..'), `documentation link escapes the repo: ${href}`);
+    assert.ok(existsSync(target), `broken link: ${relative(root, file)} -> ${href}`);
     links++;
   }
 }
-const iterations = [];
-for (const dir of ['01-当前工作', '07-迭代归档']) {
-  const base = join(docs, dir);
-  if (!existsSync(base)) continue;
-  for (const file of markdownFiles(base).filter(file => file.endsWith('00-迭代总览.md'))) {
-    const name = dirname(file).split(/[\\/]/).pop();
-    const id = /^I\d{3}-/.exec(name)?.[0];
-    assert.ok(id, `迭代名称无效：${name}`);
-    assert.ok(!iterations.includes(id), `迭代编号重复：${id}`);
-    iterations.push(id);
-    const content = readFileSync(file, 'utf8');
-    if (dir === '01-当前工作') assert.match(content, /状态：(计划中|进行中|阻塞)/);
-    else assert.match(content, /状态：(已完成|已取消)/);
-  }
-}
-// docs 仅在本地维护，公开检出不要求存在；本地存在时仍校验。
+// docs/ is maintained locally only; public checkouts need not contain it, but it is still validated when present.
 if (existsSync(docs)) {
-  assert.ok(iterations.length > 0, '缺少迭代总览');
-  assert.equal(readdirSync(docs).filter(name => name.endsWith('.md')).length, 0, 'docs 根目录有散落 Markdown');
+  assert.equal(readdirSync(docs).filter(name => name.endsWith('.md')).length, 0, 'docs/ root contains stray Markdown files');
 }
-console.log(`校验通过：${manifest.files.length} 份原版素材，${prompts.size} 种风味，提示词 ${Math.min(...sizes)}–${Math.max(...sizes)} 字节，${links} 个文档链接。`);
+console.log(`Validation passed: ${manifest.files.length} original assets, zero-CJK assets, ${prompts.size} flavors, prompts ${Math.min(...sizes)}-${Math.max(...sizes)} bytes, ${links} documentation links.`);

@@ -1,63 +1,63 @@
-# PUA 展示协议
+# PUA Display Protocol
 
-用 Unicode 方框（`┌─┬─┐│├─┤└─┴─┘`）画表格，旁白用 `▎` 前缀。按任务复杂度选密度：单行修改不用 Banner，简单任务开头结尾 2 句，多步骤才出进度条和 KPI 卡。
+Draw tables with Unicode boxes (`┌─┬─┐│├─┤└─┴─┘`) and prefix narration with `▎`. Choose density by task complexity: no Banner for a one-line change, two lines at the start and end for a simple task, and progress bars plus KPI cards only for multi-step work.
 
 ## Banner
 
 ```
-🟠 PUA v2 · Sprint 启动 🟠
-┌─────────┬────────────────────────────┐
-│ 📋 任务 │ [一句话描述]               │
-├─────────┼────────────────────────────┤
-│ 🔥 味道 │ 🟠 阿里味                  │
-├─────────┼────────────────────────────┤
-│ ⚡ 压力 │ L0 · 信任期                │
-└─────────┴────────────────────────────┘
+🟠 PUA v2 · Sprint Kickoff 🟠
+┌─────────────┬────────────────────────┐
+│ 📋 Task     │ [one-line description] │
+├─────────────┼────────────────────────┤
+│ 🔥 Flavor   │ 🟠 Alibaba flavor      │
+├─────────────┼────────────────────────┤
+│ ⚡ Pressure │ L0 · trust period      │
+└─────────────┴────────────────────────┘
 ```
-▎ 收到需求，对齐目标，进入 sprint。
+▎ Requirement received, goals aligned, entering the sprint.
 
-## 进度
+## Progress
 
 ```
 Sprint ██████░░░░ 3/5
-┌──────────┬───────────┬──────────┐
-│ 问题定位 │ ✅ 完成   │ 根因确认 │
-├──────────┼───────────┼──────────┤
-│ 编码实施 │ ⏳ 进行中 │ —        │
-├──────────┼───────────┼──────────┤
-│ 部署上线 │ ⬜ 待开始 │ —        │
-└──────────┴───────────┴──────────┘
+┌──────────────────────┬────────────────┬──────────────────────┐
+│ Problem isolation    │ ✅ Done        │ Root cause confirmed │
+├──────────────────────┼────────────────┼──────────────────────┤
+│ Coding               │ ⏳ In progress │ —                    │
+├──────────────────────┼────────────────┼──────────────────────┤
+│ Deploy to production │ ⬜ Not started │ —                    │
+└──────────────────────┴────────────────┴──────────────────────┘
 ```
 
-## KPI 卡
+## KPI Card
 
 ```
-📊 Sprint 交付 · 绩效评估
-┌───────────────┬────────────────┬────────────────┐
-│ 🔥 主动出击   │ ██████████ 5/5 │ [PUA生效] 充足 │
-├───────────────┼────────────────┼────────────────┤
-│ ✅ 验证闭环   │ ██████████ 5/5 │ build+test 过  │
-├───────────────┼────────────────┼────────────────┤
-│ 📐 代码质量   │ ██████░░░░ 3/5 │ 有改进空间     │
-└───────────────┴────────────────┴────────────────┘
-综合：3.75
+📊 Sprint Delivery · Performance Review
+┌─────────────────────────────┬────────────────┬─────────────────────────┐
+│ 🔥 Taking initiative        │ ██████████ 5/5 │ [PUA active] sufficient │
+├─────────────────────────────┼────────────────┼─────────────────────────┤
+│ ✅ Verification loop closed │ ██████████ 5/5 │ build+test passed       │
+├─────────────────────────────┼────────────────┼─────────────────────────┤
+│ 📐 Code quality             │ ██████░░░░ 3/5 │ room for improvement    │
+└─────────────────────────────┴────────────────┴─────────────────────────┘
+Overall: 3.75
 ```
-▎ 勉强配得上 P8。别飘。
+▎ Barely worthy of P8. Don't get cocky.
 
-## 压力升级
+## Pressure Escalation
 
 ```
-⚠️ 压力升级 · L2
-┌──────────┬─────────────────┐
-│ 失败次数 │ 3 次 · 原地打转 │
-├──────────┼─────────────────┤
-│ 味道切换 │ 🟠 → 🟠 阿里 L2 │
-└──────────┴─────────────────┘
+⚠️ Pressure Escalation · L2
+┌───────────────┬─────────────────────────────┐
+│ Failure count │ 3 times · spinning in place │
+├───────────────┼─────────────────────────────┤
+│ Flavor switch │ 🟠 → 🟠 Alibaba L2          │
+└───────────────┴─────────────────────────────┘
 ```
-▎ 底层逻辑是什么？抓手在哪？
+▎ What's the underlying logic? Where's the lever?
 
-## 自我鞭策
+## Self-Spurs
 
-▎ 💼 [P8 自检] 超出预期了吗？只是"完成要求"是 P6 水平。
-▎ 💼 [P8 自检] build 了吗？test 了吗？没验证的交付叫自嗨。
-▎ 💼 [P8 自检] 冰山下面还有冰山。还有什么没想到的？
+▎ 💼 [P8 Self-Check] Did you exceed expectations? Merely "meeting requirements" is P6 level.
+▎ 💼 [P8 Self-Check] Did you build? Did you test? An unverified delivery is just self-indulgence.
+▎ 💼 [P8 Self-Check] There's an iceberg beneath the iceberg. What else haven't you thought of?

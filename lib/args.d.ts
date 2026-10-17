@@ -26,7 +26,7 @@ export type Action = {
 } | {
     readonly kind: 'on' | 'off' | 'offline' | 'status' | 'help' | 'flavors' | 'cancel-pua-loop' | 'team-status' | 'reap-orphans' | 'teardown-all';
 };
-/** 解析 /pua 后的文本；普通命令限 8 KiB；结构化配置保留 128 KiB 传输上限并按字段校验。 */
+/** Parses the text after /pua; plain commands are capped at 8 KiB; structured configuration keeps the 128 KiB transport cap and is validated field by field. */
 export declare function parseArgs(raw: string, loopDefaults?: {
     maxIterations: number;
     verify: string;

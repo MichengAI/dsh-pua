@@ -1,8 +1,8 @@
 import { SESSION_FORMAT_VERSION, type SessionSeq, type SurfaceOp } from '@deepseek-ai/dsh-session';
 
-/** 按宿主格式构造替换范围；旧日志的版本迁移仍由宿主负责。 */
+/** Builds a replacement range for the host format; migrating old logs across versions remains the host's job. */
 export function replacementSurface(startSeq: SessionSeq, endSeq: SessionSeq): SurfaceOp {
   if (SESSION_FORMAT_VERSION >= 3) return { op: 'replace', startSeq, endSeq };
-  // 兼容受支持的 V2 宿主；只在此边界收容旧声明，不能试写后捕获错误重试。
+  // Compatibility path for supported V2 hosts; the legacy declaration is contained only at this boundary — never write speculatively and retry on error.
   return { op: 'replace', start: startSeq, end: endSeq } as unknown as SurfaceOp;
 }

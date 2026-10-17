@@ -8,7 +8,7 @@ import { materializePreferences } from '../lib/settings.js';
 
 const CJK = /[\u2E80-\u9FFF\uF900-\uFAFF]/;
 
-/** 递归收集 copy 表里的全部字符串，跳过函数。 */
+/** Recursively collects every string in a copy table, skipping functions. */
 function strings(value) {
   if (typeof value === 'string') return [value];
   if (Array.isArray(value)) return value.flatMap(strings);
@@ -16,38 +16,38 @@ function strings(value) {
   return [];
 }
 
-test('resolveUiLang：手动覆盖优先，auto 跟随宿主 locale', () => {
+test('resolveUiLang: a manual override wins and auto follows the host locale', () => {
   assert.equal(resolveUiLang('auto', 'en'), 'en');
   assert.equal(resolveUiLang('auto', 'en-US'), 'en');
   assert.equal(resolveUiLang('auto', 'en_US'), 'en');
   assert.equal(resolveUiLang('auto', 'zh-CN'), 'zh');
-  assert.equal(resolveUiLang('auto', undefined), 'zh');
+  assert.equal(resolveUiLang('auto', undefined), 'en');
   assert.equal(resolveUiLang(undefined, 'en-GB'), 'en');
-  assert.equal(resolveUiLang(undefined, undefined), 'zh');
+  assert.equal(resolveUiLang(undefined, undefined), 'en');
   assert.equal(resolveUiLang('en', 'zh-CN'), 'en');
   assert.equal(resolveUiLang('zh-CN', 'en-US'), 'zh');
   assert.equal(resolveUiLang('en', undefined), 'en');
 });
 
-test('hostLocaleOf：读取宿主 locale 服务的 active 值', () => {
+test('hostLocaleOf: reads the active value of the host locale service', () => {
   assert.equal(hostLocaleOf({ get: name => name === 'locale' ? { snapshot: { active: 'en-US' } } : {} }), 'en-US');
   assert.equal(hostLocaleOf({ get: () => ({ snapshot: {} }) }), undefined);
   assert.equal(hostLocaleOf({}), undefined);
   assert.equal(hostLocaleOf({ get: () => null }), undefined);
 });
 
-test('UI 文案表：zh 与 en 结构一致，字段覆盖全部配置键', () => {
+test('UI copy table: zh and en share the same structure and fields cover every configuration key', () => {
   assert.deepEqual(Object.keys(UI.en).sort(), Object.keys(UI.zh).sort());
   assert.deepEqual(Object.keys(UI.en.panel).sort(), Object.keys(UI.zh.panel).sort());
   assert.deepEqual(Object.keys(UI.en.panel.loop).sort(), Object.keys(UI.zh.panel.loop).sort());
   assert.deepEqual(Object.keys(UI.en.composer).sort(), Object.keys(UI.zh.composer).sort());
   for (const lang of ['zh', 'en', 'ru']) {
-    for (const key of CONFIG_KEYS) assert.ok(UI[lang].fields[key], `${lang} 缺少字段标签：${key}`);
+    for (const key of CONFIG_KEYS) assert.ok(UI[lang].fields[key], `${lang} is missing a field label: ${key}`);
   }
   assert.deepEqual(Object.keys(UI.zh.languageChoices), ['auto', 'zh-CN', 'en', 'ru']);
 });
 
-test('UI 中文文案保持现状，不因本地化改动既有界面', () => {
+test('UI Chinese copy stays as-is; localization does not change the existing interface', () => {
   assert.equal(UI.zh.settingsSummary, '命令与聊天入口、角色风味和子代理策略。');
   assert.equal(UI.zh.cardTitle, 'PUA 配置');
   assert.equal(UI.zh.allow.label, '允许使用 PUA');
@@ -62,22 +62,22 @@ test('UI 中文文案保持现状，不因本地化改动既有界面', () => {
   assert.equal(UI.zh.composer.readError, '无法读取全局配置，请检查连接或打开插件配置页重试。');
 });
 
-test('UI 英文文案完整存在且不含中文字符', () => {
+test('UI English copy exists in full and contains no CJK characters', () => {
   const en = strings(UI.en);
-  assert.ok(en.length > 60, `英文文案条目过少：${en.length}`);
+  assert.ok(en.length > 60, `Too few English copy entries: ${en.length}`);
   for (const text of en) assert.ok(text.length > 0);
-  for (const text of en) assert.ok(!CJK.test(text), `英文文案混入中文：${text}`);
+  for (const text of en) assert.ok(!CJK.test(text), `English copy contains CJK characters: ${text}`);
   assert.equal(UI.en.settingsSummary, 'Command and chat entry, persona flavor, and subagent policy.');
   assert.equal(UI.en.allow.label, 'Allow PUA');
   assert.equal(UI.en.fields.enabled, 'Enable PUA');
   assert.equal(UI.en.fields.language, 'UI language');
 });
 
-test('UI 俄语文案完整存在且不含中文字符', () => {
+test('UI Russian copy exists in full and contains no CJK characters', () => {
   const ru = strings(UI.ru);
-  assert.ok(ru.length > 60, `俄语文案条目过少：${ru.length}`);
+  assert.ok(ru.length > 60, `Too few Russian copy entries: ${ru.length}`);
   for (const text of ru) assert.ok(text.length > 0);
-  for (const text of ru) assert.ok(!CJK.test(text), `俄语文案混入中文：${text}`);
+  for (const text of ru) assert.ok(!CJK.test(text), `Russian copy contains CJK characters: ${text}`);
   assert.equal(UI.ru.settingsSummary, 'Команды и чат-вход, персона-вкус и политика для под-агентов.');
   assert.equal(UI.ru.allow.label, 'Разрешить PUA');
   assert.equal(UI.ru.fields.enabled, 'Включить PUA');
@@ -85,22 +85,22 @@ test('UI 俄语文案完整存在且不含中文字符', () => {
   assert.equal(UI.ru.panel.sessionHeading, 'PUA для этой сессии');
 });
 
-test('resolveUiLang：俄语宿主 locale 走 ru', () => {
+test('resolveUiLang: a Russian host locale resolves to ru', () => {
   assert.equal(resolveUiLang('auto', 'ru'), 'ru');
   assert.equal(resolveUiLang('auto', 'ru-RU'), 'ru');
   assert.equal(resolveUiLang('ru', 'en-US'), 'ru');
   assert.equal(resolveUiLang(undefined, 'ru'), 'ru');
 });
 
-test('flavorLabel：en 用英文名，zh 用原表，未知 id 原样返回', () => {
+test('flavorLabel: en uses English names, zh uses the original table, and an unknown id is returned as-is', () => {
   assert.equal(flavorLabel('alibaba', 'en'), 'Alibaba');
-  assert.equal(flavorLabel('alibaba', 'zh'), '阿里');
+  assert.equal(flavorLabel('alibaba', 'zh'), 'Alibaba');
   assert.equal(flavorLabel('ding', 'en'), 'DingTalk');
   assert.equal(flavorLabel('custom-x', 'en'), 'custom-x');
   assert.equal(flavorLabel('custom-x', 'zh'), 'custom-x');
 });
 
-test('modeName：双语角色名，未知模式原样返回', () => {
+test('modeName: bilingual role names; an unknown mode is returned as-is', () => {
   assert.equal(modeName('pua', 'zh'), '普通 · 持续推进与证据交付');
   assert.equal(modeName('pua-en', 'zh'), '英文协议');
   assert.notEqual(modeName('pua', 'en'), '普通 · 持续推进与证据交付');
@@ -108,7 +108,7 @@ test('modeName：双语角色名，未知模式原样返回', () => {
   assert.equal(modeName('unknown-mode', 'en'), 'unknown-mode');
 });
 
-test('ACTIVITY 文案表：结构一致、中文保持现状、英文不含中文', () => {
+test('ACTIVITY copy table: same structure, Chinese stays as-is, and English contains no CJK', () => {
   assert.deepEqual(Object.keys(ACTIVITY.en).sort(), Object.keys(ACTIVITY.zh).sort());
   assert.deepEqual(Object.keys(ACTIVITY.en.fields), Object.keys(ACTIVITY.zh.fields));
   assert.equal(ACTIVITY.zh.ariaLabel, 'PUA 运行状态');
@@ -119,13 +119,13 @@ test('ACTIVITY 文案表：结构一致、中文保持现状、英文不含中�
   assert.equal(ACTIVITY.zh.times(2), '2 次');
   for (const text of strings(ACTIVITY.en)) {
     assert.ok(text.length > 0);
-    assert.ok(!CJK.test(text), `英文运行卡片文案混入中文：${text}`);
+    assert.ok(!CJK.test(text), `English activity-card copy contains CJK characters: ${text}`);
   }
   assert.equal(ACTIVITY.en.iteration(3, 5), 'Round 3 of 5');
   assert.equal(ACTIVITY.en.iteration(3, 0), 'Round 3');
 });
 
-test('配置契约：language 默认 auto，可覆盖为 zh-CN / en / ru，拒绝未知值', () => {
+test('Configuration contract: language defaults to auto, can be overridden to zh-CN / en / ru, and rejects unknown values', () => {
   assert.equal(CONFIG_DEFAULTS.language, 'auto');
   assert.ok(CONFIG_KEYS.includes('language'));
   assert.deepEqual(parsePatch({ language: 'en' }), { language: 'en' });
@@ -134,14 +134,14 @@ test('配置契约：language 默认 auto，可覆盖为 zh-CN / en / ru，拒�
   assert.equal(configSchema.safeParse({ ...CONFIG_DEFAULTS, language: 'fr' }).success, false);
 });
 
-test('运行状态契约：activity 携带 language，缺失时校验失败', () => {
+test('Runtime state contract: activity carries language and fails validation when it is missing', () => {
   const base = { visible: true, verifying: false, failureCount: 0, loop: null };
   const configuration = { mode: 'pua', flavor: 'auto', subagents: false, language: 'en' };
   assert.equal(activitySchema.safeParse({ ...base, configuration }).success, true);
   assert.equal(activitySchema.safeParse({ ...base, configuration: { mode: 'pua', flavor: 'auto', subagents: false } }).success, false);
 });
 
-test('宿主设置 schema：language 字段有默认值，materialize 不丢键', () => {
+test('Host settings schema: the language field has a default and materialize does not drop keys', () => {
   assert.equal(materializePreferences({}).language, 'auto');
   assert.equal(materializePreferences({ language: 'en' }).language, 'en');
 });

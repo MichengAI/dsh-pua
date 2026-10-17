@@ -1,5 +1,5 @@
 - insert:
-    - id: michengai-pua-remote
-      name: '@michengai/dsh-pua/remote'
-    - id: michengai-pua
-      name: '@michengai/dsh-pua'
+    - id: phucnd0604-pua-en-remote
+      name: '@phucnd0604/dsh-pua-en/remote'
+    - id: phucnd0604-pua-en
+      name: '@phucnd0604/dsh-pua-en'

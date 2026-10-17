@@ -5,7 +5,7 @@ import { escapePromptLiteral, loadPrompts, renderOriginalPrompt, MAX_PROMPT_BYTE
 import { SourceCatalog } from '../lib/source.js';
 import { FLAVORS } from '../lib/flavors.js';
 
-test('所有风味可以被真实宿主渲染，体积有界且不混入其他风味章节', () => {
+test('All flavors render under the real host, stay within the size bound, and do not mix in other flavor chapters', () => {
   const prompts = loadPrompts();
   for (const flavor of FLAVORS) {
     const text = prompts.get(flavor.id);
@@ -15,31 +15,31 @@ test('所有风味可以被真实宿主渲染，体积有界且不混入其他�
   }
 });
 
-test('第三方双花括号作为文本保留，不触发宿主严格变量求值', () => {
+test('Third-party double braces are preserved as text and do not trigger strict host variable evaluation', () => {
   const text = escapePromptLiteral('例子：{{private_variable}}');
   assert.doesNotThrow(() => renderPrompt({ sections: [{ name: 'pua', text }], contexts: [], tools: [], variables: {} }));
 });
 
-test('主模式保留原版人格、展示协议、认知换框和 Owner 行为，不以摘要代替核心', () => {
+test('The main mode keeps the original personality, display protocol, cognitive reframe, and Owner behavior; a summary does not replace the core', () => {
   const text = loadPrompts().get('alibaba');
-  for (const literal of ['每一句话都用当前味道的语气在说话', '## 深层换框（Cognitive Reframe）', '## Owner 意识（谁痛苦谁改变）', '## Gotchas（已知陷阱', '# PUA 展示协议', '┌─────────┬']) {
-    assert.ok(text.includes(literal), `缺失原版内容：${literal}`);
+  for (const literal of ['every sentence is spoken in the current flavor\'s tone', '## Cognitive reframe', '## Owner mindset (whoever feels the pain makes the change)', '## Gotchas (known traps', '# PUA Display Protocol', '┌─────────────┬']) {
+    assert.ok(text.includes(literal), `Missing original content: ${literal}`);
   }
 });
 
-test('DSH 表格覆盖写在原版方框要求之后，并要求 GFM 管道表', () => {
+test('The DSH table override comes after the original box-table requirement and requires GFM pipe tables', () => {
   const text = loadPrompts().get('alibaba');
-  const ban = text.indexOf('不用 markdown `| |` 表格');
-  const override = text.indexOf('## DSH 表格渲染（覆盖原版方框表格）');
-  assert.ok(ban > 0, '原版禁用管道表的句子应仍在素材中');
-  assert.ok(override > ban, 'DSH 覆盖必须晚于原版方框要求');
-  assert.match(text.slice(override), /GFM 管道表/);
-  assert.match(text.slice(override), /不要放进代码块/);
+  const ban = text.indexOf('not markdown `| |` tables');
+  const override = text.indexOf('## DSH table rendering (overrides the original box tables)');
+  assert.ok(ban > 0, 'The original sentence banning pipe tables should still be in the material');
+  assert.ok(override > ban, 'The DSH override must come after the original box-table requirement');
+  assert.match(text.slice(override), /GFM pipe table/);
+  assert.match(text.slice(override), /do not put it in a code block/);
   assert.match(text.slice(override), /\| --- \|/);
-  assert.equal(text.includes('方框面板和 Owner'), false);
+  assert.equal(text.includes('box panels and Owner'), false);
 });
 
-test('所有模式完整包含原版核心及对应技能正文，资料工具输入不能任意读取磁盘', () => {
+test('Every mode fully includes the original core and its skill body; material-tool input cannot read the disk arbitrarily', () => {
   const catalog = new SourceCatalog();
   for (const mode of MODES) {
     const prompt = renderOriginalPrompt(catalog, 'auto', mode);
