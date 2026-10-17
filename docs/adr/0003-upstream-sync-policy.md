@@ -1,0 +1,35 @@
+# ADR 0003: Upstream sync policy — two upstreams, independent versioning, executable sync
+
+Date: 2025 (grilling session, /grill-with-docs)
+Status: Accepted
+Amends: docs/adr/0001-dsh-pua-en-fork-strategy.md decision 3 (“Upstream strategy: vendoring”)
+
+## Context
+
+This repo is the English fork of `MichengAI/dsh-pua` (see ADR 0001) and vendors prompt material from `tanweai/pua` (v3.5.1, revision `e6e6cd237ad17750d179674bff52f8184abea8fd`, pinned in `assets/pua/upstream.json`).
+
+Measured at the time of this decision (2026-10-17): both upstreams are **zero-drift** — `MichengAI/dsh-pua` `main` is still `1d2e60988673c8f289903181914c5e91aae391dc` (v0.3.28), `tanweai/pua` `main` is still the pinned revision (v3.5.1). Neither upstream maintains a re-vendoring mechanism: the plugin upstream's `scripts/` never fetches anything, and its `scripts/verify.mjs` is a post-hoc integrity check of already-vendored bytes. So re-vendoring and re-translation are manual work that this fork has to define for itself.
+
+Three facts shape the whole design:
+
+- The fork shares git history with the plugin upstream, so its code changes can be **merged**.
+- The fork does **not** share history with the material upstream, so its content can only be **re-vendored and re-translated**.
+- The fork's manifest is a two-layer hash (schemaVersion 2): `sourceSha256`/`gitBlobSha256` pin the original Chinese bytes, `contentSha256` pins the English bytes actually served. `scripts/verify.mjs` recomputes and asserts all three.
+
+## Decisions
+
+1. **Two upstreams, two verbs.** *Plugin upstream* = `MichengAI/dsh-pua` (primary: its releases drive this fork's release cycle; sync by `git merge`). *Material upstream* = `tanweai/pua` (secondary: sync by re-vendor plus delta translation). A fork release is triggered by the plugin upstream; refreshing the material upstream is a step inside that cycle, with one exception — a material-only refresh may ship as a PATCH.
+2. **Independent semver.** The fork's version is its own sequence, not a mirror of upstream's. `0.1.0` was the translation release; the first sync ships `0.2.0`. MINOR increments when the plugin upstream's MINOR or MAJOR moves; PATCH for small or material-only refreshes. The link to upstream lives in the recorded baseline, never in the number.
+3. **Translation baseline is machine-readable.** `assets/pua/upstream.json` gains a `pluginUpstream` key: `{ "repository", "revision", "version" }`, naming the plugin-upstream commit the current English tree was translated from. The existing top-level `repository`/`revision`/`version` stay the material-upstream pin. `scripts/verify.mjs` asserts only the **shape** of `pluginUpstream` (it runs offline and must never compare a revision to a network value).
+4. **Code-layer sync is a real merge, not a copy.** Add a remote for the plugin upstream (`git remote add upstream https://github.com/MichengAI/dsh-pua.git`), fetch, and merge the target revision into the fork. Every file upstream touched conflicts, because the fork's `src/**` prose is English and upstream's is Chinese. Resolve each conflict by reading `git diff <baseline>..<target> -- <path>` to recover the upstream change, then re-express it in English. Strategy options that discard one side (`-X theirs`, `-X ours`, `git checkout --theirs`) are **forbidden**: the merge history is the only thing preventing a silently dropped upstream commit. ADR 0001 decision 3 is amended accordingly — “no full-repo merges” meant “no merges from the material upstream”; merges from the plugin upstream are the mechanism.
+5. **Material-layer sync mirrors the semantic delta.** For each changed vendored file, translate only what upstream changed and keep the existing English wording everywhere else: the English is the new source of truth, not a cache to be rebuilt. Whitespace-only upstream churn produces **no** change to the English file. Hash rule per sync: the manifest's top-level `revision`/`version` and each entry's `sourceSha256`/`gitBlobSha256` advance to the new upstream bytes; `contentSha256` changes only when the English bytes change. The five entries that ship untranslated (`upstream/hooks/checkpoint-save.sh`, `upstream/hooks/hooks.json`, `upstream/hooks/runtime-state.py`, `upstream/skills/pua-en/SKILL.md`, `upstream/skills/pua-ja/SKILL.md`) keep the inverse rule — `contentSha256` must stay equal to `sourceSha256` so `scripts/verify.mjs:43-45` can still cross-check `gitBlobSha256`.
+6. **Structural change gate.** The sync stops and a human decides when upstream adds or removes a file or asset, adds or removes a flavor or mode, changes the meaning of a methodology (a retranslation judgement), would require widening the zero-CJK exemptions or `MAX_PROMPT_BYTES`, or changes LICENSE/NOTICE. The agent files the ticket with a proposed mapping (does a new upstream flavor become a fork flavor? does a new mode join `MODES`?) and waits for approval **before** touching code. A structural change blocks the release: the zero-CJK rule plus `src/content.ts` requiring one translated chapter per flavor makes a half-shipped sync impossible, not merely undesirable.
+7. **Guardrails for the sync agent.** It may create a branch, commit on it, push that branch, and open a PR. It may not push to `main`, create or move tags, publish anything, or edit LICENSE/NOTICE unattended. It must never hand-edit `assets/pua/upstream.json`; the manifest is produced by `scripts/sync-upstream.mjs` (or an equivalent scratch script) and validated by `scripts/verify.mjs`.
+8. **The policy ships executable artifacts.** `docs/agents/upstream-sync.md` (the runbook: every step a runnable command), `docs/agents/sync-ticket.md` (the ticket template a sync is opened from), and `scripts/sync-upstream.mjs` (drift detection plus manifest pin update; translation itself stays human judgement).
+
+## Consequences
+
+- **Hash convention, measured.** `gitBlobSha256` is the sha256 of the LF-normalized original bytes and equals the material upstream's git blob object hash; `sourceSha256` is the sha256 of the bytes as delivered by the plugin upstream's vendoring. All 104 material-upstream blobs at the pinned revision are LF-only, so both layers are reproducible from a clone for every `upstream/**` entry; the 19 legacy duplicate assets were the only entries whose `sourceSha256` recorded CRLF bytes. Deleting them (see the legacy-duplicates cleanup ticket, [#1](https://github.com/phucnd0604/dsh-pua-en/issues/1)) makes the two hash layers agree for every entry and makes the whole manifest regenerable from a material clone with no local knowledge.
+- A sync can now be opened as a GitHub issue that an agent executes end to end; “what did we translate, and from where?” is answerable from the manifest alone.
+- A merge that touches `src/**` is expensive by construction — every touched file needs an English re-expression. That is the accepted price of prose-level translation; copying over the merge would silently drop upstream fixes.
+- `scripts/sync-upstream.mjs` is offline by design: it reads local clones. Fetching stays an explicit runbook step, so no CI job ever depends on upstream availability.
