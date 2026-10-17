@@ -27,29 +27,9 @@ function preferenceFields() {
   };
 }
 
-/** 0.1.6 及更早的设置页仍注册这份普通 schema。 */
+/** 把字段声明还原成可校验的普通 schema。0.2.0 起 schemastery 提供 volatile()。 */
 export const SETTINGS_SCHEMA = Schema.object(preferenceFields());
-
-function live<T>(schema: T): T {
-  const candidate = schema as T & { volatile?: () => T };
-  return typeof candidate.volatile === 'function' ? candidate.volatile() : schema;
-}
-
-/**
- * 0.1.7 起全局配置是当前 Profile 条目的 volatile Config。
- * 旧 schemastery 没有 volatile()，这份 schema 保持普通对象，避免旧宿主加载失败。
- */
-export const Config = live(Schema.object(preferenceFields()));
-
-/** 0.1.6 及更早的 settings.register 返回值；0.1.7 已不再导出该类型。 */
-interface LegacySettingsScope<T> {
-  get(): T;
-}
-
-interface SettingsHost {
-  register?: (ns: string, schema: typeof SETTINGS_SCHEMA) => LegacySettingsScope<Preferences>;
-  configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void;
-}
+export const Config = SETTINGS_SCHEMA.volatile();
 
 function unwrap(value: unknown): unknown {
   if (value !== null && typeof value === 'object' && typeof (value as { get?: unknown }).get === 'function') {
@@ -67,20 +47,13 @@ export function materializePreferences(config: unknown): Preferences | undefined
   catch { return undefined; }
 }
 
-/** 可选设置服务。旧宿主注册 settings.yaml；0.1.7 读取 Profile 里的 volatile 配置。都没有时仅当前会话生效。 */
+/** 可选设置服务。0.2.0 起读取 Profile 里的 volatile 配置；没有该服务时仅当前会话生效。 */
 export class PreferencesBridge {
-  private scope: LegacySettingsScope<Preferences> | undefined;
-  private mode: 'unknown' | 'legacy' | 'volatile' = 'unknown';
+  private ready = false;
   constructor(ctx: Context, private readonly config: unknown) {
     ctx.inject(['settings'], child => {
-      const settings = child.settings as SettingsHost;
-      if (typeof settings.register === 'function') {
-        this.mode = 'legacy';
-        this.scope = settings.register(SETTINGS_NAMESPACE, SETTINGS_SCHEMA);
-        child.effect(() => () => { this.scope = undefined; this.mode = 'unknown'; });
-        return;
-      }
-      this.mode = 'volatile';
+      const settings = child.settings as { configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void };
+      this.ready = true;
       if (typeof settings.configure === 'function') {
         const dispose = settings.configure({ auto: false }, ctx.fiber);
         child.effect(() => dispose);
@@ -88,9 +61,8 @@ export class PreferencesBridge {
     });
   }
   private current(): Preferences | undefined {
-    if (this.scope) return materializePreferences(this.scope.get());
-    if (this.mode === 'volatile') return materializePreferences(this.config);
-    return undefined;
+    if (!this.ready) return undefined;
+    return materializePreferences(this.config);
   }
   defaults(): Partial<PuaState> {
     const config = this.current();

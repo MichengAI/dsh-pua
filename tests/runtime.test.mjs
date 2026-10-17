@@ -770,22 +770,20 @@ async function seedTerminalFailure(ctx, agent, run, callId) {
   });
 }
 
-for (const event of ["agent/session-start", "agent/created"]) {
-  test(`${event} 压缩保留观察，clear 清除计数且不复活旧循环`, async (t) => {
-    const { ctx, agent, run } = await setup(t);
-    await seedTerminalFailure(ctx, agent, run, `${event}-clear-failure`);
-    assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
-    ctx.emit(event, { agent, source: "compact" });
-    assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
-    ctx.emit(event, { agent, source: "clear" });
-    assert.match(
-      (await run("/pua status")).result.text,
-      /终端失败观察：0.*未启动/,
-    );
-  });
-}
+test("agent/created 压缩保留观察，clear 清除计数且不复活旧循环", async (t) => {
+  const { ctx, agent, run } = await setup(t);
+  await seedTerminalFailure(ctx, agent, run, "created-clear-failure");
+  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  ctx.emit("agent/created", { agent, source: "compact" });
+  assert.match((await run("/pua status")).result.text, /终端失败观察：1/);
+  ctx.emit("agent/created", { agent, source: "clear" });
+  assert.match(
+    (await run("/pua status")).result.text,
+    /终端失败观察：0.*未启动/,
+  );
+});
 
-test("旧宿主 agent/created 不带 source 时不处理生命周期", async (t) => {
+test("agent/created 缺少 source 时不改运行观察", async (t) => {
   const { ctx, agent, run } = await setup(t);
   await seedTerminalFailure(ctx, agent, run, "created-nosource-failure");
   let injected = 0;

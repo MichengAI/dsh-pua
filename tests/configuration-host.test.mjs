@@ -49,10 +49,10 @@ test('真实 Host 配置服务隔离全局与会话，拒绝过期保存并保�
   assert.ok(ctx.typert.local, 'Remote 描述符已在实际 Typert Registry 注册');
   for (const descriptor of DESCRIPTORS) {
     assert.equal(typeof descriptor.result.create, 'function');
-    assert.equal(typeof descriptor.result.schema.parse, 'function');
+    assert.equal(typeof descriptor.result.create().parse, 'function');
     for (const parameter of descriptor.parameters) {
       assert.equal(typeof parameter.codec.create, 'function');
-      assert.equal(typeof parameter.codec.schema.parse, 'function');
+      assert.equal(typeof parameter.codec.create().parse, 'function');
     }
   }
 });

@@ -1,5 +1,19 @@
 # 更新记录
 
+## 1.0.0
+
+### 中文
+
+- 支持的宿主改为 DeepSeek Harness `0.2.0-rc.1`、`0.2.0-rc.2`、`0.2.1-rc.1`。不保留中间的 `0.2.1` alpha。开发依赖对齐 `0.2.1-rc.1`（Cordis `4.0.5`、Schemastery `3.18.5`）。
+- `0.2.0` 之前的宿主，以及 `0.2.1` alpha，会被版本门拒绝，插件不会运行。仍在使用 `0.1.x` 的，请安装 `0.3.28`，不要装 `@latest`。已有插件设置和会话记录会保留，本版本不会删除它们。
+- 去掉只为 `0.2.0` 之前宿主保留的调用：编号图标回退、`settings.register`、`agent/session-start`、旧消息来源写入，以及没有 `volatile()` / `create()` 时的回退。读取旧会话日志里的插件消息和旧命令结果的逻辑仍保留。
+
+### English
+
+- Supported hosts are now DeepSeek Harness `0.2.0-rc.1`, `0.2.0-rc.2`, and `0.2.1-rc.1`. Intermediate `0.2.1` alphas are not included. Development dependencies are pinned to `0.2.1-rc.1` (Cordis `4.0.5`, Schemastery `3.18.5`).
+- Hosts before `0.2.0`, and `0.2.1` alphas, are rejected by the version gate, and the plugin will not run. If you still use a `0.1.x` host, install `0.3.28` instead of `@latest`. Existing plugin settings and session records are kept; this release does not delete them.
+- Remove call paths that existed only for hosts before `0.2.0`: numbered icon fallback, `settings.register`, `agent/session-start`, writing the old message source, and fallbacks for missing `volatile()` / `create()`. Reading plugin messages and old command results already stored in session logs is unchanged.
+
 ## 0.3.28
 
 ### 中文

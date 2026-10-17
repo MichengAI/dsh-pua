@@ -346,9 +346,9 @@ export class PuaRuntime {
           : "记录一次有可见 PUA 输出的交付，不记录评分。";
       this.save(session, state, note);
     });
-    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }) => {
+    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }): undefined => {
       try {
-        // 0.1.2/0.1.5 的 created 只带 agent；只有 session-start 带 source。0.1.6 起 created 才带 source。
+        // 0.2.0 起只有 agent/created 带 source；其他来源不改运行观察。
         if (source !== "clear" && source !== "compact") return;
         if (source === "clear") {
           this.pendingCandidates.delete(agent.session);
@@ -373,13 +373,9 @@ export class PuaRuntime {
       } catch (error) {
         ctx.logger.warn("PUA 会话生命周期处理失败，不影响宿主创建：%s", error);
       }
+      return undefined;
     };
-    const listen = ctx.on.bind(ctx) as (
-      event: "agent/session-start" | "agent/created",
-      listener: typeof onSessionLifecycle,
-    ) => void;
-    listen("agent/session-start", onSessionLifecycle);
-    listen("agent/created", onSessionLifecycle);
+    ctx.on("agent/created", onSessionLifecycle);
     ctx.on("session/event", (session, event) => {
       if (event.type === 'turn/start') this.read(session).candidateCount = 0;
       // Session 的发布边界禁止重入 append；turn/end 本身已是可回放的取消事实。
