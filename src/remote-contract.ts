@@ -19,9 +19,9 @@ export interface PuaRemoteApi {
   startLoop(sessionId: string, task: string, values: Configuration): Promise<RemoteResult<{ text: string }>>;
   cancelLoop(sessionId: string): Promise<RemoteResult<{ text: string }>>;
 }
-/** 0.1.6-alpha.2 requires create(); older host registries still read schema.parse. */
+/** Since 0.2.0 the Registry takes the boundary schema through create(). */
 function strictCodec(typeSymbol: string, schema: z.ZodType): InvocationDescriptor['parameters'][number]['codec'] {
-  return { mode: 'strict', typeSymbol, schema, create: () => schema } as InvocationDescriptor['parameters'][number]['codec'];
+  return { mode: 'strict', typeSymbol, create: () => schema };
 }
 const parameter = (name: string, schema: z.ZodType): InvocationDescriptor['parameters'][number] => ({ name, wire: name, source: 'json', codec: strictCodec(name, schema) });
 const session = parameter('sessionId', z.string().min(1).max(256));

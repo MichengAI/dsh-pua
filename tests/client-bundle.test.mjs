@@ -19,8 +19,8 @@ function loadClient() {
     if (name === '@deepseek-ai/dsh-client-ui-primitives') {
       sharedControls = true;
       return {
-        Button: () => null, Menu: () => null, Switch: () => null, IconChevronDownOutline14: () => null,
-        IconChevronUpOutline14: () => null, IconGaugeOutline16: gaugeIcon, IconCloseOutline16: closeIcon,
+        Button: () => null, Menu: () => null, Switch: () => null, IconChevronDownOutlineRegular: () => null,
+        IconChevronUpOutlineRegular: () => null, IconGaugeOutlineRegular: gaugeIcon, IconCloseOutlineRegular: closeIcon,
       };
     }
     return requireLocal(name);
@@ -104,9 +104,9 @@ test('slash menu decorates /pua and /pua-cancel-loop with official icons without
   assert.equal(rows[3].icon, undefined);
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
   assert.match(js, /IconGaugeOutlineRegular/);
-  assert.match(js, /IconGaugeOutline16/);
   assert.match(js, /IconCloseOutlineRegular/);
-  assert.match(js, /IconCloseOutline16/);
+  assert.equal(js.includes('IconGaugeOutline16'), false);
+  assert.equal(js.includes('IconCloseOutline16'), false);
   assert.equal(rows[3].label, undefined);
 });
 

@@ -20,19 +20,9 @@ function snapshot(config) {
   return config;
 }
 
-/** 旧宿主使用 SettingsProvider；0.1.7 用内存服务提交 volatile 引用。 */
+/** 0.2.0 起没有 SettingsProvider，用内存服务提交 volatile 引用。 */
 export async function installSettings(ctx) {
   const state = { fail: false, config: undefined, revision: 0, listed: false };
-  const { SettingsProvider } = await import('@deepseek-ai/dsh-settings');
-  if (typeof SettingsProvider === 'function') {
-    class MemorySettings extends SettingsProvider {
-      writable = true;
-      async load() { return {}; }
-      async persist() { if (state.fail) throw new Error('模拟磁盘写入失败'); }
-    }
-    new MemorySettings(ctx);
-    return { fail(value) { state.fail = value; }, attach() {} };
-  }
   class VolatileMemorySettings extends Service {
     constructor(context) { super(context, 'settings'); }
     configure() {

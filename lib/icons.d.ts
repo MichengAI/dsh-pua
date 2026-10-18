@@ -1,17 +1,11 @@
 import { type ReactNode } from 'react';
-type Icon = (props: {
-    size?: number;
-    className?: string;
-}) => ReactNode;
-/** 0.1.7 exports the Regular name; 0.1.6 still uses the old names with a size suffix. When neither exists, render nothing. */
-export declare function hostIcon(...names: string[]): Icon;
-export declare const IconGauge: Icon;
+/** Since 0.2.0 the host exports only the Regular / Medium names; the old size-suffixed aliases are gone. */
+export declare const IconGauge: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;
 /** Uses the power symbol when off: it stays distinguishable from the gauge at 16px and does not strike through text. */
 export declare function IconGaugeOff({ size, className }: {
     size?: number;
     className?: string;
 }): ReactNode;
-export declare const IconClose: Icon;
-export declare const IconChevronDown: Icon;
-export declare const IconChevronUp: Icon;
-export {};
+export declare const IconClose: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;
+export declare const IconChevronDown: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;
+export declare const IconChevronUp: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;

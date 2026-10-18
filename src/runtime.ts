@@ -347,9 +347,9 @@ export class PuaRuntime {
           : "Recorded one delivery with visible PUA output; no rating recorded.";
       this.save(session, state, note);
     });
-    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }) => {
+    const onSessionLifecycle = ({ agent, source }: { agent: Agent; source?: string }): undefined => {
       try {
-        // created carried only the agent in 0.1.2/0.1.5; only session-start carried source. created gained source in 0.1.6.
+        // Since 0.2.0 only agent/created carries source; other sources do not change runtime observations.
         if (source !== "clear" && source !== "compact") return;
         if (source === "clear") {
           this.pendingCandidates.delete(agent.session);
@@ -374,13 +374,9 @@ export class PuaRuntime {
       } catch (error) {
         ctx.logger.warn("PUA session lifecycle handling failed; host creation is unaffected: %s", error);
       }
+      return undefined;
     };
-    const listen = ctx.on.bind(ctx) as (
-      event: "agent/session-start" | "agent/created",
-      listener: typeof onSessionLifecycle,
-    ) => void;
-    listen("agent/session-start", onSessionLifecycle);
-    listen("agent/created", onSessionLifecycle);
+    ctx.on("agent/created", onSessionLifecycle);
     ctx.on("session/event", (session, event) => {
       if (event.type === 'turn/start') this.read(session).candidateCount = 0;
       // Session's publish boundary forbids re-entrant append; turn/end is itself a replayable cancellation fact.

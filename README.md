@@ -16,7 +16,7 @@
 </div>
 
 > English fork of [MichengAI/dsh-pua](https://github.com/MichengAI/dsh-pua), based on
-> upstream 0.3.28 with vendored content from [tanweai/pua](https://github.com/tanweai/pua) 3.5.1.
+> upstream 1.0.1 with vendored content from [tanweai/pua](https://github.com/tanweai/pua) 3.5.1.
 > DSH PUA brings PUA to DeepSeek Harness. When an agent repeatedly fails, gives up too early,
 > or claims completion without checking, it pushes a different approach, investigation, and
 > evidence. Community-maintained; not an official DeepSeek AI or PUA product.
@@ -44,10 +44,12 @@ Results depend on the model and task. The plugin does not guarantee a solution e
 
 ## Installation
 
-Requires Node.js 22.19 or later and a supported DSH host version: 0.1.2-rc.1,
-0.1.5-rc.1, 0.1.5-rc.2, 0.1.5-rc.3, 0.1.7-rc.1, 0.1.7-rc.2, 0.2.0-rc.1, 0.2.0-rc.2, or
-0.2.1-alpha.2 / 0.2.1-alpha.3. Uses your existing DSH model configuration; no additional
-API key is needed. This fork installs by repository — no npm registry publish is involved.
+Requires Node.js 22.19 or later. This fork is tested with DeepSeek Harness 0.2.0-rc.1,
+0.2.0-rc.2, 0.2.1-rc.1, and 0.2.1-rc.2. Hosts before 0.2.0, including intermediate
+0.2.1 alphas, are rejected by the version gate, and this plugin will not run. If you still
+use a 0.1.x host, install upstream plugin 0.3.28 instead. Uses your existing DSH model
+configuration; no additional API key is needed. This fork installs by repository — no npm
+registry publish is involved.
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8

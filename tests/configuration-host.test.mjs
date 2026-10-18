@@ -49,10 +49,10 @@ test('Real Host configuration service isolates global from session, rejects stal
   assert.ok(ctx.typert.local, 'Remote descriptors are registered in the real Typert Registry');
   for (const descriptor of DESCRIPTORS) {
     assert.equal(typeof descriptor.result.create, 'function');
-    assert.equal(typeof descriptor.result.schema.parse, 'function');
+    assert.equal(typeof descriptor.result.create().parse, 'function');
     for (const parameter of descriptor.parameters) {
       assert.equal(typeof parameter.codec.create, 'function');
-      assert.equal(typeof parameter.codec.schema.parse, 'function');
+      assert.equal(typeof parameter.codec.create().parse, 'function');
     }
   }
 });

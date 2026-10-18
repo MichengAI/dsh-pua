@@ -770,22 +770,20 @@ async function seedTerminalFailure(ctx, agent, run, callId) {
   });
 }
 
-for (const event of ["agent/session-start", "agent/created"]) {
-  test(`${event} compaction keeps observations, clear resets the count and does not revive the old loop`, async (t) => {
-    const { ctx, agent, run } = await setup(t);
-    await seedTerminalFailure(ctx, agent, run, `${event}-clear-failure`);
-    assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
-    ctx.emit(event, { agent, source: "compact" });
-    assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
-    ctx.emit(event, { agent, source: "clear" });
-    assert.match(
-      (await run("/pua status")).result.text,
-      /Terminal failure observations: 0.*not started/,
-    );
-  });
-}
+test("agent/created compaction keeps observations, clear resets the count and does not revive the old loop", async (t) => {
+  const { ctx, agent, run } = await setup(t);
+  await seedTerminalFailure(ctx, agent, run, "created-clear-failure");
+  assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
+  ctx.emit("agent/created", { agent, source: "compact" });
+  assert.match((await run("/pua status")).result.text, /Terminal failure observations: 1/);
+  ctx.emit("agent/created", { agent, source: "clear" });
+  assert.match(
+    (await run("/pua status")).result.text,
+    /Terminal failure observations: 0.*not started/,
+  );
+});
 
-test("Legacy host agent/created without source skips lifecycle handling", async (t) => {
+test("agent/created without source does not change runtime observations", async (t) => {
   const { ctx, agent, run } = await setup(t);
   await seedTerminalFailure(ctx, agent, run, "created-nosource-failure");
   let injected = 0;

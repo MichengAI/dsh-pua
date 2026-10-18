@@ -10,6 +10,12 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'));
 const supported = pkg.peerDependencies['@deepseek-ai/dsh-session'].split(' || ');
+const HOST_PINS = {
+  '0.2.0-rc.1': { cordis: '4.0.4', schemastery: '3.18.4' },
+  '0.2.0-rc.2': { cordis: '4.0.4', schemastery: '3.18.4' },
+  '0.2.1-rc.1': { cordis: '4.0.5', schemastery: '3.18.5' },
+  '0.2.1-rc.2': { cordis: '4.0.5', schemastery: '3.18.5' },
+};
 const versions = process.argv.slice(2).length ? process.argv.slice(2) : supported;
 if (versions.some(version => !supported.includes(version))) throw new Error('Only the declared supported versions can be verified.');
 const npmCli = process.env.npm_execpath;
@@ -35,31 +41,20 @@ const results = await Promise.allSettled(versions.map(async version => {
   try {
     const manifest = structuredClone(pkg);
     delete manifest.scripts;
-    // The ^ range of the same 0.1.5 / 0.1.6 prerelease series drifts to in-series updates, so the whole official dependency closure must be pinned.
-    const pinOfficialClosure = version.startsWith('0.1.5-') || version.startsWith('0.1.6-') || version.startsWith('0.1.7-') || version.startsWith('0.2.0-') || version.startsWith('0.2.1-');
-    if (pinOfficialClosure) {
-      // Packages that only exist in 0.1.6 cannot be pinned to 0.1.5; the rest of the closure stays pinned so ^rc.1 does not drift to in-series updates.
-      manifest.overrides = Object.fromEntries(Object.keys(lock.packages)
-        .filter(path => path.startsWith('node_modules/@deepseek-ai/dsh-') && !path.slice('node_modules/'.length).includes('/node_modules/'))
-        .map(path => path.slice('node_modules/'.length))
-        .filter(name => version.startsWith('0.1.6-') || version.startsWith('0.1.7-') || version.startsWith('0.2.0-') || version.startsWith('0.2.1-') || name !== '@deepseek-ai/dsh-ptc-runtime')
-        .map(name => [name, version]));
-    }
-    if (version.startsWith('0.2.1-')) {
-      manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.5-alpha.2';
-      manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.5-alpha.2';
-    } else if (version.startsWith('0.1.7-') || version.startsWith('0.2.0-')) {
-      manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.4';
-      manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.4';
-    } else {
-      // The dev baseline is pinned to cordis / schemastery 0.2.1. Transitive dependencies of the older RC still require the previous tier exactly.
-      manifest.devDependencies['@deepseek-ai/schemastery'] = '3.18.2';
-      manifest.devDependencies['@deepseek-ai/cordis'] = '4.0.2';
-    }
+    const pin = HOST_PINS[version];
+    if (!pin) throw new Error('No Cordis pin is defined for ' + version + '.');
+    manifest.overrides = {
+      ...Object.fromEntries(Object.keys(manifest.devDependencies)
+        .filter(name => name.startsWith('@deepseek-ai/dsh-'))
+        .map(name => [name, version])),
+      '@deepseek-ai/cordis': pin.cordis,
+      '@deepseek-ai/schemastery': pin.schemastery,
+    };
+    manifest.devDependencies['@deepseek-ai/schemastery'] = pin.schemastery;
+    manifest.devDependencies['@deepseek-ai/cordis'] = pin.cordis;
     for (const key of Object.keys(manifest.devDependencies)) {
       if (!key.startsWith('@deepseek-ai/dsh-')) continue;
-      if (!pinOfficialClosure && ['dsh-tool-pwsh-persistent', 'dsh-tool-bash-persistent', 'dsh-terminal', 'dsh-session-format-v2-to-v3'].some(name => key.endsWith('/' + name))) delete manifest.devDependencies[key];
-      else manifest.devDependencies[key] = version;
+      manifest.devDependencies[key] = version;
     }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
     for (const name of ['lib', 'assets', 'tests']) cpSync(join(root, name), join(dir, name), { recursive: true });
@@ -74,7 +69,7 @@ const results = await Promise.allSettled(versions.map(async version => {
       const resolved = isolatedRequire.resolve(name);
       if (!resolve(resolved).startsWith(resolve(dir) + sep)) throw new Error(name + ' resolved outside the isolated directory: ' + resolved);
     }
-    const files = readdirSync(join(dir, 'tests')).filter(name => name.endsWith('.test.mjs') && (pinOfficialClosure || !['persistent-terminal.test.mjs', 'session-migration.test.mjs'].includes(name))).map(name => join('tests', name));
+    const files = readdirSync(join(dir, 'tests')).filter(name => name.endsWith('.test.mjs')).map(name => join('tests', name));
     if (!files.length) throw new Error('The compatibility test directory is empty; refusing to report success.');
     // These files spawn real PowerShell several times; parallel cloud version regression needs startup headroom.
     const tested = await run(dir, ['--test', '--test-timeout=60000', ...files]);

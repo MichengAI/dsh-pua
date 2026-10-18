@@ -1,5 +1,26 @@
 # Changelog — dsh-pua-en
 
+## 0.2.0
+
+Sync with plugin upstream MichengAI/dsh-pua v1.0.1
+(commit 791733b1a7c63f7818b36501eeeaa4dc85f9b0ff); the previous baseline was v0.3.28
+(commit 1d2e60988673c8f289903181914c5e91aae391dc). Material upstream tanweai/pua is
+unchanged at v3.5.1 (commit e6e6cd237ad17750d179674bff52f8184abea8fd).
+
+- Adopt upstream's breaking host-range change: supported hosts are DeepSeek Harness
+  0.2.0-rc.1, 0.2.0-rc.2, 0.2.1-rc.1, and 0.2.1-rc.2. Hosts before 0.2.0 (including
+  0.2.1 alphas) are rejected by the version gate. Development dependencies align to
+  0.2.1-rc.2 (Cordis 4.0.5, Schemastery 3.18.5).
+- Re-express the upstream code changes in English: import the Regular icon names directly
+  instead of probing a numbered-icon fallback, write only the plugin:<name> message source,
+  take boundary schemas through create() only, handle lifecycle only on agent/created,
+  and read settings only from the Profile's volatile configuration.
+- Remove the fallback paths kept for hosts before 0.2.0: the numbered icon fallback,
+  settings.register, agent/session-start, the legacy message-source shape, and the
+  missing-volatile() / missing-create() fallbacks. Reading plugin messages and command
+  results already stored in older session logs is unchanged.
+- Keep this fork's repo-only install path; README.zh-CN.md and README.ru.md stay deleted.
+
 ## 0.1.0
 
 English fork of @michengai/dsh-pua, based on upstream dsh-pua 0.3.28 with vendored PUA

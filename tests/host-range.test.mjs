@@ -5,22 +5,22 @@ import { existsSync, readFileSync } from 'node:fs';
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
 const sourceTree = existsSync(new URL('../.github/workflows/ci.yml', import.meta.url));
 const pkg = sourceTree ? JSON.parse(read('package.json')) : null;
-const supported = ['0.1.2-rc.1', '0.1.5-rc.1', '0.1.5-rc.2', '0.1.5-rc.3', '0.1.7-rc.1', '0.1.7-rc.2', '0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-alpha.2', '0.2.1-alpha.3'];
+const supported = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2'];
 
-test('兼容列表只保留 RC，开发依赖钉到最新官方 RC', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
+test('兼容列表从 0.2.0 起，开发依赖钉到最新官方版本', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
   const range = pkg.peerDependencies['@deepseek-ai/dsh-session'];
   assert.deepEqual(range.split(' || '), supported);
   for (const [name, value] of Object.entries(pkg.peerDependencies)) {
     if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(value, range, name);
   }
   for (const [name, version] of Object.entries(pkg.devDependencies)) {
-    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.1-alpha.3', name);
+    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.1-rc.2', name);
   }
-  assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.0.5-alpha.2');
-  assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.18.5-alpha.2');
-  assert.ok(pkg.peerDependencies['@deepseek-ai/schemastery'].split(' || ').includes('3.18.4'));
-  assert.ok(pkg.peerDependencies['@deepseek-ai/schemastery'].split(' || ').includes('3.18.5-alpha.2'));
-  assert.equal(range.includes('0.1.6-alpha') || range.includes('0.1.7-alpha'), false);
+  assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.0.5');
+  assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.18.5');
+  assert.equal(pkg.peerDependencies['@deepseek-ai/cordis'], '4.0.4 || 4.0.5');
+  assert.equal(pkg.peerDependencies['@deepseek-ai/schemastery'], '3.18.4 || 3.18.5');
+  assert.equal(range.includes('0.1.') || range.includes('-alpha.'), false);
 });
 
 test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? false : '隔离兼容目录不复制 locale' }, () => {
@@ -43,11 +43,12 @@ test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? f
 
 test('CI 与说明中的兼容列表和 peer 一致', { skip: sourceTree ? false : '隔离兼容目录不复制 CI 和说明' }, () => {
   const ci = read('.github/workflows/ci.yml');
-  assert.match(ci, /version: \['0\.1\.2-rc\.1', '0\.1\.5-rc\.1', '0\.1\.5-rc\.2', '0\.1\.5-rc\.3', '0\.1\.7-rc\.1', '0\.1\.7-rc\.2', '0\.2\.0-rc\.1', '0\.2\.0-rc\.2'/);
-  assert.equal(ci.includes('0.1.6-alpha') || ci.includes('0.1.7-alpha'), false);
+  for (const version of supported) assert.equal(ci.includes("'" + version + "'"), true, version);
+  assert.equal(ci.includes('0.1.2-rc.1'), false);
   for (const file of ['README.md']) {
     const text = read(file);
     for (const version of supported) assert.equal(text.includes(version), true, file);
-    assert.equal(text.includes('0.1.6-alpha') || text.includes('0.1.7-alpha'), false, file);
+    assert.equal(text.includes('0.3.28'), true, file);
+    assert.match(text, /0\.2\.0/, file);
   }
 });

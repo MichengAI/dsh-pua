@@ -6,7 +6,7 @@ export interface Preferences extends Omit<Configuration, 'enabled'> {
     alwaysOn: boolean;
 }
 export declare const SETTINGS_NAMESPACE = "phucnd0604-pua-en";
-/** 0.1.6 and earlier settings pages still register this plain schema. */
+/** Reduces the field declarations to a plain schema that can still be validated. Since 0.2.0 schemastery provides volatile(). */
 export declare const SETTINGS_SCHEMA: Schema<Schemastery.ObjectS<NoInfer<{
     alwaysOn: Schema<boolean, boolean, "defined">;
     flavor: Schema<"alibaba" | "bytedance" | "huawei" | "tencent" | "baidu" | "pinduoduo" | "meituan" | "jd" | "xiaomi" | "netflix" | "tesla" | "apple" | "amazon" | "microsoft" | "ding" | "auto", "alibaba" | "bytedance" | "huawei" | "tencent" | "baidu" | "pinduoduo" | "meituan" | "jd" | "xiaomi" | "netflix" | "tesla" | "apple" | "amazon" | "microsoft" | "ding" | "auto", "defined">;
@@ -38,11 +38,7 @@ export declare const SETTINGS_SCHEMA: Schema<Schemastery.ObjectS<NoInfer<{
     verify: Schema<string, string, "defined">;
     verificationTimeout: Schema<number, number, "defined">;
 }>>, "plain">;
-/**
- * Since 0.1.7 the global configuration is the current Profile entry's volatile Config.
- * Older schemastery has no volatile(); this schema stays a plain object so older hosts still load it.
- */
-export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
+export declare const Config: Schema<NoInfer<Schemastery.ObjectS<NoInfer<{
     alwaysOn: Schema<boolean, boolean, "defined">;
     flavor: Schema<"alibaba" | "bytedance" | "huawei" | "tencent" | "baidu" | "pinduoduo" | "meituan" | "jd" | "xiaomi" | "netflix" | "tesla" | "apple" | "amazon" | "microsoft" | "ding" | "auto", "alibaba" | "bytedance" | "huawei" | "tencent" | "baidu" | "pinduoduo" | "meituan" | "jd" | "xiaomi" | "netflix" | "tesla" | "apple" | "amazon" | "microsoft" | "ding" | "auto", "defined">;
     offline: Schema<boolean, boolean, "defined">;
@@ -57,7 +53,7 @@ export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
     maxIterations: Schema<number, number, "defined">;
     verify: Schema<string, string, "defined">;
     verificationTimeout: Schema<number, number, "defined">;
-}>>, Schemastery.ObjectT<NoInfer<{
+}>>>, NoInfer<Schemastery.ObjectT<NoInfer<{
     alwaysOn: Schema<boolean, boolean, "defined">;
     flavor: Schema<"alibaba" | "bytedance" | "huawei" | "tencent" | "baidu" | "pinduoduo" | "meituan" | "jd" | "xiaomi" | "netflix" | "tesla" | "apple" | "amazon" | "microsoft" | "ding" | "auto", "alibaba" | "bytedance" | "huawei" | "tencent" | "baidu" | "pinduoduo" | "meituan" | "jd" | "xiaomi" | "netflix" | "tesla" | "apple" | "amazon" | "microsoft" | "ding" | "auto", "defined">;
     offline: Schema<boolean, boolean, "defined">;
@@ -72,14 +68,13 @@ export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
     maxIterations: Schema<number, number, "defined">;
     verify: Schema<string, string, "defined">;
     verificationTimeout: Schema<number, number, "defined">;
-}>>, "plain">;
+}>>>, "volatile">;
 /** Reduces a plain object or a volatile reference to setting values. Missing fields fall back to the schema defaults. */
 export declare function materializePreferences(config: unknown): Preferences | undefined;
-/** Optional settings service. Older hosts register settings.yaml; 0.1.7 reads the volatile configuration in the Profile. Without either, changes only affect the current session. */
+/** Optional settings service. Since 0.2.0 it reads the volatile configuration in the Profile; without that service, changes only affect the current session. */
 export declare class PreferencesBridge {
     private readonly config;
-    private scope;
-    private mode;
+    private ready;
     constructor(ctx: Context, config: unknown);
     private current;
     defaults(): Partial<PuaState>;

@@ -27,29 +27,9 @@ function preferenceFields() {
   };
 }
 
-/** 0.1.6 and earlier settings pages still register this plain schema. */
+/** Reduces the field declarations to a plain schema that can still be validated. Since 0.2.0 schemastery provides volatile(). */
 export const SETTINGS_SCHEMA = Schema.object(preferenceFields());
-
-function live<T>(schema: T): T {
-  const candidate = schema as T & { volatile?: () => T };
-  return typeof candidate.volatile === 'function' ? candidate.volatile() : schema;
-}
-
-/**
- * Since 0.1.7 the global configuration is the current Profile entry's volatile Config.
- * Older schemastery has no volatile(); this schema stays a plain object so older hosts still load it.
- */
-export const Config = live(Schema.object(preferenceFields()));
-
-/** The return value of settings.register in 0.1.6 and earlier; 0.1.7 no longer exports this type. */
-interface LegacySettingsScope<T> {
-  get(): T;
-}
-
-interface SettingsHost {
-  register?: (ns: string, schema: typeof SETTINGS_SCHEMA) => LegacySettingsScope<Preferences>;
-  configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void;
-}
+export const Config = SETTINGS_SCHEMA.volatile();
 
 function unwrap(value: unknown): unknown {
   if (value !== null && typeof value === 'object' && typeof (value as { get?: unknown }).get === 'function') {
@@ -67,20 +47,13 @@ export function materializePreferences(config: unknown): Preferences | undefined
   catch { return undefined; }
 }
 
-/** Optional settings service. Older hosts register settings.yaml; 0.1.7 reads the volatile configuration in the Profile. Without either, changes only affect the current session. */
+/** Optional settings service. Since 0.2.0 it reads the volatile configuration in the Profile; without that service, changes only affect the current session. */
 export class PreferencesBridge {
-  private scope: LegacySettingsScope<Preferences> | undefined;
-  private mode: 'unknown' | 'legacy' | 'volatile' = 'unknown';
+  private ready = false;
   constructor(ctx: Context, private readonly config: unknown) {
     ctx.inject(['settings'], child => {
-      const settings = child.settings as SettingsHost;
-      if (typeof settings.register === 'function') {
-        this.mode = 'legacy';
-        this.scope = settings.register(SETTINGS_NAMESPACE, SETTINGS_SCHEMA);
-        child.effect(() => () => { this.scope = undefined; this.mode = 'unknown'; });
-        return;
-      }
-      this.mode = 'volatile';
+      const settings = child.settings as { configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void };
+      this.ready = true;
       if (typeof settings.configure === 'function') {
         const dispose = settings.configure({ auto: false }, ctx.fiber);
         child.effect(() => dispose);
@@ -88,9 +61,8 @@ export class PreferencesBridge {
     });
   }
   private current(): Preferences | undefined {
-    if (this.scope) return materializePreferences(this.scope.get());
-    if (this.mode === 'volatile') return materializePreferences(this.config);
-    return undefined;
+    if (!this.ready) return undefined;
+    return materializePreferences(this.config);
   }
   defaults(): Partial<PuaState> {
     const config = this.current();

@@ -5,8 +5,8 @@
   "version": "3.5.1",
   "pluginUpstream": {
     "repository": "https://github.com/MichengAI/dsh-pua",
-    "revision": "1d2e60988673c8f289903181914c5e91aae391dc",
-    "version": "0.3.28"
+    "revision": "791733b1a7c63f7818b36501eeeaa4dc85f9b0ff",
+    "version": "1.0.1"
   },
   "author": "探微安全实验室",
   "declaredLicense": "MIT",
