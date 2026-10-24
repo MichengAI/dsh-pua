@@ -67,7 +67,7 @@ For a desktop workbench, download [DSH Codex Desktop](https://github.com/Micheng
 
 ## Installation
 
-Requires Node.js 22.19 or later. Plugin `1.0.1` is tested with DeepSeek Harness `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, and `0.2.1-rc.2`. Hosts before `0.2.0`, including intermediate `0.2.1` alphas, are rejected by the version gate, and this plugin will not run. If you still use a `0.1.x` host, install plugin `0.3.28` instead of `@latest`. Existing settings and session records are kept. Uses your existing DSH model configuration; no additional API key is needed.
+Requires Node.js 22.19 or later. Plugin `1.0.1` is tested with DeepSeek Harness `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, and `0.2.1-rc.3`. Hosts before `0.2.0`, including intermediate `0.2.1` alphas, are rejected by the version gate, and this plugin will not run. If you still use a `0.1.x` host, install plugin `0.3.28` instead of `@latest`. Existing settings and session records are kept. Uses your existing DSH model configuration; no additional API key is needed.
 
 GitHub and npm both include a ready-to-run `lib`. After changing source, run `npm run build` before committing.
 

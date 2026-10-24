@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
 const sourceTree = existsSync(new URL('../.github/workflows/ci.yml', import.meta.url));
 const pkg = sourceTree ? JSON.parse(read('package.json')) : null;
-const supported = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2'];
+const supported = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3'];
 
 test('兼容列表从 0.2.0 起，开发依赖钉到最新官方版本', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
   const range = pkg.peerDependencies['@deepseek-ai/dsh-session'];

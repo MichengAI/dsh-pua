@@ -1,5 +1,15 @@
 # 更新记录
 
+## 1.0.2
+
+### 中文
+
+- 支持 DSH `0.2.1-rc.3`，保持现有宿主兼容。
+
+### English
+
+- Support DSH `0.2.1-rc.3` while maintaining existing host compatibility.
+
 ## 1.0.1
 
 ### 中文
