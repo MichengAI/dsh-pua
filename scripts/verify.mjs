@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
 import assert from 'node:assert/strict';
+import semver from 'semver';
 import { loadPrompts, loadCommandPrompts, QUALITY_COMMANDS, MAX_PROMPT_BYTES, MODES, renderOriginalPrompt } from '../lib/content.js';
 import { SourceCatalog } from '../lib/source.js';
 import { FLAVORS } from '../lib/flavors.js';
@@ -20,7 +21,7 @@ for (const [name, range] of Object.entries(pkg.peerDependencies)) {
   if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(range, hostRange, `${name} 的支持范围不一致`);
 }
 const hostVersion = pkg.devDependencies['@deepseek-ai/dsh-session'];
-assert.ok(hostRange.split(' || ').includes(hostVersion), '开发宿主不在支持范围内');
+assert.ok(semver.satisfies(hostVersion, hostRange, { includePrerelease: true }), '开发宿主不在支持范围内');
 for (const [name, version] of Object.entries(pkg.devDependencies)) {
   if (!name.startsWith('@deepseek-ai/dsh-')) continue;
   assert.equal(version, hostVersion, `${name} 未锁定同一宿主版本`);

@@ -1,26 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
+import semver from 'semver';
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
 const sourceTree = existsSync(new URL('../.github/workflows/ci.yml', import.meta.url));
 const pkg = sourceTree ? JSON.parse(read('package.json')) : null;
-const supported = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3'];
+const defaultTestedHosts = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3'];
 
-test('兼容列表从 0.2.0 起，开发依赖钉到最新官方版本', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
+test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方版本 0.2.1-rc.3', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
+  assert.equal(pkg.engines?.dsh, '>=0.2.0-rc.1 <0.3.0-0');
   const range = pkg.peerDependencies['@deepseek-ai/dsh-session'];
-  assert.deepEqual(range.split(' || '), supported);
+  assert.equal(range, '>=0.2.0-rc.1 <0.3.0-0');
   for (const [name, value] of Object.entries(pkg.peerDependencies)) {
     if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(value, range, name);
   }
+  for (const v of ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.1-rc.4', '0.2.2-alpha.1', '0.2.2-rc.1', '0.2.9']) {
+    assert.ok(semver.satisfies(v, range, { includePrerelease: true }), `放行 0.2.x 版本 ${v}`);
+  }
+  for (const v of ['0.1.7-rc.2', '0.2.0-alpha.1', '0.3.0-alpha.1', '0.3.0-rc.1', '0.3.0', '1.0.0']) {
+    assert.equal(semver.satisfies(v, range, { includePrerelease: true }), false, `拦截范围外版本 ${v}`);
+  }
   for (const [name, version] of Object.entries(pkg.devDependencies)) {
-    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.1-rc.2', name);
+    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.1-rc.3', name);
   }
   assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.0.5');
   assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.18.5');
   assert.equal(pkg.peerDependencies['@deepseek-ai/cordis'], '4.0.4 || 4.0.5');
   assert.equal(pkg.peerDependencies['@deepseek-ai/schemastery'], '3.18.4 || 3.18.5');
-  assert.equal(range.includes('0.1.') || range.includes('-alpha.'), false);
 });
 
 test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? false : '隔离兼容目录不复制 locale' }, () => {
@@ -43,11 +50,11 @@ test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? f
 
 test('CI 与说明中的兼容列表和 peer 一致', { skip: sourceTree ? false : '隔离兼容目录不复制 CI 和说明' }, () => {
   const ci = read('.github/workflows/ci.yml');
-  for (const version of supported) assert.equal(ci.includes(`'${version}'`), true, version);
+  for (const version of defaultTestedHosts) assert.equal(ci.includes(`'${version}'`), true, version);
   assert.equal(ci.includes('0.1.2-rc.1'), false);
   for (const file of ['README.md', 'README.zh-CN.md', 'README.ru.md']) {
     const text = read(file);
-    for (const version of supported) assert.equal(text.includes(version), true, file);
+    for (const version of defaultTestedHosts) assert.equal(text.includes(version), true, file);
     assert.equal(text.includes('0.3.28'), true, file);
     assert.match(text, /0\.2\.0/, file);
   }
