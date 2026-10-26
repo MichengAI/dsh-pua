@@ -1,0 +1,15 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dsh_svg_pua_g" x1="6" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EF4444"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+  <!-- Overclock / Pressure Dial Arc -->
+  <path d="M10 24C7.5 21 7 16.5 8.5 13C10.5 8.5 15.5 6 20.5 7C25.5 8 29 12.5 28.5 17.5C28 21.5 25.5 24.5 22 26" stroke="url(#dsh_svg_pua_g)" stroke-width="3" stroke-linecap="round"/>
+  <!-- High Redzone Warning Markers -->
+  <circle cx="27" cy="12" r="1.8" fill="#EF4444"/>
+  <circle cx="29" cy="17" r="1.8" fill="#DC2626"/>
+  <!-- Piercing Lightning Bolt (Break Laziness) -->
+  <path d="M20 5L11 18H17L14 30L26 15H19L21.5 5H20Z" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round"/>
+</svg>

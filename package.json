@@ -40,7 +40,7 @@
     "LICENSE",
     "NOTICE",
     "CHANGELOG.md",
-    "assets/icon.webp"
+    "assets/icon.svg"
   ],
   "dsh": {
     "bundle": {
@@ -180,5 +180,5 @@
   "bugs": {
     "url": "https://github.com/MichengAI/dsh-pua/issues"
   },
-  "icon": "assets/icon.webp"
+  "icon": "assets/icon.svg"
 }
