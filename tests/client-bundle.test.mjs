@@ -175,6 +175,8 @@ test('聊天入口关闭态绑定电源符号，开启态绑定强调色', () =>
   assert.ok(js.includes('"data-disabled"'), '关闭态必须有 data-disabled');
   assert.ok(js.includes('.pua-trigger[data-on=true]{color:var(--dsw-alias-brand-primary);background:color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent)}'));
   assert.ok(js.includes('.pua-trigger[data-disabled=true]{color:var(--dsw-alias-label-tertiary)}'));
+  assert.equal(js.includes('border-radius:20px'), false, '输入框入口不再手写 20px 药丸圆角');
+  assert.doesNotMatch(js, /\.pua-trigger\{border:0;border-radius/, '输入框入口手写 trigger 样式已清空');
   assert.equal(js.includes('rotate(-25deg)'), false);
 });
 
