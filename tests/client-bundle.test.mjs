@@ -19,7 +19,7 @@ function loadClient() {
     if (name === '@deepseek-ai/dsh-client-ui-primitives') {
       sharedControls = true;
       return {
-        Button: () => null, Menu: () => null, Switch: () => null, IconChevronDownOutlineRegular: () => null,
+        Button: () => null, Input: () => null, Menu: () => null, Modal: () => null, Switch: () => null, IconChevronDownOutlineRegular: () => null,
         IconChevronUpOutlineRegular: () => null, IconGaugeOutlineRegular: gaugeIcon, IconCloseOutlineRegular: closeIcon,
       };
     }
@@ -166,14 +166,15 @@ test('全局关闭后斜杠菜单不列出 PUA 命令', async () => {
   assert.deepEqual(rows.map(row => row.name), ['compact']);
 });
 
-test('聊天入口关闭态绑定电源符号，开启态绑定强调色', () => {
+test('聊天入口关闭态绑定电源符号，开启态对齐底栏次级灰与宿主表盘', () => {
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
   assert.ok(js.includes('conversation.input.left'), '入口必须注册到聊天栏');
   assert.ok(js.includes('M8 1.6V6.6'), '关闭态必须是电源符号');
   assert.ok(js.includes('IconGaugeOutlineRegular'), '开启态必须用宿主表盘');
   assert.match(js, /"data-on":[^,]{0,80}enabled===!0/);
   assert.ok(js.includes('"data-disabled"'), '关闭态必须有 data-disabled');
-  assert.ok(js.includes('.pua-trigger[data-on=true]{color:var(--dsw-alias-brand-primary);background:color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent)}'));
+  assert.ok(js.includes('.pua-trigger{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:20px;font-weight:500;padding:0 8px}'));
+  assert.ok(js.includes('.pua-trigger:hover:not(:disabled),.pua-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover)}'));
   assert.ok(js.includes('.pua-trigger[data-disabled=true]{color:var(--dsw-alias-label-tertiary)}'));
   assert.equal(js.includes('border-radius:20px'), false, '输入框入口不再手写 20px 药丸圆角');
   assert.doesNotMatch(js, /\.pua-trigger\{border:0;border-radius/, '输入框入口手写 trigger 样式已清空');
@@ -188,10 +189,11 @@ test('运行卡片操作按钮与 BTW 一样用圆形图标，不用详情文字
   assert.doesNotMatch(js, /\\u8BE6\\u60C5/);
 });
 
-test('弹窗关闭按钮带 pua-close 样式与图标，且会话面板不暴露语言选择并透传 hostLocale', () => {
+test('弹窗接入宿主 Modal 原语，且会话面板不暴露语言选择并透传 hostLocale', () => {
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
-  assert.match(js, /\.pua-close\{position:absolute;right:16px;top:16px;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px/);
-  assert.match(js, /\.pua-close svg\{width:16px;height:16px;flex:none\}/);
+  assert.ok(js.includes('pua-session-modal'));
+  assert.equal(js.includes('pua-dialog'), false, '不再手绘原生 dialog 弹窗');
+  assert.equal(js.includes('pua-close'), false, '不再手绘关闭按钮');
   assert.ok(js.includes('["enabled","flavor","mode","subagents"]'));
   assert.match(js, /sessionId:[a-z],hostLocale:[a-z],onLoopStarted:/);
 });

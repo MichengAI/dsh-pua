@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { Button, Menu, Switch } from '@deepseek-ai/dsh-client-ui-primitives';
+import { Button, Input, Menu, Modal, Switch } from '@deepseek-ai/dsh-client-ui-primitives';
 import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-typert-protocol';
 import { CONFIG_DEFAULTS, CONFIG_KEYS, CONFIG_MODES, LANGUAGE_PREFS, configSchema, parsePatch, type Configuration, type ConfigurationPatch, type LanguagePref } from './configuration.js';
 import { FLAVORS } from './flavors.js';
@@ -63,7 +62,7 @@ function PuaSelect({ id, value, options, disabled, onChange }: {
   const [open, setOpen] = useState(false);
   return h(Menu, { className: 'pua-shared-menu', align: 'end', open: open && !disabled, autoFocus: true, items: options.map(option => ({ id: option.value, label: option.label })),
     selectedId: value, onClose: () => setOpen(false), onSelect: next => { setOpen(false); if (next !== value) onChange(next); },
-    anchor: h(Button, { id, type: 'button', variant: 'toolbar', className: 'pua-select-trigger', disabled, 'aria-haspopup': 'menu', 'aria-expanded': open,
+    anchor: h(Button, { id, type: 'button', variant: 'outline', size: 'sm', className: 'pua-select-trigger', disabled, 'aria-haspopup': 'menu', 'aria-expanded': open,
       onClick: () => setOpen(!open) }, h('span', { className: 'pua-select-label' }, options.find(option => option.value === value)?.label), h(IconChevronDown)),
   });
 }
@@ -96,6 +95,8 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
   const [error, setError] = useState('');
   const [task, setTask] = useState('');
   const [loopValues, setLoopValues] = useState<Configuration>();
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [loopOpen, setLoopOpen] = useState(false);
   const live = useRef(true);
   const saving = useRef(false);
   const epoch = useRef(0);
@@ -137,25 +138,36 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
     const description = global && key === 'enabled' ? copy.allow.description : copy.descriptions[key];
     const update = (next: Configuration[Key]) => { ++epoch.current; setDraft(previous => ({ ...previous, [key]: next })); setDirty(true); };
     const options = choices[key];
+
+    if (key === 'verify') {
+      return h('div', { className: 'pua-field pua-field-block', key },
+        h('div', { className: 'pua-field-head' },
+          h('label', { htmlFor: id, className: 'pua-field-title' }, label),
+          !global && overridden && h(Button, { variant: 'ghost', size: 'sm', className: 'pua-override-btn', disabled: busy, 'aria-label': copy.panel.restoreDefaultAria(label), onClick: () => void save({ [key]: null }) }, copy.panel.restoreDefault)),
+        description && h('small', { className: 'pua-field-desc' }, description),
+        h('textarea', { id, className: 'pua-textarea', value: typeof value === 'number' && Number.isNaN(value) ? '' : value, disabled: busy, rows: 2, maxLength: 8192,
+          onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => update(event.target.value),
+          onBlur: () => { if (!global && dirty) void save({ [key]: draft[key] }); } }));
+    }
+
     const input = typeof value === 'boolean'
-      ? h(Switch, { checked: key === 'offline' ? !value : value, label: label, disabled: busy,
+      ? h(Switch, { checked: key === 'offline' ? !value : value, label, disabled: busy,
         onChange: next => { const parsed = key === 'offline' ? !next : next; if (global) update(parsed); else void save({ [key]: parsed }); } })
       : options ? h(PuaSelect, { id, value: String(value), disabled: busy, options,
         onChange: next => { if (global) update(next); else void save({ [key]: next }); } })
-      : h(key === 'verify' ? 'textarea' : 'input', { id, value: typeof value === 'number' && Number.isNaN(value) ? '' : value, disabled: busy,
-        ...(key === 'verify' ? { rows: 2, maxLength: 8192 } : { type: 'number', min: key === 'verificationTimeout' ? 1 : 0, max: key === 'maxIterations' ? 10000 : key === 'verificationTimeout' ? 3600 : 9999, step: 1 }),
-        onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => update(typeof value === 'number' ? event.target.value === '' ? NaN : Number(event.target.value) : event.target.value),
+      : h(Input, { id, className: 'pua-number-input', value: typeof value === 'number' && Number.isNaN(value) ? '' : value, disabled: busy, type: 'number',
+        min: key === 'verificationTimeout' ? 1 : 0, max: key === 'maxIterations' ? 10000 : key === 'verificationTimeout' ? 3600 : 9999, step: 1,
+        onChange: (event: React.ChangeEvent<HTMLInputElement>) => update(event.target.value === '' ? NaN : Number(event.target.value)),
         onBlur: () => { if (!global && dirty) void save({ [key]: draft[key] }); } });
-    if (typeof value === 'boolean') return h('div', { className: 'pua-field', key },
-      h('label', { className: 'pua-toggle-row' }, h('span', null, label), input),
-      !global && overridden && h('span', { className: 'pua-override' }, h('small', null, copy.panel.overrideBadge),
-        h(Button, { disabled: busy, 'aria-label': copy.panel.restoreDefaultAria(label), onClick: () => void save({ [key]: null }) }, copy.panel.restoreDefault)),
-      description && h('small', null, description));
-    return h('div', { className: 'pua-field', key, 'data-inline': !!options },
-      h('div', { className: 'pua-field-head' }, h('label', { htmlFor: id }, label)), input,
-      !global && overridden && h('span', { className: 'pua-override' }, h('small', null, copy.panel.overrideBadge),
-        h(Button, { disabled: busy, 'aria-label': copy.panel.restoreDefaultAria(label), onClick: () => void save({ [key]: null }) }, copy.panel.restoreDefault)),
-      description && h('small', null, description));
+
+    return h('div', { className: 'pua-field', key },
+      h('div', { className: 'pua-field-info' },
+        h('label', { htmlFor: id, className: 'pua-field-title' }, label),
+        description && h('small', { className: 'pua-field-desc' }, description),
+        !global && overridden && h('div', { className: 'pua-override-line' },
+          h('span', { className: 'pua-override-badge' }, copy.panel.overrideBadge),
+          h(Button, { variant: 'ghost', size: 'sm', className: 'pua-override-btn', disabled: busy, 'aria-label': copy.panel.restoreDefaultAria(label), onClick: () => void save({ [key]: null }) }, copy.panel.restoreDefault))),
+      h('div', { className: 'pua-field-control' }, input));
   }
   async function loop(start: boolean) {
     if (!sessionId || saving.current) return;
@@ -167,23 +179,38 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
   const topKeys = global ? GLOBAL_TOP_KEYS : SESSION_TOP_KEYS;
   const detailKeys = CONFIG_KEYS.filter(key => !topKeys.includes(key) && (global || key !== 'language'));
   return h('section', { className: global ? 'pua-panel pua-panel-global' : 'pua-panel', 'aria-label': global ? copy.panel.globalAria : copy.panel.sessionAria },
-  !global && h('h2', null, copy.panel.sessionHeading),
-  h('p', { className: 'pua-muted' }, global ? copy.panel.globalNote : copy.panel.sessionNote(Object.keys(snapshot?.overrides ?? {}).length)),
-  !global && snapshot && h('div', { className: 'pua-session-actions' },
-    h(Button, { disabled: busy || !Object.keys(snapshot.overrides).length, onClick: () => void save(Object.fromEntries(CONFIG_KEYS.map(key => [key, null]))) }, copy.panel.restoreAll),
-    h('span', { role: 'status', 'aria-live': 'polite' }, busy ? copy.panel.statusSaving : dirty ? copy.panel.statusDirty : status === copy.panel.statusSavedSession ? status : '')),
-  snapshot?.child && h('p', { className: 'pua-muted' }, copy.panel.childNote),
-  error && h('div', { role: 'alert', className: 'pua-error' }, error, h(Button, { onClick: () => void refresh(), disabled: busy }, copy.panel.reload)),
-  snapshot && h(React.Fragment, null, topKeys.map(key => field(key)),
-    h('details', null, h('summary', null, copy.panel.detailsSummary), detailKeys.map(field)),
-      global && h('div', { className: 'pua-settings-footer' }, h(React.Fragment, null, h('button', { type: 'button', className: 'pua-settings-discard', disabled: busy || !dirty, onClick: () => { ++epoch.current; accept(snapshot); } }, copy.panel.discard), h('button', { type: 'button', className: 'pua-settings-save', disabled: busy || !dirty, onClick: () => void save() }, busy ? copy.panel.saveBusy : copy.panel.save))),
-      !global && h('details', { onToggle: (event: React.SyntheticEvent<HTMLDetailsElement>) => { if (event.currentTarget.open && !loopValues) setLoopValues({ ...draft }); } },
-        h('summary', null, copy.panel.loop.summary), h('p', { className: 'pua-muted' }, copy.panel.loop.note),
-        h('label', null, copy.panel.loop.task, h('textarea', { value: task, rows: 2, maxLength: 4096, onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => setTask(event.target.value) })),
-        h('label', null, copy.panel.loop.verify, h('textarea', { value: (loopValues ?? draft).verify, rows: 2, maxLength: 8192, onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => setLoopValues({ ...(loopValues ?? draft), verify: event.target.value }) })),
-        h('label', null, copy.panel.loop.iterations, h('input', { type: 'number', min: 0, max: 10000, value: (loopValues ?? draft).maxIterations, onChange: (event: React.ChangeEvent<HTMLInputElement>) => setLoopValues({ ...(loopValues ?? draft), maxIterations: Number(event.target.value) }) })),
-        h('label', null, copy.panel.loop.timeout, h('input', { type: 'number', min: 1, max: 3600, value: (loopValues ?? draft).verificationTimeout, onChange: (event: React.ChangeEvent<HTMLInputElement>) => setLoopValues({ ...(loopValues ?? draft), verificationTimeout: Number(event.target.value) }) })),
-        h('div', { className: 'pua-actions' }, h(Button, { variant: 'primary', disabled: busy || !task.trim(), onClick: () => void loop(true) }, copy.panel.loop.start), h(Button, { disabled: busy, onClick: () => void loop(false) }, copy.panel.loop.cancel)))));
+    !global && snapshot && h('div', { className: 'pua-session-actions' },
+      h('p', { className: 'pua-muted' }, copy.panel.sessionNote(Object.keys(snapshot.overrides).length)),
+      Object.keys(snapshot.overrides).length > 0 && h(Button, { variant: 'outline', size: 'sm', disabled: busy, onClick: () => void save(Object.fromEntries(CONFIG_KEYS.map(key => [key, null]))) }, copy.panel.restoreAll),
+      h('span', { role: 'status', 'aria-live': 'polite' }, busy ? copy.panel.statusSaving : dirty ? copy.panel.statusDirty : status === copy.panel.statusSavedSession ? status : '')),
+    global && h('p', { className: 'pua-muted' }, global ? copy.panel.globalNote : ''),
+    snapshot?.child && h('p', { className: 'pua-muted' }, copy.panel.childNote),
+    error && h('div', { role: 'alert', className: 'pua-error' }, error, h(Button, { variant: 'outline', size: 'sm', onClick: () => void refresh(), disabled: busy }, copy.panel.reload)),
+    snapshot && h(React.Fragment, null,
+      topKeys.map(key => field(key)),
+      h('div', { className: 'pua-section' },
+        h('button', { type: 'button', className: 'pua-section-toggle', 'aria-expanded': detailsOpen, onClick: () => setDetailsOpen(!detailsOpen) },
+          h('span', { className: 'pua-section-title' }, copy.panel.detailsSummary),
+          h(IconChevronDown, { className: `pua-section-chevron${detailsOpen ? ' pua-section-chevron-open' : ''}` })),
+        detailsOpen && h('div', { className: 'pua-section-body' }, detailKeys.map(field))),
+      global && h('div', { className: 'pua-settings-footer' },
+        h(Button, { type: 'button', variant: 'outline', disabled: busy || !dirty, onClick: () => { ++epoch.current; accept(snapshot); } }, copy.panel.discard),
+        h(Button, { type: 'button', variant: 'primary', disabled: busy || !dirty, onClick: () => void save() }, busy ? copy.panel.saveBusy : copy.panel.save)),
+      !global && h('div', { className: 'pua-section' },
+        h('button', { type: 'button', className: 'pua-section-toggle', 'aria-expanded': loopOpen, onClick: () => { if (!loopOpen && !loopValues) setLoopValues({ ...draft }); setLoopOpen(!loopOpen); } },
+          h('span', { className: 'pua-section-title' }, copy.panel.loop.summary),
+          h(IconChevronDown, { className: `pua-section-chevron${loopOpen ? ' pua-section-chevron-open' : ''}` })),
+        loopOpen && h('div', { className: 'pua-section-body pua-loop-form' },
+          h('p', { className: 'pua-muted' }, copy.panel.loop.note),
+          h('label', { className: 'pua-loop-label' }, h('span', null, copy.panel.loop.task), h('textarea', { className: 'pua-textarea', value: task, rows: 2, maxLength: 4096, onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => setTask(event.target.value) })),
+          h('label', { className: 'pua-loop-label' }, h('span', null, copy.panel.loop.verify), h('textarea', { className: 'pua-textarea', value: (loopValues ?? draft).verify, rows: 2, maxLength: 8192, onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => setLoopValues({ ...(loopValues ?? draft), verify: event.target.value }) })),
+          h('div', { className: 'pua-field' },
+            h('div', { className: 'pua-field-info' }, h('span', { className: 'pua-field-title' }, copy.panel.loop.iterations)),
+            h(Input, { type: 'number', className: 'pua-number-input', min: 0, max: 10000, value: (loopValues ?? draft).maxIterations, onChange: (event: React.ChangeEvent<HTMLInputElement>) => setLoopValues({ ...(loopValues ?? draft), maxIterations: Number(event.target.value) }) })),
+          h('div', { className: 'pua-field' },
+            h('div', { className: 'pua-field-info' }, h('span', { className: 'pua-field-title' }, copy.panel.loop.timeout)),
+            h(Input, { type: 'number', className: 'pua-number-input', min: 1, max: 3600, value: (loopValues ?? draft).verificationTimeout, onChange: (event: React.ChangeEvent<HTMLInputElement>) => setLoopValues({ ...(loopValues ?? draft), verificationTimeout: Number(event.target.value) }) })),
+          h('div', { className: 'pua-actions' }, h(Button, { variant: 'primary', disabled: busy || !task.trim(), onClick: () => void loop(true) }, copy.panel.loop.start), h(Button, { variant: 'outline', disabled: busy, onClick: () => void loop(false) }, copy.panel.loop.cancel))))));
 }
 
 function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteApi; sessionId: string; hostLocale?: string | undefined }): React.ReactElement | null {
@@ -193,7 +220,6 @@ function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteAp
   const [snapshot, setSnapshot] = useState<ConfigurationSnapshot>();
   const copy = UI[resolveUiLang(snapshot?.values.language, hostLocale)];
   const trigger = useRef<HTMLButtonElement>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const watcher = watchComposerConfiguration(remote, sessionId, enabled => {
       setGlobalEnabled(enabled);
@@ -202,16 +228,16 @@ function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteAp
     window.addEventListener('focus', watcher.refresh);
     return () => { watcher.dispose(); window.removeEventListener('focus', watcher.refresh); };
   }, [remote, sessionId, open]);
-  useEffect(() => { if (open) dialog.current?.showModal(); }, [open]);
-  const close = () => { dialog.current?.close(); setOpen(false); trigger.current?.focus(); };
+  const close = () => { setOpen(false); trigger.current?.focus(); };
   const disabled = snapshot?.values.enabled === false;
   if (!globalEnabled) return null;
-  return h('div', { className: 'pua-composer' }, h(Button as any, { ref: trigger, variant: 'ghost', size: 'sm', className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'data-on': snapshot?.values.enabled === true, 'aria-label': !snapshot ? copy.composer.readingAria : disabled ? copy.composer.offAria : copy.composer.onAria, 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? copy.composer.readingTitle : disabled ? copy.composer.offTitle : copy.composer.onTitle), icon: h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(disabled ? IconGaugeOff : IconGauge)) }, 'PUA'),
-    open && createPortal(h('dialog', { ref: dialog, className: 'pua-dialog', 'aria-label': copy.composer.dialogAria, onKeyDownCapture: (event: React.KeyboardEvent) => { if (event.key === 'Escape' && dialog.current?.querySelector('[role=menu]')) event.preventDefault(); }, onCancel: close, onClick: (event: React.MouseEvent<HTMLDialogElement>) => { if (event.target === dialog.current) close(); } },
-      h('div', { className: 'pua-dialog-content' }, h('button', { type: 'button', className: 'pua-close', onClick: close, 'aria-label': copy.composer.closePanel, title: copy.composer.close }, h(IconClose)), h(ConfigurationPanel, { key: sessionId, remote, sessionId, hostLocale, onLoopStarted: close }))), document.body));
+  return h('div', { className: 'pua-composer' },
+    h(Button as any, { ref: trigger, variant: 'ghost', size: 'sm', className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'data-on': snapshot?.values.enabled === true, 'aria-label': !snapshot ? copy.composer.readingAria : disabled ? copy.composer.offAria : copy.composer.onAria, 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? copy.composer.readingTitle : disabled ? copy.composer.offTitle : copy.composer.onTitle), icon: h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(disabled ? IconGaugeOff : IconGauge)) }, 'PUA'),
+    h(Modal, { open, onClose: close, title: copy.panel.sessionHeading, closeLabel: copy.composer.close, className: 'pua-session-modal' },
+      h(ConfigurationPanel, { key: sessionId, remote, sessionId, hostLocale, onLoopStarted: close })));
 }
-// 全局页脚沿用官方 PluginCard 的按钮样式与布局，公共 Button 用于其余操作。
-const CSS = `.pua-panel.pua-panel-global{max-width:none}.pua-settings-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 0 4px;border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-settings-discard,.pua-settings-save{appearance:none;border:1px solid transparent;border-radius:8px;padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer}.pua-settings-discard{border-color:var(--dsw-alias-border-l2);background:none;color:var(--dsw-alias-label-secondary)}.pua-settings-discard:hover:not(:disabled){color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-label-dimmed)}.pua-settings-save{background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}.pua-settings-discard:disabled,.pua-settings-save:disabled{opacity:.4;cursor:default}.pua-settings-discard:focus-visible,.pua-settings-save:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px}.pua-settings-card{list-style:none;border:0.5px solid var(--dsw-alias-border-l4);border-radius:16px;background:var(--dsw-alias-bg-layer-3);transition:border-color .16s,background .16s}.pua-settings-card:hover{border-color:var(--dsw-alias-label-dimmed)}.pua-settings-card[data-open=true]{background:var(--dsw-alias-bg-layer-2);border-color:var(--dsw-alias-label-dimmed)}.pua-card-header{width:100%;appearance:none;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px}.pua-card-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.pua-card-name{font-size:15px;font-weight:600;line-height:1.4;color:var(--dsw-alias-label-primary)}.pua-card-description{font-size:13px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}.pua-card-chevron{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform .16s}.pua-settings-card[data-open=true] .pua-card-chevron{transform:rotate(180deg)}.pua-card-body{border-top:0.5px solid var(--dsw-alias-border-l2);margin:0 16px;padding-bottom:8px}.pua-select-trigger{gap:12px;max-width:100%}.pua-select-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pua-select-trigger svg{flex:none}.pua-shared-menu{max-width:min(260px,55vw)}.pua-trigger[data-on=true]{color:var(--dsw-alias-brand-primary);background:color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent)}.pua-trigger[data-on=true]:hover{background:color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent)}.pua-trigger[data-disabled=true]{color:var(--dsw-alias-label-tertiary)}.pua-shared-menu [role=menu]{max-height:240px;overflow-y:auto}.pua-field[data-inline=true]{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px}.pua-field[data-inline=true]>.pua-field-head{margin:0}.pua-field[data-inline=true]>small{grid-column:1/-1}.pua-card-header:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px}.pua-composer{display:inline-flex;order:2;flex:none}.pua-dialog{width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 48px);padding:0;border:1px solid var(--dsw-alias-border-l2);border-radius:14px;background:var(--dsw-alias-bg-layer-2,#fff);color:var(--dsw-alias-label-primary,#222)}.pua-dialog::backdrop{background:#0005}.pua-dialog-content{position:relative;padding:22px}.pua-close{position:absolute;right:16px;top:16px;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-height:28px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}.pua-close:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.pua-close svg{width:16px;height:16px;flex:none}.pua-panel{max-width:700px;color:var(--dsw-alias-label-primary);font:inherit;font-size:14px}.pua-panel h2{font-size:19px;margin:0 60px 8px 0}.pua-muted,.pua-panel small,.pua-status{color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}.pua-field{margin:0;padding:12px 0}.pua-field+.pua-field{border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-field[data-inline=true]>.pua-override{grid-column:1/-1}.pua-session-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 12px;padding-bottom:12px;border-bottom:0.5px solid var(--dsw-alias-border-l2)}.pua-session-actions span{font-size:12px;color:var(--dsw-alias-label-secondary)}.pua-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}.pua-field-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}.pua-override{display:flex;align-items:center;gap:8px;flex:none}.pua-override small{margin:0}.pua-panel input,.pua-panel select,.pua-panel textarea{box-sizing:border-box;width:100%;min-height:34px;padding:7px 9px;border:1px solid var(--dsw-alias-border-l2,#ccc);border-radius:7px;background:var(--dsw-alias-bg-layer-2,#fff);color:inherit;font:inherit}.pua-panel textarea{resize:vertical}.pua-panel small{display:block;margin-top:5px}.pua-close{min-height:28px;cursor:pointer}.pua-panel input:disabled,.pua-panel textarea:disabled{opacity:.65;cursor:default}.pua-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.pua-panel summary{cursor:pointer;padding:12px 0;border-top:1px solid var(--dsw-alias-border-l2,#ddd)}.pua-error{padding:10px;border:1px solid var(--dsw-alias-state-error-primary,#b33);border-radius:6px;overflow-wrap:anywhere}.pua-panel :focus-visible,.pua-close:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#527dcc);outline-offset:2px}.pua-panel details>label{display:block;margin:12px 0}.pua-panel details>label>input,.pua-panel details>label>textarea{margin-top:6px}`;
+// 全局页脚与设置表单遵循宿主设计系统，控件复用 primitives 原语。
+const CSS = `.pua-panel{color:var(--dsw-alias-label-primary);font:inherit;font-size:13px}.pua-panel.pua-panel-global{max-width:none}.pua-muted{color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.5;margin:0 0 12px}.pua-field{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:0.5px solid var(--dsw-alias-border-l2)}.pua-field-block{display:block}.pua-field-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}.pua-field-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.pua-field-title{font-size:13px;font-weight:500;color:var(--dsw-alias-label-primary)}.pua-field-desc{font-size:12px;line-height:1.5;color:var(--dsw-alias-label-secondary);margin:0}.pua-field-control{display:flex;align-items:center;justify-content:flex-end;flex:none}.pua-override-line{display:inline-flex;align-items:center;gap:6px;margin-top:2px}.pua-override-badge{font-size:11px;color:var(--dsw-alias-label-tertiary)}.pua-override-btn{font-size:11px;color:var(--dsw-alias-link,#4176e6);padding:0 4px;height:20px;border:none;background:transparent;cursor:pointer}.pua-override-btn:hover:not(:disabled){background:color-mix(in srgb,var(--dsw-alias-link,#4176e6) 10%,transparent)}.pua-number-input{width:140px;flex:none}.pua-textarea{box-sizing:border-box;width:100%;min-height:56px;padding:8px 10px;margin-top:6px;border:1px solid var(--dsw-alias-input-border,var(--dsw-alias-border-l2));border-radius:var(--dsw-radius-md,8px);background:var(--dsw-alias-input-bg,var(--dsw-alias-bg-layer-2));color:inherit;font:inherit;resize:vertical}.pua-textarea:focus{outline:none;border-color:var(--dsw-alias-state-business-primary,#4176e6);box-shadow:0 0 0 2px color-mix(in srgb,var(--dsw-alias-state-business-primary,#4176e6) 20%,transparent)}.pua-textarea:disabled{opacity:.65;cursor:default}.pua-section{border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-section-toggle{width:100%;appearance:none;border:0;background:none;font:inherit;color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:12px 0;font-size:13px;font-weight:500;color:var(--dsw-alias-label-primary)}.pua-section-toggle:hover{color:var(--dsw-alias-label-dimmed)}.pua-section-chevron{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform .16s ease}.pua-section-chevron-open{transform:rotate(180deg)}.pua-section-body{padding-bottom:8px}.pua-settings-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:16px 0 4px;border-top:0.5px solid var(--dsw-alias-border-l2)}.pua-session-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding-bottom:12px;border-bottom:0.5px solid var(--dsw-alias-border-l2)}.pua-session-actions .pua-muted{margin:0}.pua-error{padding:10px 12px;margin:8px 0;border:1px solid var(--dsw-alias-state-error-primary);border-radius:var(--dsw-radius-md,8px);color:var(--dsw-alias-state-error-primary);display:flex;align-items:center;justify-content:space-between;gap:10px}.pua-loop-form{padding:8px 0}.pua-loop-label{display:block;margin:10px 0;font-size:13px;color:var(--dsw-alias-label-primary)}.pua-loop-label span{display:block;margin-bottom:4px;font-weight:500}.pua-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.pua-select-trigger{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;max-width:240px;min-width:110px;height:28px;padding:0 8px;font-size:12px;font-weight:normal;color:var(--dsw-alias-label-primary)}.pua-select-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}.pua-select-trigger svg{flex:none;width:12px;height:12px;color:var(--dsw-alias-label-tertiary)}.pua-shared-menu{max-width:min(260px,55vw)}.pua-shared-menu [role=menu]{max-height:240px;overflow-y:auto}.pua-trigger{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:20px;font-weight:500;padding:0 8px}.pua-trigger:hover:not(:disabled),.pua-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover)}.pua-trigger[data-on=true]{color:var(--dsw-alias-state-business-primary,#4176e6);background:color-mix(in srgb,var(--dsw-alias-state-business-primary,#4176e6) 14%,transparent)}.pua-trigger[data-on=true]:hover{background:color-mix(in srgb,var(--dsw-alias-state-business-primary,#4176e6) 22%,transparent)}.pua-trigger[data-disabled=true]{color:var(--dsw-alias-label-tertiary)}.pua-composer{display:inline-flex;order:2;flex:none}.pua-settings-card{list-style:none;border-bottom:0.5px solid var(--dsw-alias-border-l2)}.pua-card-header{width:100%;appearance:none;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 0}.pua-card-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.pua-card-name{font-size:14px;font-weight:600;line-height:1.4;color:var(--dsw-alias-label-primary)}.pua-card-description{font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}.pua-card-chevron{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform .16s ease}.pua-settings-card[data-open=true] .pua-card-chevron{transform:rotate(180deg)}.pua-card-body{padding-bottom:12px}`;
 
 /** 宿主 `/` 行没有 icon/label；一等命令按 definitionId 换脸。同名贡献会撞车，只能在候选项上覆盖文案。 */
 const FACES: Record<string, { icon: unknown; copy: 'pua' | 'cancelLoop' }> = {
