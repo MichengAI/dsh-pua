@@ -9,3 +9,4 @@ export declare function IconGaugeOff({ size, className }: {
 export declare const IconClose: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;
 export declare const IconChevronDown: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;
 export declare const IconChevronUp: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;
+export declare const IconRefresh: (props: import("@deepseek-ai/dsh-client-ui-primitives").IconProps) => import("react").JSX.Element;

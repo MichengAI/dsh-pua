@@ -19,7 +19,7 @@ function loadClient() {
     if (name === '@deepseek-ai/dsh-client-ui-primitives') {
       sharedControls = true;
       return {
-        Button: () => null, Input: () => null, Menu: () => null, Modal: () => null, Switch: () => null, IconChevronDownOutlineRegular: () => null,
+        Button: () => null, Input: () => null, Menu: () => null, Modal: () => null, Switch: () => null, IconChevronDownOutlineRegular: () => null, IconRefreshOutlineRegular: () => null,
         IconChevronUpOutlineRegular: () => null, IconGaugeOutlineRegular: gaugeIcon, IconCloseOutlineRegular: closeIcon,
       };
     }

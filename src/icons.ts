@@ -4,6 +4,7 @@ import {
   IconChevronUpOutlineRegular,
   IconCloseOutlineRegular,
   IconGaugeOutlineRegular,
+  IconRefreshOutlineRegular,
 } from '@deepseek-ai/dsh-client-ui-primitives';
 
 /** 0.2.0 起宿主只导出 Regular / Medium，不再提供带尺寸后缀的旧名。 */
@@ -17,3 +18,4 @@ export function IconGaugeOff({ size = 16, className }: { size?: number; classNam
 export const IconClose = IconCloseOutlineRegular;
 export const IconChevronDown = IconChevronDownOutlineRegular;
 export const IconChevronUp = IconChevronUpOutlineRegular;
+export const IconRefresh = IconRefreshOutlineRegular;
