@@ -1,5 +1,21 @@
 # 更新记录
 
+## 1.0.4
+
+### 中文
+
+- 界面全面对齐 DeepSeek Harness 宿主设计系统原语规范：会话与全局设置面板接入官方 `<Modal>` 模态窗、`<Menu>` 原语下拉选择与原生 `<Button>` / `<Switch>` 控件，视觉与交互质感完全融入宿主。
+- 会话设置弹窗宽度扩展至 540px：彻底消除狭窄视口下的文本与操作按钮折行，表单字段排版更加舒展。
+- 下拉选择器规范化：触发器宽度自然自适应文本长度，消除死板过宽的空白框，浮层支持原生紧凑行高与打勾状态。
+- 恢复继承操作轻量化：将状态说明栏旁边的覆盖恢复控件重构为宿主原生轻量幽灵按钮与矢量重置图标，避免喧宾夺主。
+
+### English
+
+- Comprehensive UI alignment with DeepSeek Harness design system: Configuration panels fully adopt host `<Modal>`, `<Menu>`, `<Button>`, and `<Switch>` primitives for a seamless native look and feel.
+- Expanded session settings modal: Increased dialog width to 540px to prevent awkward text and button wrapping.
+- Refined dropdown selectors: Combobox triggers naturally fit content width without rigid extra whitespace, backed by dense menus and native checkmark indicators.
+- Lightweight restore action: Replaced heavy outline button with a subtle host ghost button and refresh icon for restoring session overrides.
+
 ## 1.0.3
 
 ### 中文
