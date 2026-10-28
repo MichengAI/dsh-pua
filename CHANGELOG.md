@@ -1,5 +1,17 @@
 # 更新记录
 
+## 1.0.5
+
+### 中文
+
+- 放宽核心底座依赖范围：将 `@deepseek-ai/cordis` 放宽至 `">=4.0.1 <5.0.0"`，将 `@deepseek-ai/schemastery` 放宽至 `">=3.18.1 <4.0.0"`，避免宿主微调底层运行时或升级补丁版本时触发 peer 依赖版本告警或准入拦截。
+- 增强代际兼容测试覆盖：在宿主范围测试中补充对未来底座版本（包含预发布版本）的兼容性断言与环境校验。
+
+### English
+
+- Broaden core runtime peer dependencies: Widen `@deepseek-ai/cordis` peer requirement to `">=4.0.1 <5.0.0"` and `@deepseek-ai/schemastery` to `">=3.18.1 <4.0.0"`, preventing peer resolution warnings and admission blocks during host runtime patches or minor updates.
+- Expand compatibility test coverage: Add assertions and verifications for future runtime versions including prerelease tags across host range test suites.
+
 ## 1.0.4
 
 ### 中文

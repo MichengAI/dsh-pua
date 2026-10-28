@@ -1,6 +1,6 @@
 {
   "name": "@michengai/dsh-pua",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "DSH PUA — 为 DeepSeek Harness 提供 PUA 任务推进、角色风味、验收循环和运行状态卡片 · PUA task persistence, personas, verification loops, and live status cards for DeepSeek Harness",
   "type": "module",
   "license": "Apache-2.0",
@@ -72,7 +72,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "4.0.4 || 4.0.5",
+    "@deepseek-ai/cordis": ">=4.0.1 <5.0.0",
     "@deepseek-ai/dsh-agent": ">=0.2.0-rc.1 <0.3.0-0",
     "@deepseek-ai/dsh-api-remotes": ">=0.2.0-rc.1 <0.3.0-0",
     "@deepseek-ai/dsh-client-connection": ">=0.2.0-rc.1 <0.3.0-0",
@@ -89,7 +89,7 @@
     "@deepseek-ai/dsh-tools": ">=0.2.0-rc.1 <0.3.0-0",
     "@deepseek-ai/dsh-typert-protocol": ">=0.2.0-rc.1 <0.3.0-0",
     "@deepseek-ai/dsh-typert-registry": ">=0.2.0-rc.1 <0.3.0-0",
-    "@deepseek-ai/schemastery": "3.18.4 || 3.18.5",
+    "@deepseek-ai/schemastery": ">=3.18.1 <4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

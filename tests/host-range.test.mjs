@@ -26,8 +26,10 @@ test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方�
   }
   assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.0.5');
   assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.18.5');
-  assert.equal(pkg.peerDependencies['@deepseek-ai/cordis'], '4.0.4 || 4.0.5');
-  assert.equal(pkg.peerDependencies['@deepseek-ai/schemastery'], '3.18.4 || 3.18.5');
+  assert.equal(pkg.peerDependencies['@deepseek-ai/cordis'], '>=4.0.1 <5.0.0');
+  assert.equal(pkg.peerDependencies['@deepseek-ai/schemastery'], '>=3.18.1 <4.0.0');
+  assert.ok(semver.satisfies('4.0.6-alpha.1', pkg.peerDependencies['@deepseek-ai/cordis'], { includePrerelease: true }));
+  assert.ok(semver.satisfies('3.18.6-alpha.1', pkg.peerDependencies['@deepseek-ai/schemastery'], { includePrerelease: true }));
 });
 
 test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? false : '隔离兼容目录不复制 locale' }, () => {
