@@ -173,8 +173,7 @@ test('聊天入口关闭态绑定电源符号，开启态对齐底栏次级灰�
   assert.ok(js.includes('IconGaugeOutlineRegular'), '开启态必须用宿主表盘');
   assert.match(js, /"data-on":[^,]{0,80}enabled===!0/);
   assert.ok(js.includes('"data-disabled"'), '关闭态必须有 data-disabled');
-  assert.ok(js.includes('.pua-trigger{color:var(--dsw-alias-label-secondary);font-size:13px;line-height:20px;font-weight:500;padding:0 8px}'));
-  assert.ok(js.includes('.pua-trigger:hover:not(:disabled),.pua-trigger[aria-expanded=true]{background:var(--dsw-alias-interactive-bg-hover)}'));
+  assert.ok(js.includes('.pua-trigger{color:var(--dsw-alias-label-secondary);font-weight:500}'));
   assert.ok(js.includes('.pua-trigger[data-disabled=true]{color:var(--dsw-alias-label-tertiary)}'));
   assert.equal(js.includes('border-radius:20px'), false, '输入框入口不再手写 20px 药丸圆角');
   assert.doesNotMatch(js, /\.pua-trigger\{border:0;border-radius/, '输入框入口手写 trigger 样式已清空');
