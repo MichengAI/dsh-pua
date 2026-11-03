@@ -1,5 +1,15 @@
 # 更新记录
 
+## 1.0.6
+
+### 中文
+
+- 扩展宿主兼容支持：全面通过 DSH 最新预发布版本 `0.2.2-alpha.3` 与全系 RC（覆盖至 `0.2.1-rc.5`）的兼容性回归，确保 PUA 激励与提示词注入在最新宿主上平稳运行。
+
+### English
+
+- Extend host compatibility support: verified compatibility across DSH latest prerelease `0.2.2-alpha.3` and all RCs up to `0.2.1-rc.5`, ensuring seamless PUA injection and commands on newer hosts.
+
 ## 1.0.5
 
 ### 中文
