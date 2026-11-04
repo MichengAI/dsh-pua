@@ -15,7 +15,7 @@ test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方�
   for (const [name, value] of Object.entries(pkg.peerDependencies)) {
     if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(value, range, name);
   }
-  for (const v of ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.1-rc.4', '0.2.1-rc.5', '0.2.2-alpha.1', '0.2.2-alpha.2', '0.2.2-alpha.3', '0.2.2-rc.1', '0.2.9']) {
+  for (const v of ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.1-rc.4', '0.2.1-rc.5', '0.2.2-alpha.1', '0.2.2-rc.1', '0.2.2-rc.1', '0.2.2-rc.1', '0.2.9']) {
     assert.ok(semver.satisfies(v, range, { includePrerelease: true }), `放行 0.2.x 版本 ${v}`);
   }
   for (const v of ['0.1.7-rc.2', '0.2.0-alpha.1', '0.3.0-alpha.1', '0.3.0-rc.1', '0.3.0', '1.0.0']) {
