@@ -24,8 +24,8 @@ test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方�
   for (const [name, version] of Object.entries(pkg.devDependencies)) {
     if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.2-rc.1', name);
   }
-  assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.0.5');
-  assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.18.5');
+  assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.1.0');
+  assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.19.0');
   assert.equal(pkg.peerDependencies['@deepseek-ai/cordis'], '>=4.0.1 <5.0.0');
   assert.equal(pkg.peerDependencies['@deepseek-ai/schemastery'], '>=3.18.1 <4.0.0');
   assert.ok(semver.satisfies('4.1.0', pkg.peerDependencies['@deepseek-ai/cordis'], { includePrerelease: true }));
