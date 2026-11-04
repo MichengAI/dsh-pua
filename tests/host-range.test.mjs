@@ -22,14 +22,14 @@ test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方�
     assert.equal(semver.satisfies(v, range, { includePrerelease: true }), false, `拦截范围外版本 ${v}`);
   }
   for (const [name, version] of Object.entries(pkg.devDependencies)) {
-    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.1-rc.3', name);
+    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.2-rc.1', name);
   }
   assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.0.5');
   assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.18.5');
   assert.equal(pkg.peerDependencies['@deepseek-ai/cordis'], '>=4.0.1 <5.0.0');
   assert.equal(pkg.peerDependencies['@deepseek-ai/schemastery'], '>=3.18.1 <4.0.0');
-  assert.ok(semver.satisfies('4.0.6-alpha.1', pkg.peerDependencies['@deepseek-ai/cordis'], { includePrerelease: true }));
-  assert.ok(semver.satisfies('3.18.6-alpha.1', pkg.peerDependencies['@deepseek-ai/schemastery'], { includePrerelease: true }));
+  assert.ok(semver.satisfies('4.1.0', pkg.peerDependencies['@deepseek-ai/cordis'], { includePrerelease: true }));
+  assert.ok(semver.satisfies('3.19.0', pkg.peerDependencies['@deepseek-ai/schemastery'], { includePrerelease: true }));
 });
 
 test('插件列表按宿主契约导出中英文 locale', { skip: sourceTree ? false : '隔离兼容目录不复制 locale' }, () => {
