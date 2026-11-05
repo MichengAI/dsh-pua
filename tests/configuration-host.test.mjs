@@ -64,7 +64,7 @@ test('真实 Host 配置服务隔离全局与会话，拒绝过期保存并保�
 
 test('实际父子 Agent 的提示词开关一致，关闭子代理策略时不注入 PUA', async t => {
   const { ctx, remote, agent } = await setup(t);
-  const childHandle = await agent.ctx.agents.create({ sessionId: 'expert-child', parentAgent: agent,
+  const childHandle = await (ctx.agents.create ? ctx.agents : agent.ctx.agents).create({ sessionId: 'expert-child', parentAgent: agent,
     meta: { parentSession: agent.id, delegationDepth: 1, origin: 'subagent' }, agentOptions: {} });
   t.after(() => childHandle.dispose());
   const prompt = async () => renderPrompt(await ctx.systemPrompt.assemble({ agent: childHandle.agent }));
