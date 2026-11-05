@@ -73,9 +73,9 @@ export declare const Config: Schema<NoInfer<Schemastery.ObjectS<NoInfer<{
 export declare function materializePreferences(config: unknown): Preferences | undefined;
 /** 可选设置服务。0.2.0 起读取 Profile 里的 volatile 配置；没有该服务时仅当前会话生效。 */
 export declare class PreferencesBridge {
-    private readonly ctx;
     private readonly config;
-    private ready;
+    /** 只在 inject 回调的作用域里可见；插件本身没有声明 settings，直接读 ctx.settings 会抛「without inject」。 */
+    private settings;
     constructor(ctx: Context, config: unknown);
     private current;
     defaults(): Partial<PuaState>;

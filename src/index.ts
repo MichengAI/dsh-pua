@@ -25,7 +25,7 @@ export function apply(ctx: Context, config?: unknown): void {
   const catalog = new SourceCatalog();
   const prompts = new Map<string, string>();
   const templates = loadCommandPrompts();
-  const rawConfig = config ?? (ctx.settings ? (ctx.settings as any).get?.(SETTINGS_NAMESPACE) : undefined);
+  const rawConfig = config ?? (ctx.get('settings') as { get?: (ns: string) => unknown } | undefined)?.get?.(SETTINGS_NAMESPACE);
   const preferences = new PreferencesBridge(ctx, rawConfig);
   const store = new StateStore(() => preferences.defaults(), session => {
     if ((session.header.delegationDepth ?? 0) === 0 || !session.header.parentSession) return undefined;
