@@ -1,12 +1,18 @@
 # 更新记录
 
-## [1.0.7] - 2026-11-04
+## 1.0.7
 
-### Compatibility & Dependencies
+### 中文
 
-- Align with official DSH `0.2.2-rc.1` release; upgrade development dependencies to `0.2.2-rc.1`.
-- Clean up obsolete alpha versions from the host compatibility matrix; support all `0.2.x` RC hosts (`0.2.0-rc.1` through `0.2.2-rc.1`).
-- Update documentation badges and verified build ranges.
+- 对齐官方 DSH 最新预发布版本 `0.2.2-rc.1`，开发依赖与测试工具链升级至 `0.2.2-rc.1` 及 Cordis `4.1.0`。
+- 清理废弃的 alpha 预发布版本，兼容矩阵完整覆盖 `0.2.x` 全系 RC 宿主（`0.2.0-rc.1` 至 `0.2.2-rc.1`）。
+- 更新版本支持徽章与环境配置契约。
+
+### English
+
+- Align with official DSH `0.2.2-rc.1` release; upgrade development dependencies and test tooling to `0.2.2-rc.1` and Cordis `4.1.0`.
+- Clean up obsolete alpha versions from compatibility matrices; support all `0.2.x` RC hosts (`0.2.0-rc.1` through `0.2.2-rc.1`).
+- Update documentation badges and host environment contracts.
 
 ## 1.0.6
 
