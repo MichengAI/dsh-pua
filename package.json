@@ -169,7 +169,26 @@
     "react-dom": "18.3.1",
     "typescript": "~5.7.2",
     "@deepseek-ai/dsh-scope": "0.2.2-rc.1",
-    "@deepseek-ai/dsh-session-persistence": "0.2.2-rc.1"
+    "@deepseek-ai/dsh-session-persistence": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-commands": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-attachment": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-subagent": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-subagent-spawn-in-process": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-user-approval": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-user-questions": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-api-gateway": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-api-session-controller": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-locale": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-chat": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-input-trigger": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-renderer": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-theme": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-ptc-runtime": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-sandbox": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-sandbox-policy": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-subagent-fork-in-process": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-util-time": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-http-proxy": "0.2.2-rc.1"
   },
   "dependencies": {
     "zod": "4.4.3"
