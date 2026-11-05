@@ -1,87 +1,87 @@
 <p align="center">
-  <img src="assets/branding/dsh-pua-banner.png" alt="DSH PUA" width="100%">
+  <img src="assets/branding/dsh-pua-banner-zh-CN.png" alt="DSH PUA" width="100%">
 </p>
 
 <div align="center">
 
 # DSH PUA
 
-**Help your agent try another approach and verify its work before calling it done.**
+**让 Agent 少一点敷衍，多一点尝试和验证**
 
-[简体中文](README.zh-CN.md) · [Русский](README.ru.md) · [Features](#features) · [Screenshots](#screenshots) · [Installation](#installation) · [Usage](#usage) · [Configuration](#configuration) · [Commands](#common-commands) · [Session events](#session-events) · [Changelog](CHANGELOG.md)
+[English](README.en.md) · [Русский](README.ru.md) · [功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [会话事件](#会话事件) · [更新日志](CHANGELOG.md)
 
 [![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
-[![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=downloads)](https://www.npmjs.com/package/@michengai/dsh-pua)
+[![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![CI](https://github.com/MichengAI/dsh-pua/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MichengAI/dsh-pua/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![许可证：Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 [![DSH Web Plugin](https://img.shields.io/badge/DSH%20Web-Plugin-0f766e.svg)](https://github.com/deepseek-ai/deepseek-harness)
 [![Node.js 22.19+](https://img.shields.io/badge/Node.js-22.19%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 </div>
 
-> DSH PUA brings [PUA](https://github.com/tanweai/pua) to DeepSeek Harness. When an agent repeatedly fails, gives up too early, or claims completion without checking, it encourages a different approach, investigation, and evidence. Community-maintained; not an official DeepSeek AI or PUA product.
+> DSH PUA 将 [原版 PUA](https://github.com/tanweai/pua) 带到 DeepSeek Harness，在 Agent 反复失败、过早放弃或草率宣告完成时，引导它换方法、查原因、拿证据。社区维护，非 DeepSeek AI 或 PUA 官方产品。
 
-## Features
+## 功能概览
 
-- **Try another approach**: prompt the agent to reconsider its reasoning instead of repeating ineffective attempts.
-- **Check before claiming completion**: encourage verification and evidence for the result.
-- **Choose a style**: 15 company-inspired styles, plus P7, P9, P10, encouragement, motherly, and other persona modes.
-- **Configure through the UI**: save global settings in plugin settings and adjust individual conversations from chat.
-- **Continue based on verification**: start a Loop to keep working until verification passes, the iteration limit is reached, or you cancel.
-- **Integrity guard**: deny reads of hidden benchmark answers, including web searches for them, and remind before edits touch test, scoring, or CI assets.
-- **Markdown tables**: status, progress, and KPI panels use GFM pipe tables that DSH can render, instead of Unicode box drawings.
+- **遇到困难换方法**：提醒 Agent 重新检查思路，避免重复无效尝试。
+- **完成前检查证据**：要求核对结果，减少“说完成了，却没有验证”的情况。
+- **选择你喜欢的风格**：支持 15 种大厂风味，以及 P7、P9、P10、夸夸、妈妈等角色模式。
+- **在界面中调整**：插件设置保存全局设置，聊天入口可以单独调整当前会话。
+- **按验收结果继续任务**：可启动 Loop，让 Agent 继续修正，直到验收通过、达到轮次上限或被取消。
+- **防作弊门**：拦截读取隐藏基准答案（含联网搜索），变更测试、评分或 CI 资产时向模型注入提醒。
+- **表格用 Markdown**：状态表、进度表和 KPI 卡使用 DSH 能渲染的 GFM 管道表，不再用 Unicode 方框画表。
 
-Results depend on the model and task. The plugin does not guarantee a solution every time.
+实际效果取决于所用模型和任务，插件不保证每次都能解决问题。
 
-## Screenshots
+## 界面预览
 
-### Global settings
+### 全局配置
 
-Open Plugins in the sidebar, then `@michengai/dsh-pua`, to set default enablement, style, persona, and subagent behavior. Earlier DSH hosts still use Settings → Plugins → PUA Configuration. Screenshots show the Chinese interface.
+在侧边栏「插件」打开 `@michengai/dsh-pua`，设置默认开关、风味、角色和子代理选项，保存后供会话使用。更早的 DSH 仍在「设置 → 插件」展开「PUA 配置」。
 
-![PUA global settings with enablement, style, persona, and subagent options](assets/screenshots/pua-global-settings.png)
+![PUA 全局配置：开关、风味、角色模式和子代理选项](assets/screenshots/pua-global-settings.png)
 
-### Current conversation
+### 当前会话配置
 
-Click **PUA** to the right of Experts to adjust the current conversation. Restore individual defaults or start and cancel a Loop from the same panel.
+点击专家入口右侧的 **PUA**，单独调整当前会话。修改项可以恢复默认，也可以在面板中启动或取消 Loop。
 
-![PUA chat entry and current-conversation configuration panel](assets/screenshots/pua-session-settings.png)
+![聊天中的 PUA 入口与当前会话配置面板](assets/screenshots/pua-session-settings.png)
 
-## DSH product ecosystem
+## DSH 产品生态
 
-For a desktop workbench, download [DSH Codex Desktop](https://github.com/MichengAI/dsh-codex-desktop/releases). Existing [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) installations can add plugins as needed by following each project's README. Below are 11 first-party plugins; consult the corresponding desktop release notes and bundled catalog for what that version includes.
+想使用桌面工作台，可下载 [DSH Codex Desktop](https://github.com/MichengAI/dsh-codex-desktop/releases)；已有 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 环境，可按各项目 README 按需安装。以下列出 11 个自研插件；桌面端实际随附范围以对应版本的发行说明和内置清单为准。
 
-| Plugin | What you can do |
+| 插件 | 你可以用它做什么 |
 | --- | --- |
-| [Codex UI](https://github.com/MichengAI/dsh-codex-ui) | Organize projects and conversations, search tasks, and navigate chat turns |
-| [Agency Agents](https://github.com/MichengAI/dsh-agency-agents) | Choose and summon specialists for your task |
-| [Skills Manager](https://github.com/MichengAI/dsh-skills-manager) | Find, enable, create, and import local skills |
-| [Archive Manager](https://github.com/MichengAI/dsh-archive-manager) | Search, restore, or clean up archived conversations |
-| [IM Connect](https://github.com/MichengAI/dsh-im-connect) | Send tasks and receive replies through messaging platforms |
-| [Automation](https://github.com/MichengAI/dsh-automation) | Schedule tasks and review each run |
-| [BTW](https://github.com/MichengAI/dsh-btw) | Ask side questions without interrupting the main task |
-| [Simplify](https://github.com/MichengAI/dsh-simplify) | Use `/simplify` to improve code within your Git changes |
-| [PUA](https://github.com/MichengAI/dsh-pua) | Guide the Agent to try new approaches after failures, investigate causes, and verify results before completion |
-| [Code Review](https://github.com/MichengAI/dsh-code-review) | Use `/review` to request an independent Agent code review and receive the report in the current conversation |
-| [Codex Pet](https://github.com/MichengAI/dsh-codex-pet) | View conversation notifications and respond to tool approvals and questions through a desktop pet |
+| [Codex UI](https://github.com/MichengAI/dsh-codex-ui) | 整理项目与会话、搜索任务、跳转对话轮次 |
+| [Agency Agents](https://github.com/MichengAI/dsh-agency-agents) | 按任务选择并召唤专业角色 |
+| [Skills Manager](https://github.com/MichengAI/dsh-skills-manager) | 统一查找、启停、创建和导入本机技能 |
+| [Archive Manager](https://github.com/MichengAI/dsh-archive-manager) | 搜索、恢复或清理已归档会话 |
+| [IM Connect](https://github.com/MichengAI/dsh-im-connect) | 从消息平台下任务、收回复 |
+| [Automation](https://github.com/MichengAI/dsh-automation) | 按计划执行任务，查看每次运行的结果 |
+| [BTW](https://github.com/MichengAI/dsh-btw) | 在当前上下文中临时旁问，不打断主任务 |
+| [Simplify](https://github.com/MichengAI/dsh-simplify) | 用 `/simplify` 整理 Git 改动范围内的代码 |
+| [PUA](https://github.com/MichengAI/dsh-pua) | 引导 Agent 在失败时换方法、查原因，并在完成前验证结果 |
+| [Code Review](https://github.com/MichengAI/dsh-code-review) | 用 `/review` 发起独立 Agent 代码审查，在当前会话接收报告 |
+| [Codex Pet](https://github.com/MichengAI/dsh-codex-pet) | 通过桌面宠物查看会话提醒、处理工具审批和问题回答 |
 
-## Installation
+## 安装
 
-Requires Node.js 22.19 or later. Host compatibility: Full DeepSeek Harness `0.2.x` line (`>=0.2.0-rc.1 <0.3.0-0`), verified with `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3` through `0.2.2-rc.1`, and forwards-compatible with subsequent `0.2.x` RC releases without requiring routine plugin version bumps. Legacy hosts prior to `0.2.0-rc.1` are no longer supported. The version gate cleanly intercepts breaking changes in the `0.3.0` generation. Users on `0.1.x` hosts should install plugin `0.3.28`. Existing settings and session records are kept. Uses your existing DSH model configuration; no additional API key is needed.
+需要 Node.js 22.19 或更新版本。宿主支持范围：DeepSeek Harness `0.2.x` 全系列（`>=0.2.0-rc.1 <0.3.0-0`），已在 `0.2.0-rc.1`、`0.2.0-rc.2`、`0.2.1-rc.1`、`0.2.1-rc.2`、`0.2.1-rc.3` 至 `0.2.2-rc.1` 上验证，并自动支持后续全部 0.2.x RC 版本，同代宿主升级无需重复等待发版。`0.2.0-rc.1` 之前的早期宿主将被拒绝，`0.3.0` 代际破坏性更新由版本门拦截。仍在使用 `0.1.x` 的用户请安装插件 `0.3.28`。已有的插件设置和会话记录会保留。使用 DSH 已有的模型配置，无需额外密钥。
 
-GitHub and npm both include a ready-to-run `lib`. After changing source, run `npm run build` before committing.
+GitHub 与 npm 都包含可直接运行的 `lib`。改了源码后，提交前运行 `npm run build`。
 
-Examples use the `web` profile. Replace it with the profile you use.
+以下示例使用 `web` profile，请替换为实际使用的 profile。
 
-### Ask an agent to install it
+### 让 Agent 帮你安装
 
-Send this to an agent that can run commands on your computer:
+把下面这段话发给能够操作本机终端的 Agent：
 
 ```text
-Install @michengai/dsh-pua into my local DSH web profile by running dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/. Check that the plugin loads, then explain how to open PUA settings.
+请将 @michengai/dsh-pua 安装到本机 web profile，执行 dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/。完成后检查插件是否加载，并告诉我如何打开 PUA 配置。
 ```
 
-### Install manually
+### 手动安装
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -89,84 +89,84 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://registry.npmjs.org/
 ```
 
-After the current task finishes, reload DSH or restart its Web service. Refreshing the browser alone is not enough. Enter `/pua help` to check that the plugin is available.
+等待当前任务结束后，重新加载 DSH 或重启 Web 服务；仅刷新浏览器不够。输入 `/pua help` 可检查插件是否可用。
 
-## Usage
+## 使用
 
-1. Open Plugins in the sidebar, open `@michengai/dsh-pua`, and use the package page or the `michengai-pua` row. On earlier DSH hosts, expand PUA Configuration under Settings → Plugins.
-2. Turn on Allow PUA, choose a style and persona, and save. This only shows `/pua` and the chat entry. It does not inject by itself.
-3. Return to chat, turn the current conversation on with `/pua` or the chat entry, then submit the task.
+1. 打开侧边栏「插件」，进入 `@michengai/dsh-pua`，在包页或 `michengai-pua` 行打开配置。更早的 DSH 仍在「设置 → 插件」展开「PUA 配置」。
+2. 打开「允许使用 PUA」，选择风味和角色，保存设置。这只显示 `/pua` 和聊天入口，不会自动注入。
+3. 回到聊天，用 `/pua` 或聊天入口打开当前会话，再提交任务。
 
-**PUA** appears to the right of Experts in the composer. Click it to view or adjust the current conversation. When that conversation is off, the icon is a power symbol and the label is not struck through; disabling it globally hides the entry.
+聊天输入栏专家入口右侧会显示 **PUA**。当前会话关闭时图标换成电源符号，文字不再画斜线；全局关闭时，聊天入口隐藏。
 
-## Configuration
+## 配置
 
-**The global switch only controls whether `/pua` and the chat entry are available. Chat controls and commands affect only the current conversation, which starts off.**
+**全局开关只决定 `/pua` 和聊天入口是否可用。聊天面板和命令只影响当前会话，会话默认关闭。**
 
-After upgrading, older conversations that were never explicitly turned on or off also return to off. They do not keep injecting. Conversations changed with `/pua on`, `/pua off`, or the chat entry keep their saved switch.
+升级后，没有单独打开或关闭过的旧会话也会回到关闭，不会继续自动注入。已经用 `/pua on`、`/pua off` 或聊天入口改过开关的会话保持原样。
 
-Unchanged options follow global defaults. Editing an option overrides just that option. Choose Restore default to follow the global value again, or restore all options at once.
+不修改就使用全局默认；修改某一项，只覆盖这一项。点击「恢复默认」即可重新跟随全局，也可以一次恢复全部。
 
-| Option | What it does |
+| 可以调整什么 | 说明 |
 | --- | --- |
-| Allow PUA | Controls the command and chat entry. Allowed by default; turning it off hides both and blocks this conversation from being turned on. It does not inject by itself |
-| Conversation switch | Off by default. `/pua` or the chat entry turns injection on for this conversation only |
-| Style and persona | Select a style automatically or choose a specific style and persona |
-| UI language | Follow the host language automatically, or pin Chinese / English |
-| Enable for subagents | Off by default; enable when specialists and other subagents should also use PUA |
-| Correction reminders | Adjust terminal checks, failure escalation, and quality reminders |
-| Integrity guard | Off by default; when on, deny reads of hidden benchmark answers and remind when edits touch test, scoring, or CI assets |
-| Feedback reminders | Change reminder frequency or turn reminders off; feedback is not uploaded |
-| Loop defaults | Set a verification command, timeout, and iteration limit |
+| 允许使用 PUA | 控制命令和聊天入口。默认允许；关闭后入口隐藏，会话也不能打开。不会自动注入 |
+| 当前会话开关 | 默认关闭。用 `/pua` 或聊天入口打开后才注入，只影响这一次会话 |
+| 风味与角色 | 自动选味或指定风味，选择不同角色模式 |
+| 界面语言 | 跟随宿主语言自动切换，或固定中文 / English |
+| 对子代理启用 | 默认关闭；需要让专家等子代理也使用 PUA 时再开启 |
+| 纠偏提醒 | 调整终端核验、失败升级与质量提醒 |
+| 防作弊门 | 默认关闭；开启后拦截读取隐藏基准答案，变更测试、评分或 CI 资产时注入提醒 |
+| 反馈提醒 | 调整提醒频率，或关闭提醒；插件不上传反馈 |
+| Loop 默认值 | 设置验收命令、超时时间和轮次上限 |
 
-Since `0.3.0`, commands no longer change global settings. Subagent enablement also depends on the parent conversation's PUA switch.
+从 `0.3.0` 起，命令不再修改全局设置。子代理是否使用 PUA 还受父会话开关控制。
 
-### Continue until verification passes
+### 让任务按验收结果继续
 
-In the chat PUA panel, enter a Loop task, verification command, and iteration limit, then start it. For example, ask the agent to fix failing tests, verify with `npm test`, and stop after at most 10 iterations.
+在聊天 PUA 面板中填写 Loop 任务、验收命令和轮次上限，再点击启动。例如，让 Agent 修复测试，使用 `npm test` 检查结果，最多执行 10 轮。
 
-You can also enter:
+也可以直接输入：
 
 ```text
-/pua loop "Fix the failing tests and add regression coverage" --verify "npm test" --max-iterations 10
+/pua loop "修复当前测试失败并补齐回归" --verify "npm test" --max-iterations 10
 ```
 
-Enter `/pua-cancel-loop` or `/pua cancel-loop` to stop. Disabling PUA for the current conversation also cancels its Loop, but does not undo operations already performed.
+需要停止时输入 `/pua-cancel-loop` 或 `/pua cancel-loop`。关闭当前会话 PUA 也会取消 Loop，但不会撤回已经执行的操作。
 
-Set a verification command and iteration limit when using a Loop. Without a verification command, completion relies on the model's report. An iteration limit of 0 means unlimited iterations.
+建议设置验收命令和轮次上限：未设置验收命令时，只依据模型报告判断完成；轮次上限为 0 表示不限轮次。
 
-## Common commands
+## 常用命令
 
-Everyday switches, styles, and personas are available in the UI; memorizing commands is optional.
+日常开关、风味和角色都可以在界面操作，无需记住命令。
 
-| Goal | Command |
+| 目标 | 命令示例 |
 | --- | --- |
-| Enable or disable PUA for this conversation | `/pua on`, `/pua off` |
-| Choose a style | `/pua flavor huawei` |
-| Ask for another approach | `/pua again` |
-| Check whether the task is complete | `/pua done-check` |
-| Check delivery evidence | `/pua evidence` |
-| Review current changes without editing | `/pua review` |
-| Restore global defaults for this conversation | `/pua reset` |
-| Cancel a verification Loop | `/pua-cancel-loop`, `/pua cancel-loop` |
-| View status or full usage | `/pua status`, `/pua help` |
+| 开启或关闭当前会话 PUA | `/pua on`、`/pua off` |
+| 指定风味 | `/pua flavor huawei` |
+| 让 Agent 换个方法 | `/pua again` |
+| 检查是否真的完成 | `/pua done-check` |
+| 检查交付证据 | `/pua evidence` |
+| 只读审查当前改动 | `/pua review` |
+| 恢复当前会话的全局默认 | `/pua reset` |
+| 取消验收循环 | `/pua-cancel-loop`、`/pua cancel-loop` |
+| 查看状态或完整用法 | `/pua status`、`/pua help` |
 
-## Session events
+## 会话事件
 
-This plugin does not add a custom event type. The host rejects unknown required events on replay, and append has no ignorable flag. Notes written by the plugin are ordinary `user/message` events with `role: "user"`. Do not count a user turn from `type` alone.
+本插件不新增事件类型。宿主回放会拒绝未知的必需事件，append 也没有 ignorable 标记。插件写入的说明因此仍是普通 `user/message`，`role` 为 `user`。统计用户轮次时不要只看 `type`。
 
-Tell them apart with `data.source`:
+用 `data.source` 区分：
 
-| Origin | Current hosts (session format 4 or newer) | Older hosts |
+| 来源 | 当前宿主（会话格式 4 及以上） | 更早宿主 |
 | --- | --- | --- |
-| Runtime notes and saved observations | `kind` is `plugin:@michengai/dsh-pua/runtime` | `kind` is `plugin` and `plugin` is `@michengai/dsh-pua/runtime` |
-| Text submitted with `/pua` and then queued as a follow-up or steer | `kind` is `plugin:@michengai/dsh-pua` | `kind` is `plugin` and `plugin` is `@michengai/dsh-pua` |
+| 运行说明和保存的观察 | `kind` 为 `plugin:@michengai/dsh-pua/runtime` | `kind` 为 `plugin`，且 `plugin` 为 `@michengai/dsh-pua/runtime` |
+| 通过 `/pua` 提交、随后进入后续轮次或当前步骤的文本 | `kind` 为 `plugin:@michengai/dsh-pua` | `kind` 为 `plugin`，且 `plugin` 为 `@michengai/dsh-pua` |
 
-A real user message has `source.kind === "user"`.
+真实用户消息的 `source.kind` 是 `user`。
 
-Each saved runtime observation leaves two `user/message` events in the raw log. The first carries the `PUA_RUNTIME_V1` prefix and JSON so recovery can read it. The second is a surface replace of that same sequence; the model-visible text is only the short note. The second event is not another user turn. The raw JSON stays in the log and is not part of the replaced model surface.
+每次保存运行观察，原始日志里会有两条 `user/message`。第一条带 `PUA_RUNTIME_V1` 前缀和 JSON，供恢复读取。第二条是对同一序号的 surface replace，模型可见文本只剩简短说明。第二条不是新的用户轮次。原始 JSON 留在日志里，不进入替换后的模型表面。
 
-## Uninstall
+## 卸载
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -174,10 +174,10 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 dsh plugin --profile web remove @michengai/dsh-pua
 ```
 
-Reload DSH for the change to take effect. Project files and conversation history are preserved.
+重新加载 DSH 后生效，业务文件和会话记录会保留。
 
-## License and attribution
+## 来源与许可
 
-Adapted from [tanweai/pua](https://github.com/tanweai/pua) 3.5.1. Persona and collaboration capabilities depend on what DSH supports.
+基于 [tanweai/pua](https://github.com/tanweai/pua) 3.5.1 适配。角色和协作能力以 DSH 实际支持为准。
 
-Original project code uses [Apache License 2.0](LICENSE). Bundled PUA assets retain their upstream-declared MIT license and attribution; see [NOTICE](NOTICE).
+本项目原创代码采用 [Apache License 2.0](LICENSE)。随包提供的 PUA 素材保留上游声明的 MIT 许可及署名，详见 [NOTICE](NOTICE)。

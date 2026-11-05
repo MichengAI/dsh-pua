@@ -8,7 +8,7 @@
 
 **Помогите агенту попробовать другой подход и проверить свою работу, прежде чем считать её выполненной.**
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [Возможности](#возможности) · [Скриншоты](#скриншоты) · [Установка](#установка) · [Использование](#использование) · [Настройка](#настройка) · [Команды](#основные-команды) · [События сессии](#события-сессии) · [История изменений](CHANGELOG.md)
+[English](README.en.md) · [简体中文](README.md) · [Возможности](#возможности) · [Скриншоты](#скриншоты) · [Установка](#установка) · [Использование](#использование) · [Настройка](#настройка) · [Команды](#основные-команды) · [События сессии](#события-сессии) · [История изменений](CHANGELOG.md)
 
 [![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=downloads)](https://www.npmjs.com/package/@michengai/dsh-pua)

@@ -54,7 +54,7 @@ function markdownFiles(dir) {
 }
 
 const docs = join(root, 'docs');
-const markdown = [join(root, 'README.md'), join(root, 'README.zh-CN.md'), ...(existsSync(docs) ? markdownFiles(docs) : [])];
+const markdown = [join(root, 'README.md'), join(root, 'README.zh-CN.md'), join(root, 'README.en.md'), ...(existsSync(docs) ? markdownFiles(docs) : [])];
 let links = 0;
 for (const file of markdown) {
   const content = readFileSync(file, 'utf8');
