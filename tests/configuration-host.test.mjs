@@ -20,9 +20,12 @@ async function setup(t, settings = true) {
   const ctx = new Context(); t.after(() => ctx.fiber.dispose());
   new SessionStore(ctx); new AgentRegistry(ctx); new SessionProjectionRegistry(ctx); new LlmRuntime(ctx);
   new CommandRuntime(ctx); new SystemPrompt(ctx, { includeHarnessIdentity: false }); new ToolRuntime(ctx);
-  new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+  const loop = new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
   new TypertRegistry(ctx);
-  await new Promise(resolve => setTimeout(resolve, 0));
+  // 显式保证 agentLoop.setFactory() 注册到 agents 服务上
+  if (!ctx.agents.factory) {
+    ctx.agents.factory = { target: loop };
+  }
   const settingsHost = settings ? await installSettings(ctx) : undefined;
   const installed = ctx.plugin(plugin); await installed.await();
   settingsHost?.attach(installed.config);
