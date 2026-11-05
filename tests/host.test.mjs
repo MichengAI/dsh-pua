@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';

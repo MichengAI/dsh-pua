@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Context, Service } from '@deepseek-ai/cordis';
@@ -21,10 +22,14 @@ for (const [name, plugin] of [['pwsh', pwsh], ['bash', bash]]) {
   test(`官方持久 ${name}：真实失败只提示核验，成功打印同名标记不增加失败数`, async t => {
     const ctx = new Context();
     t.after(() => ctx.fiber.dispose());
-    new SessionStore(ctx); new AgentRegistry(ctx); new LlmRuntime(ctx);
-    new SessionProjectionRegistry(ctx); new CommandRuntime(ctx);
-    new SystemPrompt(ctx, { includeHarnessIdentity: false }); new ToolRuntime(ctx);
-    new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+    new SessionStore(ctx);
+    new SessionProjectionRegistry(ctx);
+    new LlmRuntime(ctx);
+    new CommandRuntime(ctx);
+    new SystemPrompt(ctx, { includeHarnessIdentity: false });
+    new ToolRuntime(ctx); installToolExecutor(ctx);
+    await ctx.plugin(AgentRegistry).await();
+    await ctx.plugin(AgentLoop, resolveAgentLoopConfig(AgentLoop)).await();
     // alpha.3：持久 bash/pwsh 注入 workingDirectory；夹具提供最小实现即可。
     class MemoryWorkingDirectory extends Service {
       constructor(context) { super(context, 'workingDirectory'); }

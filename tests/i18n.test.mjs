@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { UI, ACTIVITY, resolveUiLang, hostLocaleOf, flavorLabel } from '../lib/i18n.js';

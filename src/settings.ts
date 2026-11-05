@@ -50,7 +50,7 @@ export function materializePreferences(config: unknown): Preferences | undefined
 /** 可选设置服务。0.2.0 起读取 Profile 里的 volatile 配置；没有该服务时仅当前会话生效。 */
 export class PreferencesBridge {
   private ready = false;
-  constructor(ctx: Context, private readonly config: unknown) {
+  constructor(private readonly ctx: Context, private readonly config: unknown) {
     ctx.inject(['settings'], child => {
       const settings = child.settings as { configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void };
       this.ready = true;
@@ -62,6 +62,11 @@ export class PreferencesBridge {
   }
   private current(): Preferences | undefined {
     if (!this.ready) return undefined;
+    const settings = (this.ctx as any).settings;
+    if (settings && typeof settings.get === 'function') {
+      const dynamicConfig = settings.get(SETTINGS_NAMESPACE);
+      if (dynamicConfig !== undefined) return materializePreferences(dynamicConfig);
+    }
     return materializePreferences(this.config);
   }
   defaults(): Partial<PuaState> {

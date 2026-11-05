@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { watchComposerConfiguration, watchActivity } from '../lib/client-refresh.js';

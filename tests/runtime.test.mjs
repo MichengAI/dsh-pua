@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import PuaRemote from '../lib/remote.js';
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -44,13 +45,13 @@ async function setup(t, reply = () => "离线测试回复", settings = false) {
   const ctx = new Context();
   t.after(() => ctx.fiber.dispose());
   new SessionStore(ctx);
-  new AgentRegistry(ctx);
   new SessionProjectionRegistry(ctx);
   new LlmRuntime(ctx);
-  new SystemPrompt(ctx, { includeHarnessIdentity: false });
-  new ToolRuntime(ctx);
   new CommandRuntime(ctx);
-  new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  new ToolRuntime(ctx); installToolExecutor(ctx);
+  await ctx.plugin(AgentRegistry).await();
+  await ctx.plugin(AgentLoop, resolveAgentLoopConfig(AgentLoop)).await();
   const settingsHost = settings ? await installSettings(ctx) : undefined;
   ctx.llm.registerAdapter(["offline-pua-test"], new OfflineAdapter());
   const installed = ctx.plugin(plugin);

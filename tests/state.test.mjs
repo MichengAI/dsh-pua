@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 // 验证命令增量恢复不会改变并发顺序、默认设置或 pending 的语义。
 import test from 'node:test';
 import assert from 'node:assert/strict';

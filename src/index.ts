@@ -5,7 +5,7 @@ import { handleCommand } from './command.js';
 import { DISABLED_PROMPT, renderOriginalPrompt, loadCommandPrompts } from './content.js';
 import { StateStore } from './state.js';
 import { SourceCatalog } from './source.js';
-import { Config, PreferencesBridge } from './settings.js';
+import { Config, PreferencesBridge, SETTINGS_NAMESPACE } from './settings.js';
 import { PuaRuntime } from './runtime.js';
 import { UI } from './i18n.js';
 import { Service } from '@deepseek-ai/cordis';
@@ -25,7 +25,8 @@ export function apply(ctx: Context, config?: unknown): void {
   const catalog = new SourceCatalog();
   const prompts = new Map<string, string>();
   const templates = loadCommandPrompts();
-  const preferences = new PreferencesBridge(ctx, config);
+  const rawConfig = config ?? (ctx.settings ? (ctx.settings as any).get?.(SETTINGS_NAMESPACE) : undefined);
+  const preferences = new PreferencesBridge(ctx, rawConfig);
   const store = new StateStore(() => preferences.defaults(), session => {
     if ((session.header.delegationDepth ?? 0) === 0 || !session.header.parentSession) return undefined;
     return ctx.get('agents')?.get(session.header.parentSession)?.session;

@@ -73,6 +73,7 @@ export declare const Config: Schema<NoInfer<Schemastery.ObjectS<NoInfer<{
 export declare function materializePreferences(config: unknown): Preferences | undefined;
 /** 可选设置服务。0.2.0 起读取 Profile 里的 volatile 配置；没有该服务时仅当前会话生效。 */
 export declare class PreferencesBridge {
+    private readonly ctx;
     private readonly config;
     private ready;
     constructor(ctx: Context, config: unknown);

@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Session, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session';

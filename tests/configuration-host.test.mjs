@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Context } from '@deepseek-ai/cordis';
@@ -18,14 +19,14 @@ import { DESCRIPTORS } from '../lib/remote-contract.js';
 
 async function setup(t, settings = true) {
   const ctx = new Context(); t.after(() => ctx.fiber.dispose());
-  new SessionStore(ctx); new AgentRegistry(ctx); new SessionProjectionRegistry(ctx); new LlmRuntime(ctx);
+  new SessionStore(ctx);
+  new SessionProjectionRegistry(ctx);
+  new LlmRuntime(ctx);
   new CommandRuntime(ctx); new SystemPrompt(ctx, { includeHarnessIdentity: false }); new ToolRuntime(ctx);
-  const loop = new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+  installToolExecutor(ctx);
+  await ctx.plugin(AgentRegistry).await();
+  await ctx.plugin(AgentLoop, resolveAgentLoopConfig(AgentLoop)).await();
   new TypertRegistry(ctx);
-  // 显式保证 agentLoop.setFactory() 注册到 agents 服务上
-  if (!ctx.agents.factory) {
-    ctx.agents.factory = { target: loop };
-  }
   const settingsHost = settings ? await installSettings(ctx) : undefined;
   const installed = ctx.plugin(plugin); await installed.await();
   settingsHost?.attach(installed.config);

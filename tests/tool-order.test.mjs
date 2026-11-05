@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 // 从模型发起工具调用，验证真正进入下一轮请求的消息顺序与历史兼容。
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -64,9 +65,14 @@ async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execut
   }
   const ctx = new Context();
   t.after(() => ctx.fiber.dispose());
-  new SessionStore(ctx); new AgentRegistry(ctx); new SessionProjectionRegistry(ctx);
-  new LlmRuntime(ctx); new SystemPrompt(ctx, { includeHarnessIdentity: false });
-  new ToolRuntime(ctx); new CommandRuntime(ctx); new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+  new SessionStore(ctx);
+  new SessionProjectionRegistry(ctx);
+  new LlmRuntime(ctx);
+  new CommandRuntime(ctx);
+  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  new ToolRuntime(ctx); installToolExecutor(ctx);
+  await ctx.plugin(AgentRegistry).await();
+  await ctx.plugin(AgentLoop, resolveAgentLoopConfig(AgentLoop)).await();
   ctx.llm.registerAdapter(['offline-order-test'], new OfflineAdapter());
   ctx.tools.register({ name: toolName, description: '内存终端夹具', parameters: { type: 'object' }, isConcurrencySafe: () => true,
     ...(terminal ? { presentCall: () => ({ card: 'terminal', title: '内存终端' }) } : {}),

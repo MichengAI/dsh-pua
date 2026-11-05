@@ -188,7 +188,9 @@
     "@deepseek-ai/dsh-sandbox-policy": "0.2.2-rc.1",
     "@deepseek-ai/dsh-subagent-fork-in-process": "0.2.2-rc.1",
     "@deepseek-ai/dsh-util-time": "0.2.2-rc.1",
-    "@deepseek-ai/dsh-http-proxy": "0.2.2-rc.1"
+    "@deepseek-ai/dsh-http-proxy": "0.2.2-rc.1",
+    "semver": "^7.6.3",
+    "@deepseek-ai/dsh-output-retention": "0.2.2-rc.1"
   },
   "dependencies": {
     "zod": "4.4.3"
@@ -201,5 +203,9 @@
   "bugs": {
     "url": "https://github.com/MichengAI/dsh-pua/issues"
   },
-  "icon": "assets/icon.svg"
+  "icon": "assets/icon.svg",
+  "overrides": {
+    "@deepseek-ai/cordis": "4.1.0",
+    "@deepseek-ai/schemastery": "3.19.0"
+  }
 }

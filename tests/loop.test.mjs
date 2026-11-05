@@ -1,3 +1,4 @@
+import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Context } from '@deepseek-ai/cordis';
@@ -27,13 +28,13 @@ test('真实 Agent 循环：首次唤醒带风味，关闭后的下轮请求移�
   const ctx = new Context();
   t.after(() => ctx.fiber.dispose());
   new SessionStore(ctx);
-  new AgentRegistry(ctx);
   new SessionProjectionRegistry(ctx);
   new LlmRuntime(ctx);
-  new SystemPrompt(ctx, { includeHarnessIdentity: false });
-  new ToolRuntime(ctx);
   new CommandRuntime(ctx);
-  new AgentLoop(ctx, resolveAgentLoopConfig(AgentLoop));
+  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  new ToolRuntime(ctx); installToolExecutor(ctx);
+  await ctx.plugin(AgentRegistry).await();
+  await ctx.plugin(AgentLoop, resolveAgentLoopConfig(AgentLoop)).await();
   ctx.llm.registerAdapter(['offline-pua-test'], new OfflineAdapter());
   const installed = ctx.plugin(plugin);
   await installed.await();
