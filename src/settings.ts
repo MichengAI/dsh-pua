@@ -47,23 +47,31 @@ export function materializePreferences(config: unknown): Preferences | undefined
   catch { return undefined; }
 }
 
+interface SettingsService {
+  get?: (ns: string) => unknown;
+  configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void;
+}
+
 /** 可选设置服务。0.2.0 起读取 Profile 里的 volatile 配置；没有该服务时仅当前会话生效。 */
 export class PreferencesBridge {
-  private ready = false;
-  constructor(private readonly ctx: Context, private readonly config: unknown) {
+  /** 只在 inject 回调的作用域里可见；插件本身没有声明 settings，直接读 ctx.settings 会抛「without inject」。 */
+  private settings: SettingsService | undefined = undefined;
+  constructor(ctx: Context, private readonly config: unknown) {
     ctx.inject(['settings'], child => {
-      const settings = child.settings as { configure?: (presentation: { auto?: boolean }, owner?: Fiber) => () => void };
-      this.ready = true;
+      const settings = child.settings as SettingsService;
+      this.settings = settings;
       if (typeof settings.configure === 'function') {
         const dispose = settings.configure({ auto: false }, ctx.fiber);
         child.effect(() => dispose);
       }
+      child.effect(() => () => { this.settings = undefined; });
     });
   }
   private current(): Preferences | undefined {
-    if (!this.ready) return undefined;
-    const settings = (this.ctx as any).settings;
-    if (settings && typeof settings.get === 'function') {
+    const settings = this.settings;
+    // 宿主没提供 settings 时不读 Profile 配置：全局开关不存在，会话命令仍然可用。
+    if (!settings) return undefined;
+    if (typeof settings.get === 'function') {
       const dynamicConfig = settings.get(SETTINGS_NAMESPACE);
       if (dynamicConfig !== undefined) return materializePreferences(dynamicConfig);
     }
