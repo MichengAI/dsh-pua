@@ -1,5 +1,15 @@
 # 更新记录
 
+## 1.0.8
+
+### 中文
+
+- 修复在部分 DSH 宿主环境（如 0.2.1-rc.5、0.2.2-rc.1）下每轮对话都会报错「本轮运行失败」的问题，确保 PUA 提示词注入与设置服务在所有支持的宿主版本上平稳运行（#12、#14、#15，感谢 @chinacaa 贡献 #13）。
+
+### English
+
+- Fix an issue causing conversations to fail on each turn with an error under certain DSH host versions (such as 0.2.1-rc.5 and 0.2.2-rc.1), ensuring PUA prompt injection and configuration operate reliably across all supported hosts (#12, #14, #15; thanks @chinacaa in #13).
+
 ## 1.0.7
 
 ### 中文
