@@ -193,6 +193,8 @@ test('弹窗接入宿主 Modal 原语，且会话面板不暴露语言选择并�
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
   assert.ok(js.includes('pua-session-modal'));
   assert.ok(js.includes('.pua-session-modal{width:min(540px,100%)!important;max-height:100%!important}'), '会话弹窗宽度对齐宿主中型模态窗 540px');
+  assert.ok(js.includes('.pua-session-modal{overflow-y:auto!important;overscroll-behavior:contain}'), '会话弹窗在宿主 overflow:hidden 外壳里仍可滚动（#16）');
+  assert.ok(js.includes('@supports (height:100dvh){.pua-session-modal{max-height:calc(100dvh - 48px)!important}}'), '会话弹窗限高跟随动态视口，避开移动端地址栏遮挡（#16）');
   assert.equal(js.includes('pua-dialog'), false, '不再手绘原生 dialog 弹窗');
   assert.equal(js.includes('pua-close'), false, '不再手绘关闭按钮');
   assert.ok(js.includes('["enabled","flavor","mode","subagents"]'));
