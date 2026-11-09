@@ -241,10 +241,11 @@ export async function handleCommand(
   services?: Services,
 ): Promise<CommandResult> {
   const { agent, signal, commandId } = invocation;
-  const config = store.configuration(agent.session);
-  const lang = resolveUiLang(config.language, services?.ctx ? hostLocaleOf(services.ctx) : undefined);
+  let lang: UiLang = 'zh';
   try {
     signal.throwIfAborted();
+    const config = store.configuration(agent.session);
+    lang = resolveUiLang(config.language, services?.ctx ? hostLocaleOf(services.ctx) : undefined);
     const action = parseArgs(invocation.rawInput, config, lang);
     const copy = COMMAND_COPY[lang] ?? COMMAND_COPY.zh;
     const prefix = sessionResultPrefix(lang);

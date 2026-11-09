@@ -243,3 +243,39 @@ test('/pua config 非法配置输入返回人性化多语言错误，不返回�
   assert.ok(!resJa.text.includes('[{"code":'), '错误文本包含了裸 Zod JSON');
   assert.equal(resJa.text, '未定義の設定項目：nope');
 });
+
+test('parseArgs 正确解析包含转义双引号的任务与验证命令（修复 P1 词法转义缺陷）', async () => {
+  const { parseArgs } = await import('../lib/args.js');
+  const { handleCommand } = await import('../lib/command.js');
+  const { StateStore } = await import('../lib/state.js');
+  const { SourceCatalog } = await import('../lib/source.js');
+  const { CONFIG_DEFAULTS } = await import('../lib/configuration.js');
+  const { Session, SESSION_FORMAT_VERSION } = await import('@deepseek-ai/dsh-session');
+
+  // 1. parseArgs 直接解析任务中的转义引号
+  const res1 = parseArgs('loop "fix \\"x\\" now" --verify "npm test"');
+  assert.equal(res1.kind, 'loop');
+  assert.equal(res1.task, 'fix "x" now');
+  assert.equal(res1.verify, 'npm test');
+
+  // 2. parseArgs 直接解析验证命令中的转义引号
+  const res2 = parseArgs('loop "run script" --verify "node -e \\"console.log(1)\\""');
+  assert.equal(res2.kind, 'loop');
+  assert.equal(res2.task, 'run script');
+  assert.equal(res2.verify, 'node -e "console.log(1)"');
+
+  // 3. handleCommand 端到端驱动测试
+  const session = Session.create('s1', [], { id: 's1', version: SESSION_FORMAT_VERSION, createdAt: 1, cwd: '/test', isSeeded: false }, 0);
+  const store = new StateStore(() => ({ ...CONFIG_DEFAULTS, enabled: true }));
+  const agent = { id: 'a1', session, followup: () => {}, steer: () => {} };
+  const fakeSubprocess = { spawn: () => {} };
+  const cmdRes = await handleCommand(
+    store,
+    { agent, commandId: 'c1', rawInput: '/pua loop "修复 \\"登录\\" 逻辑" --verify "npm test"', signal: new AbortController().signal },
+    new Map(),
+    fakeSubprocess,
+    { catalog: new SourceCatalog() }
+  );
+  assert.equal(cmdRes.kind, 'success', `端到端转义引号命令失败: ${cmdRes.text}`);
+  assert.ok(cmdRes.text.includes('已提交Loop'), `未成功提交 Loop: ${cmdRes.text}`);
+});

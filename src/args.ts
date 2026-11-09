@@ -90,7 +90,7 @@ function parseLoop(
   copy: ArgsCopy,
 ): Action {
   const tokens: string[] = [];
-  const lexer = /\s*(?:"((?:\\\\"|[^"])*)"|'([^']*)'|([^\s"']+))(?=\s|$)/gyu;
+  const lexer = /\s*(?:"((?:\\"|[^"])*)"|'([^']*)'|([^\s"']+))(?=\s|$)/gyu;
   let offset = 0;
   while (offset < input.trimEnd().length) {
     lexer.lastIndex = offset;
