@@ -192,7 +192,11 @@ test('运行卡片操作按钮与 BTW 一样用圆形图标，不用详情文字
 test('弹窗接入宿主 Modal 原语，且会话面板不暴露语言选择并透传 hostLocale', () => {
   const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
   assert.ok(js.includes('pua-session-modal'));
-  assert.ok(js.includes('.pua-session-modal{width:min(540px,100%)!important;max-height:100%!important}'), '会话弹窗宽度对齐宿主中型模态窗 540px');
+  assert.ok(js.includes('.pua-session-modal{width:min(540px,100%)!important;max-height:100%!important'), '会话弹窗宽度对齐宿主中型模态窗 540px 且遵守高度契约');
+  assert.ok(js.includes('contentClassName:"pua-session-modal-content"'), '会话弹窗透传 contentClassName 标记内容容器（#16）');
+  assert.ok(js.includes('overflow-y:auto!important;overscroll-behavior:contain!important'), '会话弹窗正文区支持独立滚动且防外层连带（#16）');
+  assert.equal(js.includes('100dvh'), false, '会话弹窗限高遵循宿主契约，禁止硬编码视口换算（#16）');
+  assert.equal(js.includes('_body_'), false, '会话弹窗不依赖宿主内部哈希类名（#16）');
   assert.equal(js.includes('pua-dialog'), false, '不再手绘原生 dialog 弹窗');
   assert.equal(js.includes('pua-close'), false, '不再手绘关闭按钮');
   assert.ok(js.includes('["enabled","flavor","mode","subagents"]'));
