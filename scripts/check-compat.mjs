@@ -58,7 +58,8 @@ const results = await Promise.allSettled(versions.map(async version => {
       manifest.devDependencies[key] = version;
     }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
-    for (const name of ['lib', 'assets', 'tests']) cpSync(join(root, name), join(dir, name), { recursive: true });
+    for (const name of ['lib', 'assets', 'tests', 'locale', 'src']) cpSync(join(root, name), join(dir, name), { recursive: true });
+    for (const file of readdirSync(root).filter(n => n.startsWith('README') && n.endsWith('.md'))) cpSync(join(root, file), join(dir, file));
     const install = await run(dir, [npmCli, 'install', '--ignore-scripts', '--registry=https://registry.npmjs.org/', '--no-audit', '--no-fund']);
     if (install.code !== 0) throw new Error(`依赖安装失败\n${install.output.slice(-4000)}`);
     for (const name of ['dsh-agent', 'dsh-session', 'dsh-tools']) {
