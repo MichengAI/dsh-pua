@@ -195,6 +195,11 @@ test('弹窗接入宿主 Modal 原语，且会话面板不暴露语言选择并�
   assert.ok(js.includes('.pua-session-modal{width:min(540px,100%)!important;max-height:100%!important'), '会话弹窗宽度对齐宿主中型模态窗 540px 且遵守高度契约');
   assert.ok(js.includes('contentClassName:"pua-session-modal-content"'), '会话弹窗透传 contentClassName 标记内容容器（#16）');
   assert.ok(js.includes('overflow-y:auto!important;overscroll-behavior:contain!important'), '会话弹窗正文区支持独立滚动且防外层连带（#16）');
+  assert.ok(
+    js.includes('.pua-session-modal-content>div:has(>.pua-panel)') && js.includes('.pua-session-modal-content>div:last-of-type'),
+    '会话弹窗正文滚动选择器结合 :has 与 :last-of-type 免疫非预期兄弟节点'
+  );
+  assert.equal(js.includes('pua-session-modal-content>div:last-child'), false, '不再使用脆弱的 last-child 选择器');
   assert.equal(js.includes('100dvh'), false, '会话弹窗限高遵循宿主契约，禁止硬编码视口换算（#16）');
   assert.equal(js.includes('_body_'), false, '会话弹窗不依赖宿主内部哈希类名（#16）');
   assert.equal(js.includes('pua-dialog'), false, '不再手绘原生 dialog 弹窗');

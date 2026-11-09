@@ -4,10 +4,20 @@
 
 ### 中文
 
+- **全量支持 DeepSeek Harness 官方 8 门内置语言**：完整支持中文、英语、日语、西班牙语、法语、德语、俄语与葡萄牙语（`zh`, `en`, `ja`, `es`, `fr`, `de`, `ru`, `pt`）。命令回复、参数校验、斜杠菜单提示以及 9 份独立的本地化说明文档均自动跟随界面语言原生呈现。
+- **修复会话设置弹窗长内容裁切与滚动（#16）**：修复在小屏幕或长表单下会话设置弹窗内容超出后被截断且无法滚动的问题，实现弹窗正文平滑独立滚动，标题栏与关闭按钮在滚动时保持固定可见。
+- **修复命令参数中转义双引号解析**：修复在任务描述或独立验收命令中包含合法转义双引号时（如嵌套脚本命令）被误判为未闭合引号的词法解析问题。
+- **优化多语言错误提示与美化**：命令与配置报错全面在地化，配置格式异常转为人性化提示，消除不可读的裸校验数据。
+- **精简文档头部导航**：移除各语言说明文档顶部的冗余同页面锚点链接，排版更加清晰统一。
 - 修复在部分 DSH 宿主环境（如 0.2.1-rc.5、0.2.2-rc.1）下每轮对话都会报错「本轮运行失败」的问题，确保 PUA 提示词注入与设置服务在所有支持的宿主版本上平稳运行（#12、#14、#15，感谢 @chinacaa 贡献 #13）。
 
 ### English
 
+- **Full multi-language support for all 8 official built-in languages**: comprehensive localization for Chinese, English, Japanese, Spanish, French, German, Russian, and Portuguese across command responses, argument validation, slash command hints, and 9 regional README guides.
+- **Fix session settings modal content truncation and enable body scroll (#16)**: resolve layout truncation when settings exceed viewport height, providing independent smooth scrolling while keeping header and close button fixed in view.
+- **Fix escaped quotes parsing in command arguments**: fix a lexical parsing issue where tasks or verification commands with escaped quotes were incorrectly flagged as unclosed quotes.
+- **Humanized configuration error formatting**: argument and configuration errors are fully localized and formatted into clean readable messages without raw validation schema arrays.
+- **Clean up document header navigation**: remove redundant in-page anchor links across all regional READMEs for a cleaner and more consistent layout.
 - Fix an issue causing conversations to fail on each turn with an error under certain DSH host versions (such as 0.2.1-rc.5 and 0.2.2-rc.1), ensuring PUA prompt injection and configuration operate reliably across all supported hosts (#12, #14, #15; thanks @chinacaa in #13).
 
 ## 1.0.7
