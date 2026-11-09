@@ -3,7 +3,7 @@ import type {} from '@deepseek-ai/dsh-commands';
 import { parseArgs, type Action } from './args.js';
 import type { FlavorId } from './flavors.js';
 import type { PuaMode } from './content.js';
-import { CONFIG_DEFAULTS, CONFIG_KEYS, parsePatch, type Configuration, type ConfigurationPatch } from './configuration.js';
+import { CONFIG_DEFAULTS, CONFIG_KEYS, parsePatch, type Configuration } from './configuration.js';
 import { randomUUID } from 'node:crypto';
 import { CommandId } from '@deepseek-ai/dsh-commands';
 

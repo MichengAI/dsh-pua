@@ -1,3 +1,4 @@
+import type { UiLang } from './i18n.js';
 import type { Context } from '@deepseek-ai/cordis';
 import Schema from '@deepseek-ai/schemastery';
 import type { PuaState } from './state.js';
@@ -13,7 +14,7 @@ export declare const SETTINGS_SCHEMA: Schema<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -28,7 +29,7 @@ export declare const SETTINGS_SCHEMA: Schema<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -44,7 +45,7 @@ export declare const Config: Schema<NoInfer<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -59,7 +60,7 @@ export declare const Config: Schema<NoInfer<Schemastery.ObjectS<NoInfer<{
     offline: Schema<boolean, boolean, "defined">;
     feedbackFrequency: Schema<number, number, "defined">;
     mode: Schema<"pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "pua" | "p7" | "p9" | "p10" | "pro" | "yes" | "mama" | "shot" | "pua-en" | "pua-ja", "defined">;
-    language: Schema<"auto" | "zh-CN" | "en" | "ru", "auto" | "zh-CN" | "en" | "ru", "defined">;
+    language: Schema<"auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "auto" | "zh-CN" | "en" | "ja" | "es" | "fr" | "de" | "ru" | "pt", "defined">;
     subagents: Schema<boolean, boolean, "defined">;
     terminalReview: Schema<boolean, boolean, "defined">;
     failureCandidates: Schema<boolean, boolean, "defined">;
@@ -82,9 +83,5 @@ export declare class PreferencesBridge {
     configuration(): Configuration;
     /** 有设置服务时返回全局开关；没有设置服务时为 undefined，会话命令仍可使用。 */
     globallyEnabled(): boolean | undefined;
-    description(): string;
-    feedback(): {
-        offline: boolean;
-        frequency: number;
-    };
+    description(lang?: UiLang): string;
 }

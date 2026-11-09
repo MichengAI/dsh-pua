@@ -51,7 +51,6 @@ test('没有 register 的设置服务读取 volatile 配置', async () => {
   assert.equal(bridge.configuration().flavor, 'huawei');
   assert.equal(bridge.configuration().mode, 'p9');
   assert.equal(bridge.configuration().verify, 'npm test');
-  assert.deepEqual(bridge.feedback(), { offline: true, frequency: 2 });
   assert.match(bridge.description(), /插件/);
   assert.equal(bridge.defaults().flavorLocked, true);
 });

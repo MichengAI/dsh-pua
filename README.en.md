@@ -8,7 +8,9 @@
 
 **Help your agent try another approach and verify its work before calling it done.**
 
-[简体中文](README.md) · [Русский](README.ru.md) · [Features](#features) · [Screenshots](#screenshots) · [Installation](#installation) · [Usage](#usage) · [Configuration](#configuration) · [Commands](#common-commands) · [Session events](#session-events) · [Changelog](CHANGELOG.md)
+[简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Русский](README.ru.md) · [Português](README.pt.md)
+
+[Changelog](CHANGELOG.md) · [Apache-2.0](LICENSE)
 
 [![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=downloads)](https://www.npmjs.com/package/@michengai/dsh-pua)
@@ -112,7 +114,7 @@ Unchanged options follow global defaults. Editing an option overrides just that 
 | Allow PUA | Controls the command and chat entry. Allowed by default; turning it off hides both and blocks this conversation from being turned on. It does not inject by itself |
 | Conversation switch | Off by default. `/pua` or the chat entry turns injection on for this conversation only |
 | Style and persona | Select a style automatically or choose a specific style and persona |
-| UI language | Follow the host language automatically, or pin Chinese / English |
+| UI language | Follow the host language automatically, or pin Chinese / English / Japanese / Spanish / French / German / Russian / Portuguese |
 | Enable for subagents | Off by default; enable when specialists and other subagents should also use PUA |
 | Correction reminders | Adjust terminal checks, failure escalation, and quality reminders |
 | Integrity guard | Off by default; when on, deny reads of hidden benchmark answers and remind when edits touch test, scoring, or CI assets |

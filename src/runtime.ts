@@ -143,10 +143,6 @@ export class PuaRuntime {
     private readonly store: StateStore,
     catalog: SourceCatalog,
     private readonly lifetime: AbortSignal,
-    feedback: () => { offline: boolean; frequency: number } = () => ({
-      offline: false,
-      frequency: 5,
-    }),
   ) {
     this.hooks = new HookContent(catalog);
     ctx.on("agent/pre-step", async ({ agent }, next) => {

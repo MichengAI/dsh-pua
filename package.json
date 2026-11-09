@@ -2,6 +2,19 @@
   "name": "@michengai/dsh-pua",
   "version": "1.0.8",
   "description": "DSH PUA — 为 DeepSeek Harness 提供 PUA 任务推进、角色风味、验收循环和运行状态卡片 · PUA task persistence, personas, verification loops, and live status cards for DeepSeek Harness",
+  "author": {
+    "name": "MichengAI",
+    "url": "https://github.com/MichengAI"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "pua",
+    "persona",
+    "verification",
+    "task",
+    "status-card"
+  ],
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
@@ -22,6 +35,7 @@
       "types": "./lib/remote.d.ts",
       "default": "./lib/remote.js"
     },
+    "./icon": "./assets/icon.svg",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
     "./remote/locale/*.json": "./locale/remote/*.json"
@@ -35,15 +49,21 @@
     "assets/branding/dsh-pua-banner-zh-CN.png",
     "cordis.patch.yml",
     "README.md",
-    "README.en.md",
-    "README.ru.md",
     "README.zh-CN.md",
+    "README.en.md",
+    "README.ja.md",
+    "README.es.md",
+    "README.fr.md",
+    "README.de.md",
+    "README.ru.md",
+    "README.pt.md",
     "LICENSE",
     "NOTICE",
     "CHANGELOG.md",
     "assets/icon.svg"
   ],
   "dsh": {
+    "manifestVersion": 1,
     "bundle": {
       "patch": "./cordis.patch.yml"
     },
@@ -204,7 +224,7 @@
   "bugs": {
     "url": "https://github.com/MichengAI/dsh-pua/issues"
   },
-  "icon": "assets/icon.svg",
+  "icon": "./assets/icon.svg",
   "overrides": {
     "@deepseek-ai/cordis": "4.1.0",
     "@deepseek-ai/schemastery": "3.19.0"

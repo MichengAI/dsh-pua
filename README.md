@@ -8,7 +8,9 @@
 
 **让 Agent 少一点敷衍，多一点尝试和验证**
 
-[English](README.en.md) · [Русский](README.ru.md) · [功能概览](#功能概览) · [界面预览](#界面预览) · [安装](#安装) · [使用](#使用) · [配置](#配置) · [常用命令](#常用命令) · [会话事件](#会话事件) · [更新日志](CHANGELOG.md)
+[简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Русский](README.ru.md) · [Português](README.pt.md)
+
+[更新日志](CHANGELOG.md) · [Apache-2.0](LICENSE)
 
 [![npm version](https://img.shields.io/npm/v/%40michengai%2Fdsh-pua.svg?label=npm%20version)](https://www.npmjs.com/package/@michengai/dsh-pua)
 [![npm downloads](https://img.shields.io/npm/dt/%40michengai%2Fdsh-pua.svg?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://www.npmjs.com/package/@michengai/dsh-pua)
@@ -112,7 +114,7 @@ dsh plugin --profile web add @michengai/dsh-pua@latest --registry=https://regist
 | 允许使用 PUA | 控制命令和聊天入口。默认允许；关闭后入口隐藏，会话也不能打开。不会自动注入 |
 | 当前会话开关 | 默认关闭。用 `/pua` 或聊天入口打开后才注入，只影响这一次会话 |
 | 风味与角色 | 自动选味或指定风味，选择不同角色模式 |
-| 界面语言 | 跟随宿主语言自动切换，或固定中文 / English |
+| 界面语言 | 跟随宿主语言自动切换，或固定为中文 / English / 日本語 / Español / Français / Deutsch / Русский / Português |
 | 对子代理启用 | 默认关闭；需要让专家等子代理也使用 PUA 时再开启 |
 | 纠偏提醒 | 调整终端核验、失败升级与质量提醒 |
 | 防作弊门 | 默认关闭；开启后拦截读取隐藏基准答案，变更测试、评分或 CI 资产时注入提醒 |

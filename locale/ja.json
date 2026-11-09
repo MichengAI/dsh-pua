@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "PUA 設定",
+    "description": "エージェントに別の方法を試させ、完了と宣言する前に検証を促します",
+    "detail": "README.ja.md"
+  }
+}

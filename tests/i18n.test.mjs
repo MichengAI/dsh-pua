@@ -37,15 +37,16 @@ test('hostLocaleOf：读取宿主 locale 服务的 active 值', () => {
   assert.equal(hostLocaleOf({ get: () => null }), undefined);
 });
 
-test('UI 文案表：zh 与 en 结构一致，字段覆盖全部配置键', () => {
-  assert.deepEqual(Object.keys(UI.en).sort(), Object.keys(UI.zh).sort());
-  assert.deepEqual(Object.keys(UI.en.panel).sort(), Object.keys(UI.zh.panel).sort());
-  assert.deepEqual(Object.keys(UI.en.panel.loop).sort(), Object.keys(UI.zh.panel.loop).sort());
-  assert.deepEqual(Object.keys(UI.en.composer).sort(), Object.keys(UI.zh.composer).sort());
-  for (const lang of ['zh', 'en', 'ru']) {
+test('UI 文案表：zh 与 en 及全部 8 门语言结构一致，字段覆盖全部配置键', () => {
+  const allLangs = ['zh', 'en', 'ja', 'es', 'fr', 'de', 'ru', 'pt'];
+  for (const lang of allLangs) {
+    assert.deepEqual(Object.keys(UI[lang]).sort(), Object.keys(UI.zh).sort(), `${lang} 根结构不一致`);
+    assert.deepEqual(Object.keys(UI[lang].panel).sort(), Object.keys(UI.zh.panel).sort(), `${lang} panel 结构不一致`);
+    assert.deepEqual(Object.keys(UI[lang].panel.loop).sort(), Object.keys(UI.zh.panel.loop).sort(), `${lang} loop 结构不一致`);
+    assert.deepEqual(Object.keys(UI[lang].composer).sort(), Object.keys(UI.zh.composer).sort(), `${lang} composer 结构不一致`);
     for (const key of CONFIG_KEYS) assert.ok(UI[lang].fields[key], `${lang} 缺少字段标签：${key}`);
   }
-  assert.deepEqual(Object.keys(UI.zh.languageChoices), ['auto', 'zh-CN', 'en', 'ru']);
+  assert.deepEqual(Object.keys(UI.zh.languageChoices), ['auto', 'zh-CN', 'en', 'ja', 'es', 'fr', 'de', 'ru', 'pt']);
 });
 
 test('UI 中文文案保持现状，不因本地化改动既有界面', () => {
@@ -86,53 +87,91 @@ test('UI 俄语文案完整存在且不含中文字符', () => {
   assert.equal(UI.ru.panel.sessionHeading, 'PUA для этой сессии');
 });
 
-test('resolveUiLang：俄语宿主 locale 走 ru', () => {
-  assert.equal(resolveUiLang('auto', 'ru'), 'ru');
-  assert.equal(resolveUiLang('auto', 'ru-RU'), 'ru');
-  assert.equal(resolveUiLang('ru', 'en-US'), 'ru');
-  assert.equal(resolveUiLang(undefined, 'ru'), 'ru');
+test('UI 多语言文案完整存在且各语言文本无缺失', () => {
+  for (const lang of ['ja', 'es', 'fr', 'de', 'pt']) {
+    const arr = strings(UI[lang]);
+    assert.ok(arr.length > 60, `${lang} 文案条目过少：${arr.length}`);
+    for (const text of arr) assert.ok(text.length > 0, `${lang} 存在空文案`);
+    if (lang !== 'ja') {
+      for (const text of arr) assert.ok(!CJK.test(text), `${lang} 文案混入中文：${text}`);
+    }
+  }
+  assert.equal(UI.ja.settingsSummary, 'コマンドとチャット入口、ペルソナスタイルとサブエージェント方針。');
+  assert.equal(UI.es.allow.label, 'Permitir PUA');
+  assert.equal(UI.fr.fields.enabled, 'Activer PUA');
+  assert.equal(UI.de.fields.language, 'UI-Sprache');
+  assert.equal(UI.pt.cardTitle, 'Configurações de PUA');
 });
 
-test('flavorLabel：en 用英文名，zh 用原表，未知 id 原样返回', () => {
+test('resolveUiLang：各语言宿主 locale 精准识别', () => {
+  assert.equal(resolveUiLang('auto', 'ru'), 'ru');
+  assert.equal(resolveUiLang('auto', 'ru-RU'), 'ru');
+  assert.equal(resolveUiLang('auto', 'ja'), 'ja');
+  assert.equal(resolveUiLang('auto', 'ja_JP'), 'ja');
+  assert.equal(resolveUiLang('auto', 'es'), 'es');
+  assert.equal(resolveUiLang('auto', 'fr-FR'), 'fr');
+  assert.equal(resolveUiLang('auto', 'de'), 'de');
+  assert.equal(resolveUiLang('auto', 'pt-BR'), 'pt');
+  assert.equal(resolveUiLang('ru', 'en-US'), 'ru');
+  assert.equal(resolveUiLang('ja', 'en-US'), 'ja');
+  assert.equal(resolveUiLang(undefined, 'ru'), 'ru');
+  assert.equal(resolveUiLang(undefined, 'es-ES'), 'es');
+});
+
+test('flavorLabel：en 用英文名，zh 用原表，ja 用日文名，未知 id 原样返回', () => {
   assert.equal(flavorLabel('alibaba', 'en'), 'Alibaba');
   assert.equal(flavorLabel('alibaba', 'zh'), '阿里');
+  assert.equal(flavorLabel('alibaba', 'ja'), 'アリババ');
   assert.equal(flavorLabel('ding', 'en'), 'DingTalk');
   assert.equal(flavorLabel('custom-x', 'en'), 'custom-x');
   assert.equal(flavorLabel('custom-x', 'zh'), 'custom-x');
 });
 
-test('modeName：双语角色名，未知模式原样返回', () => {
+test('modeName：多语言角色名，未知模式原样返回', () => {
   assert.equal(modeName('pua', 'zh'), '普通 · 持续推进与证据交付');
   assert.equal(modeName('pua-en', 'zh'), '英文协议');
   assert.notEqual(modeName('pua', 'en'), '普通 · 持续推进与证据交付');
   assert.ok(!CJK.test(modeName('pua', 'en')));
+  assert.equal(modeName('pua', 'ja'), '標準 · 着実な進行と証拠提出');
+  assert.equal(modeName('pua', 'es'), 'Estándar · avance constante y evidencias');
   assert.equal(modeName('unknown-mode', 'en'), 'unknown-mode');
 });
 
-test('ACTIVITY 文案表：结构一致、中文保持现状、英文不含中文', () => {
-  assert.deepEqual(Object.keys(ACTIVITY.en).sort(), Object.keys(ACTIVITY.zh).sort());
-  assert.deepEqual(Object.keys(ACTIVITY.en.fields), Object.keys(ACTIVITY.zh.fields));
+test('ACTIVITY 文案表：全量 8 门语言结构一致、中文保持现状', () => {
+  for (const lang of ['en', 'ja', 'es', 'fr', 'de', 'ru', 'pt']) {
+    assert.deepEqual(Object.keys(ACTIVITY[lang]).sort(), Object.keys(ACTIVITY.zh).sort(), `${lang} 结构不一致`);
+    assert.deepEqual(Object.keys(ACTIVITY[lang].fields), Object.keys(ACTIVITY.zh.fields), `${lang} fields 不一致`);
+  }
   assert.equal(ACTIVITY.zh.ariaLabel, 'PUA 运行状态');
   assert.equal(ACTIVITY.zh.fields.failures, '连续终端失败观察');
   assert.equal(ACTIVITY.zh.iteration(3, 5), '第 3 轮 / 5 轮');
   assert.equal(ACTIVITY.zh.iteration(3, 0), '第 3 轮');
   assert.equal(ACTIVITY.zh.seconds(120), '120 秒');
   assert.equal(ACTIVITY.zh.times(2), '2 次');
-  for (const text of strings(ACTIVITY.en)) {
-    assert.ok(text.length > 0);
-    assert.ok(!CJK.test(text), `英文运行卡片文案混入中文：${text}`);
+  for (const lang of ['en', 'es', 'fr', 'de', 'ru', 'pt']) {
+    for (const text of strings(ACTIVITY[lang])) {
+      assert.ok(text.length > 0);
+      assert.ok(!CJK.test(text), `${lang} 运行卡片文案混入中文：${text}`);
+    }
   }
   assert.equal(ACTIVITY.en.iteration(3, 5), 'Round 3 of 5');
   assert.equal(ACTIVITY.en.iteration(3, 0), 'Round 3');
+  assert.equal(ACTIVITY.ja.iteration(3, 5), '第 3 周回 / 5 周回');
+  assert.equal(ACTIVITY.ja.fields.rejections, '検証未通過');
 });
 
-test('配置契约：language 默认 auto，可覆盖为 zh-CN / en / ru，拒绝未知值', () => {
+test('配置契约：language 默认 auto，可覆盖为 8 门内置语言，拒绝未知值', () => {
   assert.equal(CONFIG_DEFAULTS.language, 'auto');
   assert.ok(CONFIG_KEYS.includes('language'));
   assert.deepEqual(parsePatch({ language: 'en' }), { language: 'en' });
   assert.deepEqual(parsePatch({ language: 'ru' }), { language: 'ru' });
+  assert.deepEqual(parsePatch({ language: 'ja' }), { language: 'ja' });
+  assert.deepEqual(parsePatch({ language: 'es' }), { language: 'es' });
+  assert.deepEqual(parsePatch({ language: 'fr' }), { language: 'fr' });
+  assert.deepEqual(parsePatch({ language: 'de' }), { language: 'de' });
+  assert.deepEqual(parsePatch({ language: 'pt' }), { language: 'pt' });
   assert.equal(parsePatch({ language: null }).language, null);
-  assert.equal(configSchema.safeParse({ ...CONFIG_DEFAULTS, language: 'fr' }).success, false);
+  assert.equal(configSchema.safeParse({ ...CONFIG_DEFAULTS, language: 'it' }).success, false);
 });
 
 test('运行状态契约：activity 携带 language，缺失时校验失败', () => {

@@ -44,10 +44,7 @@ export declare class PuaRuntime {
     private readonly pendingWrites;
     private readonly pendingCandidates;
     private readonly pendingTerminalReviews;
-    constructor(ctx: Context, store: StateStore, catalog: SourceCatalog, lifetime: AbortSignal, feedback?: () => {
-        offline: boolean;
-        frequency: number;
-    });
+    constructor(ctx: Context, store: StateStore, catalog: SourceCatalog, lifetime: AbortSignal);
     read(session: Session): RuntimeState;
     private save;
     private flush;

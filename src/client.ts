@@ -43,7 +43,90 @@ async function unwrap<T>(result: Promise<RemoteResult<T>>): Promise<T> {
   if (!response.ok) throw new Error(response.error.message);
   return response.value;
 }
-const message = (error: unknown, copy: UiCopy): string => {
+const REMOTE_ERRORS: Record<UiLang, Record<string, string>> = {
+  zh: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': '会话尚未加载或已关闭，请重新打开会话后重试。',
+    'PUA 设置服务尚未就绪。': 'PUA 设置服务尚未就绪。',
+    '宿主未提供全局设置，仅支持会话命令配置。': '宿主未提供全局设置，仅支持会话命令配置。',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。',
+    '请输入 1–4096 字符的任务。': '请输入 1–4096 字符的任务。',
+    'PUA 命令未注册，请重载后端。': 'PUA 命令未注册，请重载后端。',
+    'Loop 已提交。': 'Loop 已提交。',
+    'Loop 已取消。': 'Loop 已取消。',
+  },
+  en: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'Session is not loaded or has closed. Please reopen the session and retry.',
+    'PUA 设置服务尚未就绪。': 'PUA settings service is not ready.',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'Host does not provide global settings; only session commands are supported.',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': 'Allow PUA is disabled; this session cannot be enabled. Turn it on in plugin settings first.',
+    '请输入 1–4096 字符的任务。': 'Please enter a task between 1 and 4096 characters.',
+    'PUA 命令未注册，请重载后端。': 'PUA command is not registered. Please reload the backend.',
+    'Loop 已提交。': 'Loop submitted.',
+    'Loop 已取消。': 'Loop canceled.',
+  },
+  ja: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'セッションが読み込まれていないか終了しています。再度開いてお試しください。',
+    'PUA 设置服务尚未就绪。': 'PUA 設定サービスはまだ準備ができていません。',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'ホストがグローバル設定を提供していません。セッションコマンドのみサポートされます。',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '「PUA の使用を許可」が無効です。先にプラグイン設定で有効にしてください。',
+    '请输入 1–4096 字符的任务。': '1〜4096 文字でタスクを入力してください。',
+    'PUA 命令未注册，请重载后端。': 'PUA コマンドが登録されていません。バックエンドを再読込してください。',
+    'Loop 已提交。': 'Loop を送信しました。',
+    'Loop 已取消。': 'Loop をキャンセルしました。',
+  },
+  es: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'La sesión no se ha cargado o está cerrada. Vuelve a abrirla y reintenta.',
+    'PUA 设置服务尚未就绪。': 'El servicio de configuración de PUA no está listo.',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'El host no proporciona ajustes globales; solo se admiten comandos de sesión.',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '«Permitir PUA» está desactivado; no se puede habilitar esta sesión. Actívalo antes en los ajustes.',
+    '请输入 1–4096 字符的任务。': 'Por favor, introduce una tarea de 1 a 4096 caracteres.',
+    'PUA 命令未注册，请重载后端。': 'El comando PUA no está registrado. Recarga el backend.',
+    'Loop 已提交。': 'Loop enviado.',
+    'Loop 已取消。': 'Loop cancelado.',
+  },
+  fr: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'La session n\'est pas chargée ou est fermée. Rouvrez-la et réessayez.',
+    'PUA 设置服务尚未就绪。': 'Le service de paramètres PUA n\'est pas encore prêt.',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'L\'hôte ne fournit pas de paramètres globaux ; seules les commandes de session sont prises en charge.',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '« Autoriser PUA » est désactivé ; activez-le d\'abord dans les paramètres du plugin.',
+    '请输入 1–4096 字符的任务。': 'Veuillez saisir une tâche comprise entre 1 et 4096 caractères.',
+    'PUA 命令未注册，请重载后端。': 'La commande PUA n\'est pas enregistrée. Rechargez le backend.',
+    'Loop 已提交。': 'Loop soumis.',
+    'Loop 已取消。': 'Loop annulé.',
+  },
+  de: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'Sitzung nicht geladen oder geschlossen. Bitte erneut öffnen und wiederholen.',
+    'PUA 设置服务尚未就绪。': 'Der PUA-Einstellungsdienst ist noch nicht bereit.',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'Der Host bietet keine globalen Einstellungen; nur Sitzungsbefehle werden unterstützt.',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '„PUA zulassen“ ist deaktiviert; bitte zuerst in den Plugin-Einstellungen aktivieren.',
+    '请输入 1–4096 字符的任务。': 'Bitte geben Sie eine Aufgabe mit 1 bis 4096 Zeichen ein.',
+    'PUA 命令未注册，请重载后端。': 'Der PUA-Befehl ist nicht registriert. Bitte Backend neu laden.',
+    'Loop 已提交。': 'Loop übermittelt.',
+    'Loop 已取消。': 'Loop abgebrochen.',
+  },
+  ru: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'Сессия не загружена или закрыта. Откройте сессию заново и повторите попытку.',
+    'PUA 设置服务尚未就绪。': 'Служба настроек PUA ещё не готова.',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'Хост не предоставляет глобальные настройки; поддерживаются только команды сессии.',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '«Разрешить PUA» отключено; эта сессия не может быть включена. Сначала включите в настройках плагина.',
+    '请输入 1–4096 字符的任务。': 'Пожалуйста, введите задачу от 1 до 4096 символов.',
+    'PUA 命令未注册，请重载后端。': 'Команда PUA не зарегистрирована. Перезагрузите бэкенд.',
+    'Loop 已提交。': 'Loop отправлен.',
+    'Loop 已取消。': 'Loop отменён.',
+  },
+  pt: {
+    '会话尚未加载或已关闭，请重新打开会话后重试。': 'A sessão não foi carregada ou foi fechada. Reabra a sessão e tente novamente.',
+    'PUA 设置服务尚未就绪。': 'O serviço de configurações do PUA não está pronto.',
+    '宿主未提供全局设置，仅支持会话命令配置。': 'O host não fornece configurações globais; apenas comandos de sessão são suportados.',
+    '已关闭「允许使用 PUA」，当前会话不能开启。请先在插件设置中打开。': '«Permitir PUA» está desativado; ative primeiro nas configurações do plugin.',
+    '请输入 1–4096 字符的任务。': 'Por favor, insira uma tarefa entre 1 e 4096 caracteres.',
+    'PUA 命令未注册，请重载后端。': 'O comando PUA não está registrado. Recarregue o backend.',
+    'Loop 已提交。': 'Loop enviado.',
+    'Loop 已取消。': 'Loop cancelado.',
+  },
+};
+
+const message = (error: unknown, copy: UiCopy, lang: UiLang = 'zh'): string => {
   const rules = copy.validation;
   const text = error instanceof Error ? error.message : rules.fallback;
   try {
@@ -52,8 +135,8 @@ const message = (error: unknown, copy: UiCopy): string => {
       const field = copy.fields[issue.path?.[0] as Key] ?? rules.fieldFallback;
       return field + (issue.code === 'too_big' ? rules.tooBig(issue.maximum ?? 0) : issue.code === 'too_small' ? rules.tooSmall(issue.minimum ?? 0) : rules.invalid);
     }).join(rules.join);
-  } catch { /* 普通远程错误保留原文。 */ }
-  return text;
+  } catch { /* 普通远程错误查找本地化映射。 */ }
+  return REMOTE_ERRORS[lang]?.[text] ?? text;
 };
 /** 菜单、选中标记及键盘交互复用宿主公共组件。 */
 function PuaSelect({ id, value, options, disabled, onChange }: {
@@ -131,7 +214,7 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
   const accept = (value: ConfigurationSnapshot) => { if (live.current) { setSnapshot(value); setDraft(value.values); setDirty(false); setError(''); setStatus(copy.panel.statusSynced); } };
   const refresh = () => {
     const request = ++epoch.current;
-    return unwrap(global ? remote.getGlobal() : remote.getSession(sessionId!)).then(value => { if (request === epoch.current) accept(value); }).catch(reason => { if (live.current && request === epoch.current) setError(message(reason, copy)); });
+    return unwrap(global ? remote.getGlobal() : remote.getSession(sessionId!)).then(value => { if (request === epoch.current) accept(value); }).catch(reason => { if (live.current && request === epoch.current) setError(message(reason, copy, lang)); });
   };
   useEffect(() => { live.current = true; void refresh(); return () => { live.current = false; }; }, [sessionId]);
   // 未编辑时同步其他窗口和命令修改；输入草稿不被后台刷新覆盖。
@@ -149,7 +232,7 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
       const saved = await unwrap(global ? remote.setGlobal(configSchema.parse(draft), snapshot.revision) : remote.setSession(sessionId!, parsePatch(patch ?? {}), snapshot.revision));
       accept(saved);
       setStatus(!global && patch?.enabled === true && !saved.values.enabled ? copy.panel.statusSavedSession : copy.panel.statusSaved);
-    } catch (reason) { setError(message(reason, copy)); setStatus(copy.panel.statusNotSaved); }
+    } catch (reason) { setError(message(reason, copy, lang)); setStatus(copy.panel.statusNotSaved); }
     finally { saving.current = false; setBusy(false); }
   }
   function field(key: Key) {
@@ -194,8 +277,8 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
   async function loop(start: boolean) {
     if (!sessionId || saving.current) return;
     saving.current = true; setBusy(true); setError('');
-    try { const result = await unwrap(start ? remote.startLoop(sessionId, task, configSchema.parse(loopValues ?? draft)) : remote.cancelLoop(sessionId)); if (start && onLoopStarted) { onLoopStarted(); return; } await refresh(); setStatus(result.text); }
-    catch (reason) { setError(message(reason, copy)); }
+    try { const result = await unwrap(start ? remote.startLoop(sessionId, task, configSchema.parse(loopValues ?? draft)) : remote.cancelLoop(sessionId)); if (start && onLoopStarted) { onLoopStarted(); return; } await refresh(); setStatus(REMOTE_ERRORS[lang]?.[result.text] ?? result.text); }
+    catch (reason) { setError(message(reason, copy, lang)); }
     finally { saving.current = false; setBusy(false); }
   }
   const topKeys = global ? GLOBAL_TOP_KEYS : SESSION_TOP_KEYS;

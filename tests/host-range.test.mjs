@@ -55,7 +55,7 @@ test('CI 与说明中的兼容列表和 peer 一致', { skip: sourceTree ? false
   const ci = read('.github/workflows/ci.yml');
   for (const version of defaultTestedHosts) assert.equal(ci.includes(`'${version}'`), true, version);
   assert.equal(ci.includes('0.1.2-rc.1'), false);
-  for (const file of ['README.md', 'README.zh-CN.md', 'README.en.md', 'README.ru.md']) {
+  for (const file of ['README.md', 'README.zh-CN.md', 'README.en.md', 'README.ja.md', 'README.es.md', 'README.fr.md', 'README.de.md', 'README.ru.md', 'README.pt.md']) {
     const text = read(file);
     for (const version of defaultTestedHosts) assert.equal(text.includes(version), true, file);
     assert.equal(text.includes('0.3.28'), true, file);

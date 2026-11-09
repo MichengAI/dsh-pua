@@ -1,15 +1,15 @@
 import type { Configuration, LanguagePref } from './configuration.js';
 /** 操作者可见界面文案的语言；模型侧 prompt 与服务端回复不在本地化范围。 */
-export type UiLang = 'zh' | 'en' | 'ru';
+export type UiLang = 'zh' | 'en' | 'ja' | 'es' | 'fr' | 'de' | 'ru' | 'pt';
 type ConfigKey = keyof Configuration;
 /** 手动覆盖时才与宿主 locale 解耦；auto 表示跟随宿主。 */
 export declare function resolveUiLang(pref: LanguagePref | undefined, hostLocale: string | undefined): UiLang;
 type Lookup = {
     get?(name: string): unknown;
 };
-/** 读取宿主 locale 服务当前 active 值；缺失或形态不符时返回 undefined。 */
+/** 读取宿主 locale 服务当前 active 值；支持 snapshot.active 及 get() 方法，缺失或形态不符时返回 undefined。 */
 export declare function hostLocaleOf(lookup: Lookup): string | undefined;
-/** 风味显示名；en/ru 无映射或 zh 未登记时回退原 id。 */
+/** 风味显示名；未知 id 原样返回。 */
 export declare function flavorLabel(id: string, lang: UiLang): string;
 export interface LoopCopy {
     summary: string;
@@ -126,4 +126,58 @@ export interface ActivityCopy {
     cancelFailed: string;
 }
 export declare const ACTIVITY: Record<UiLang, ActivityCopy>;
+export declare const SESSION_RESULT_PREFIXES: Record<UiLang, string>;
+export declare function sessionResultPrefix(lang?: UiLang): string;
+export declare function localizedListFlavors(lang?: UiLang): string;
+export interface CommandCopy {
+    flavorExample: string;
+    statusText: (enabled: boolean, mode: string, flavor: string, scope: string, runtimeStatus: string) => string;
+    autoRouting: string;
+    locked: (flavor: string) => string;
+    noAgents: string;
+    agentsFootnote: string;
+    reapOrphans: string;
+    puaDisallowed: string;
+    loopRequiresSubprocess: string;
+    configureSaved: string;
+    loopCanceled: string;
+    stoppedLoops: (n: number) => string;
+    offline: string;
+    off: (scope: string) => string;
+    flavorLocked: (flavor: string, enabled: boolean, scope: string) => string;
+    flavorAuto: (enabled: boolean, scope: string) => string;
+    taskModeEnabled: (flavor: string) => string;
+    taskSubmitted: (kind: string, flavor: string, loopInfo: string, evidenceInfo: string) => string;
+    taskKinds: Record<string, string>;
+    loopOracleUser: string;
+    loopOracleHonor: string;
+    gitEvidenceMissing: string;
+    commandCanceled: string;
+}
+export declare const COMMAND_COPY: Record<UiLang, CommandCopy>;
+export interface ArgsCopy {
+    inputTooLong: string;
+    invalidControlChar: string;
+    singlePrefix: string;
+    invalidJson: string;
+    unknownConfigKey: string;
+    taskRequiredAfterDashDash: string;
+    unsupportedOption: string;
+    unknownFlavor: string;
+    didYouMean: (typo: string, input: string) => string;
+    noExtraArgs: (command: string) => string;
+    loopQuotesInvalid: string;
+    maxIterationsDuplicate: string;
+    maxIterationsInvalid: string;
+    verifyDuplicate: string;
+    verifyQuotedRequired: string;
+    verifyNotEmpty: string;
+    unsupportedLoopOption: (token: string) => string;
+    loopTaskRequired: string;
+    unrecognizedKeys: (keys: string[]) => string;
+    invalidConfigParam: string;
+}
+export declare const ARGS_COPY: Record<UiLang, ArgsCopy>;
+/** 人性化格式化错误信息（含 ZodError、未知配置项及各语言映射）。 */
+export declare function formatErrorMessage(error: unknown, lang?: UiLang): string;
 export {};

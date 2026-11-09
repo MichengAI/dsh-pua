@@ -4,7 +4,12 @@ import type { UiLang } from './i18n.js';
 export const MODE_NAMES: Record<UiLang, Record<string, string>> = {
   zh: { pua: '普通 · 持续推进与证据交付', p7: 'P7 · 方案驱动', p9: 'P9 · 技术负责人', p10: 'P10 · 战略规划', pro: 'Pro · 自进化', yes: 'Yes · 鼓励', mama: 'Mama · 关怀', shot: 'Shot · 激励', 'pua-en': '英文协议', 'pua-ja': '日文协议' },
   en: { pua: 'Standard · steady progress and evidence', p7: 'P7 · plan-driven', p9: 'P9 · tech lead', p10: 'P10 · strategy', pro: 'Pro · self-improving', yes: 'Yes · encouragement', mama: 'Mama · caring', shot: 'Shot · motivation', 'pua-en': 'English protocol', 'pua-ja': 'Japanese protocol' },
+  ja: { pua: '標準 · 着実な進行と証拠提出', p7: 'P7 · 提案主導', p9: 'P9 · テックリード', p10: 'P10 · 戦略立案', pro: 'Pro · 自己進化', yes: 'Yes · 励まし', mama: 'Mama · 配慮', shot: 'Shot · モチベーション', 'pua-en': '英語プロトコル', 'pua-ja': '日本語プロトコル' },
+  es: { pua: 'Estándar · avance constante y evidencias', p7: 'P7 · guiado por planes', p9: 'P9 · líder técnico', p10: 'P10 · estratégico', pro: 'Pro · autoevolutivo', yes: 'Yes · ánimo', mama: 'Mama · atento', shot: 'Shot · motivación', 'pua-en': 'Protocolo en inglés', 'pua-ja': 'Protocolo en japonés' },
+  fr: { pua: 'Standard · progression constante et preuves', p7: 'P7 · guidé par le plan', p9: 'P9 · responsable technique', p10: 'P10 · stratégique', pro: 'Pro · auto-évolutif', yes: 'Yes · encouragement', mama: 'Mama · bienveillance', shot: 'Shot · motivation', 'pua-en': 'Protocole en anglais', 'pua-ja': 'Protocole en japonais' },
+  de: { pua: 'Standard · stetiger Fortschritt und Belege', p7: 'P7 · planorientiert', p9: 'P9 · Tech-Lead', p10: 'P10 · Strategie', pro: 'Pro · selbstoptimierend', yes: 'Yes · Ermutigung', mama: 'Mama · Fürsorge', shot: 'Shot · Motivation', 'pua-en': 'Englisches Protokoll', 'pua-ja': 'Japanisches Protokoll' },
   ru: { pua: 'Обычный · стабильный прогресс и доказательства', p7: 'P7 · по плану', p9: 'P9 · техлид', p10: 'P10 · стратегия', pro: 'Pro · саморазвитие', yes: 'Yes · поддержка', mama: 'Mama · забота', shot: 'Shot · мотивация', 'pua-en': 'Английский протокол', 'pua-ja': 'Японский протокол' },
+  pt: { pua: 'Padrão · progresso constante e evidências', p7: 'P7 · orientado por planos', p9: 'P9 · líder técnico', p10: 'P10 · estratégico', pro: 'Pro · autoevolutivo', yes: 'Yes · encorajamento', mama: 'Mama · cuidado', shot: 'Shot · motivação', 'pua-en': 'Protocolo em inglês', 'pua-ja': 'Protocolo em japonês' },
 };
 
 export function modeName(mode: string, lang: UiLang): string { return MODE_NAMES[lang][mode] ?? mode; }

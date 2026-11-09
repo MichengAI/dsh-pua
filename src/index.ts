@@ -33,7 +33,7 @@ export function apply(ctx: Context, config?: unknown): void {
   });
   const lifetime = new AbortController();
   ctx.effect(() => () => lifetime.abort());
-  const runtime = new PuaRuntime(ctx, store, catalog, lifetime.signal, () => preferences.feedback());
+  const runtime = new PuaRuntime(ctx, store, catalog, lifetime.signal);
   new PuaConfigurationService(ctx, store, preferences, runtime);
   ctx.systemPrompt.section({
     name: 'michengai:pua',

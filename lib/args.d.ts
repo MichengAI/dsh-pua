@@ -1,6 +1,7 @@
 import { type FlavorId } from './flavors.js';
 import { type PuaMode } from './content.js';
 import { type ConfigurationPatch } from './configuration.js';
+import { type UiLang } from './i18n.js';
 export type Action = {
     readonly kind: 'configure';
     readonly patch: ConfigurationPatch;
@@ -31,4 +32,4 @@ export declare function parseArgs(raw: string, loopDefaults?: {
     maxIterations: number;
     verify: string;
     verificationTimeout: number;
-}): Action;
+}, lang?: UiLang): Action;
