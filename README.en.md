@@ -69,7 +69,7 @@ For a desktop workbench, download [DSH Codex Desktop](https://github.com/Micheng
 
 ## Installation
 
-Requires Node.js 22.19 or later. Host compatibility: Full DeepSeek Harness `0.2.x` line (`>=0.2.0-rc.1 <0.3.0-0`), verified with `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.2-rc.1`, and `0.2.2-rc.2`, and forwards-compatible with subsequent `0.2.x` RC releases without requiring routine plugin version bumps. Legacy hosts prior to `0.2.0-rc.1` are no longer supported. The version gate cleanly intercepts breaking changes in the `0.3.0` generation. Users on `0.1.x` hosts should install plugin `0.3.28`. Existing settings and session records are kept. Uses your existing DSH model configuration; no additional API key is needed.
+Requires Node.js 22.19 or later. Host compatibility: Full DeepSeek Harness `0.2.x` line (`>=0.2.0-rc.1 <0.3.0-0`), verified with `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.2-rc.1`, `0.2.2-rc.2`, and `0.2.2-rc.3`, and forwards-compatible with subsequent `0.2.x` RC releases without requiring routine plugin version bumps. Legacy hosts prior to `0.2.0-rc.1` are no longer supported. The version gate cleanly intercepts breaking changes in the `0.3.0` generation. Users on `0.1.x` hosts should install plugin `0.3.28`. Existing settings and session records are kept. Uses your existing DSH model configuration; no additional API key is needed.
 
 GitHub and npm both include a ready-to-run `lib`. After changing source, run `npm run build` before committing.
 

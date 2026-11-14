@@ -69,7 +69,7 @@ Si deseas una estación de trabajo de escritorio, descarga [DSH Codex Desktop](h
 
 ## Instalación
 
-Requiere Node.js 22.19 o posterior. Compatible con toda la gama DeepSeek Harness `0.2.x` (`>=0.2.0-rc.1 <0.3.0-0`), verificado en `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.2-rc.1`, `0.2.2-rc.2`. Los entornos anteriores a `0.2.0-rc.1` no están soportados. Los cambios incompatibles de la generación `0.3.0` quedan filtrados por el rango de dependencias. Para entornos `0.1.x`, instala la versión `0.3.28`. Los datos y configuraciones se conservan. Utiliza la configuración de modelos de DSH sin requerir claves de API adicionales.
+Requiere Node.js 22.19 o posterior. Compatible con toda la gama DeepSeek Harness `0.2.x` (`>=0.2.0-rc.1 <0.3.0-0`), verificado en `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.2-rc.1`, `0.2.2-rc.2`, `0.2.2-rc.3`. Los entornos anteriores a `0.2.0-rc.1` no están soportados. Los cambios incompatibles de la generación `0.3.0` quedan filtrados por el rango de dependencias. Para entornos `0.1.x`, instala la versión `0.3.28`. Los datos y configuraciones se conservan. Utiliza la configuración de modelos de DSH sin requerir claves de API adicionales.
 
 Tanto GitHub como npm contienen la compilación lista para ejecución en `lib`. Al modificar el código fuente, compila con `npm run build` antes de realizar commit.
 

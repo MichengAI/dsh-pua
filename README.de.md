@@ -69,7 +69,7 @@ Für eine Desktop-Arbeitsumgebung laden Sie bitte [DSH Codex Desktop](https://gi
 
 ## Installation
 
-Erfordert Node.js 22.19 oder neuer. Host-Kompatibilität: Vollständige DeepSeek Harness `0.2.x`-Reihe (`>=0.2.0-rc.1 <0.3.0-0`), getestet mit `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.2-rc.1`, `0.2.2-rc.2`. Frühere Hosts vor `0.2.0-rc.1` werden nicht unterstützt. Inkompatible Änderungen der `0.3.0`-Generation werden über die Versionsgrenze abgefangen. Für `0.1.x`-Umgebungen installieren Sie bitte Plugin `0.3.28`. Vorhandene Einstellungen und Sitzungsverläufe bleiben erhalten. Es wird die bestehende Modellkonfiguration von DSH genutzt; kein zusätzlicher API-Schlüssel erforderlich.
+Erfordert Node.js 22.19 oder neuer. Host-Kompatibilität: Vollständige DeepSeek Harness `0.2.x`-Reihe (`>=0.2.0-rc.1 <0.3.0-0`), getestet mit `0.2.0-rc.1`, `0.2.0-rc.2`, `0.2.1-rc.1`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.2-rc.1`, `0.2.2-rc.2`, `0.2.2-rc.3`. Frühere Hosts vor `0.2.0-rc.1` werden nicht unterstützt. Inkompatible Änderungen der `0.3.0`-Generation werden über die Versionsgrenze abgefangen. Für `0.1.x`-Umgebungen installieren Sie bitte Plugin `0.3.28`. Vorhandene Einstellungen und Sitzungsverläufe bleiben erhalten. Es wird die bestehende Modellkonfiguration von DSH genutzt; kein zusätzlicher API-Schlüssel erforderlich.
 
 Sowohl GitHub als auch npm enthalten das vorkompilierte `lib`-Verzeichnis. Führen Sie nach Quellcodeänderungen vor dem Commit `npm run build` aus.
 

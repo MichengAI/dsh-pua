@@ -7,23 +7,23 @@ import semver from 'semver';
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
 const sourceTree = existsSync(new URL('../.github/workflows/ci.yml', import.meta.url));
 const pkg = sourceTree ? JSON.parse(read('package.json')) : null;
-const defaultTestedHosts = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.2-rc.1', '0.2.2-rc.2'];
+const defaultTestedHosts = ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.2-rc.1', '0.2.2-rc.2', '0.2.2-rc.3'];
 
-test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方版本 0.2.2-rc.2', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
+test('兼容列表放开至 0.2.x 代际范围，开发依赖钉到最新官方版本 0.2.2-rc.3', { skip: sourceTree ? false : '隔离兼容目录会改写开发依赖，只在源码树检查' }, () => {
   assert.equal(pkg.engines?.dsh, '>=0.2.0-rc.1 <0.3.0-0');
   const range = pkg.peerDependencies['@deepseek-ai/dsh-session'];
   assert.equal(range, '>=0.2.0-rc.1 <0.3.0-0');
   for (const [name, value] of Object.entries(pkg.peerDependencies)) {
     if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(value, range, name);
   }
-  for (const v of ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.1-rc.4', '0.2.1-rc.5', '0.2.2-alpha.1', '0.2.2-rc.1', '0.2.2-rc.2', '0.2.9']) {
+  for (const v of ['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.1-rc.4', '0.2.1-rc.5', '0.2.2-alpha.1', '0.2.2-rc.1', '0.2.2-rc.2', '0.2.2-rc.3', '0.2.9']) {
     assert.ok(semver.satisfies(v, range, { includePrerelease: true }), `放行 0.2.x 版本 ${v}`);
   }
   for (const v of ['0.1.7-rc.2', '0.2.0-alpha.1', '0.3.0-alpha.1', '0.3.0-rc.1', '0.3.0', '1.0.0']) {
     assert.equal(semver.satisfies(v, range, { includePrerelease: true }), false, `拦截范围外版本 ${v}`);
   }
   for (const [name, version] of Object.entries(pkg.devDependencies)) {
-    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.2-rc.2', name);
+    if (name.startsWith('@deepseek-ai/dsh-')) assert.equal(version, '0.2.2-rc.3', name);
   }
   assert.equal(pkg.devDependencies['@deepseek-ai/cordis'], '4.1.0');
   assert.equal(pkg.devDependencies['@deepseek-ai/schemastery'], '3.19.0');

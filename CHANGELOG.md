@@ -1,5 +1,17 @@
 # 更新记录
 
+## 1.0.12
+
+### 中文
+
+- 完成 DeepSeek Harness `0.2.2-rc.3` 兼容验证，支持范围涵盖 `0.2.0-rc.1` 至 `0.2.2-rc.3` 及同代后续预发布版本。
+- 对齐开发依赖至官方最新 `0.2.2-rc.3`，同步更新 CI 宿主矩阵与多语言使用说明中的已验证版本列表。
+
+### English
+
+- Verified compatibility with DeepSeek Harness `0.2.2-rc.3`, covering `0.2.0-rc.1` through `0.2.2-rc.3` and subsequent `0.2.x` pre-releases.
+- Align development dependencies with official `0.2.2-rc.3`, and update the CI host matrix and verified host lists across localized manuals.
+
 ## 1.0.11
 
 ### 中文

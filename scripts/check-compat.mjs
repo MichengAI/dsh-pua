@@ -17,6 +17,7 @@ const HOST_PINS = {
   '0.2.1-rc.3': { cordis: '4.0.5', schemastery: '3.18.5' },
   '0.2.2-rc.1': { cordis: '4.1.0', schemastery: '3.19.0' },
   '0.2.2-rc.2': { cordis: '4.1.0', schemastery: '3.19.0' },
+  '0.2.2-rc.3': { cordis: '4.1.0', schemastery: '3.19.0' },
 };
 const defaultTestedHosts = Object.keys(HOST_PINS);
 const versions = process.argv.slice(2).length ? process.argv.slice(2) : defaultTestedHosts;
