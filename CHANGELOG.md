@@ -1,5 +1,17 @@
 # 更新记录
 
+## 1.0.13
+
+### 中文
+
+- **宿主支持范围调整**：收敛支持 DeepSeek Harness `0.2.2-rc.1` 及以上版本（涵盖 `0.2.2-rc.1` 至 `0.2.2-rc.5` 及同代后续预发布版本）；使用 `0.2.0` 至 `0.2.1` 早期宿主的用户请安装稳定版本 `1.0.12`。
+- **运行性能与会话处理优化**：精炼工具调用追踪与历史会话处理逻辑，提升插件在最新宿主架构下的执行效率与稳定性。
+
+### English
+
+- **Host compatibility range update**: Narrow supported DeepSeek Harness host range to `0.2.2-rc.1` and newer (covering `0.2.2-rc.1` through `0.2.2-rc.5` and subsequent pre-releases); users on legacy `0.2.0` to `0.2.1` hosts are advised to install stable version `1.0.12`.
+- **Runtime performance and session handling optimization**: Streamline tool call tracking and historical session handling logic, improving plugin execution efficiency and reliability on newer host architectures.
+
 ## 1.0.12
 
 ### 中文

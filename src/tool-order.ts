@@ -22,7 +22,7 @@ export function hasPendingToolCalls(session: Session): boolean {
     if (event.type === 'assistant/message' && event.surfaceOp === 'append') {
       for (const block of event.data.message.content) if (block.type === 'tool-call') pending.ids.set(block.id, event.seq);
     } else if (event.type === 'tool/result' && event.surfaceOp === 'append') {
-      const callId = event.data.message.source.callId ?? ('toolCallId' in event.data.message ? event.data.message.toolCallId : undefined);
+      const callId = event.data.message.source.callId;
       if (callId) pending.ids.delete(callId);
     } else if (event.type === 'turn/end' || event.type === 'turn/start') {
       // 结束轮次的孤儿不再阻塞后续轮次，不伪造缺失结果。
@@ -37,8 +37,8 @@ export function hasPendingToolCalls(session: Session): boolean {
 
 /**
  * 兼容本插件打断的完整历史工具组。只追加模型上下文替换，不改写原始事件。
- * 原工具结果本来就是 user-role 消息；使用通用 user/message 投影保留其完整
- * id、tool 来源和 content，覆盖前置 PUA 节点与结果节点，避免伪造或重执行工具。
+ * 使用空 system/message 节点覆盖前置 PUA 节点，原工具结果节点完整保留在表面上，
+ * 避免伪造或重执行工具。
  */
 export function repairPuaToolOrder(session: Session, plugin: string): void {
   const nodes = [...session.surface.nodes];
