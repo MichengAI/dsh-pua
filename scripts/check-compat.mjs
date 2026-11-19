@@ -10,14 +10,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'));
 const HOST_PINS = {
-  '0.2.0-rc.1': { cordis: '4.0.4', schemastery: '3.18.4' },
-  '0.2.0-rc.2': { cordis: '4.0.4', schemastery: '3.18.4' },
-  '0.2.1-rc.1': { cordis: '4.0.5', schemastery: '3.18.5' },
-  '0.2.1-rc.2': { cordis: '4.0.5', schemastery: '3.18.5' },
-  '0.2.1-rc.3': { cordis: '4.0.5', schemastery: '3.18.5' },
   '0.2.2-rc.1': { cordis: '4.1.0', schemastery: '3.19.0' },
   '0.2.2-rc.2': { cordis: '4.1.0', schemastery: '3.19.0' },
   '0.2.2-rc.3': { cordis: '4.1.0', schemastery: '3.19.0' },
+  '0.2.2-rc.4': { cordis: '4.1.0', schemastery: '3.19.0' },
+  '0.2.2-rc.5': { cordis: '4.1.0', schemastery: '3.19.0' },
 };
 const defaultTestedHosts = Object.keys(HOST_PINS);
 const versions = process.argv.slice(2).length ? process.argv.slice(2) : defaultTestedHosts;
@@ -59,7 +56,7 @@ const results = await Promise.allSettled(versions.map(async version => {
       if (!key.startsWith('@deepseek-ai/dsh-')) continue;
       manifest.devDependencies[key] = version;
     }
-    if (['0.2.0-rc.1', '0.2.0-rc.2', '0.2.1-rc.1', '0.2.1-rc.2', '0.2.1-rc.3', '0.2.2-rc.1'].includes(version)) {
+    if (version === '0.2.2-rc.1') {
       delete manifest.devDependencies['@deepseek-ai/dsh-error'];
     }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');

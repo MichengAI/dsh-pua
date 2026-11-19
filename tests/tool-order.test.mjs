@@ -14,7 +14,7 @@ const load = specifier => import(installedRequire ? pathToFileURL(installedRequi
 const local = file => load(installedRequire ? './' + file : '../lib/' + file);
 const [{ Context }, { AgentRegistry }, { AgentLoop }, { CommandRuntime },
   { LlmAdapter, LlmRuntime, createUserMessage, createAssistantMessage, createToolResultMessage },
-  { SessionStore, Session, SESSION_FORMAT_VERSION }, { SessionProjectionRegistry }, { SystemPrompt }, { ToolRuntime },
+  { SessionStore, Session }, { SessionProjectionRegistry }, { SystemPrompt }, { ToolRuntime },
   { PuaRuntime }, { StateStore }, { SourceCatalog }, plugin, { isPluginSource, pluginSource }] = await Promise.all([
   ...['cordis', 'dsh-agent', 'dsh-agent-loop', 'dsh-commands', 'dsh-llm', 'dsh-session',
     'dsh-session-projection', 'dsh-system-prompt', 'dsh-tools'].map(name => load('@deepseek-ai/' + name)),
@@ -187,7 +187,7 @@ function brokenHistory({ replaced = false, complete = true, foreign = false } = 
     const originalCall = session.append('tool/call', { turn: 1, step: 1, callId: call.id, name: call.name, arguments: call.arguments });
     const note = '新增终端失败观察；不是任务失败判定。';
     const record = session.append('user/message', textMessage('PUA_RUNTIME_V1 ' + JSON.stringify({ failureCount: index + 1, failures: ['old-' + index] }) + '\n' + note, foreign ? { kind: 'user' } : runtimeSource), { surfaceOp: 'append' });
-    if (replaced) session.append('user/message', textMessage(note, runtimeSource), { surfaceOp: SESSION_FORMAT_VERSION >= 3 ? { op: 'replace', startSeq: record.seq, endSeq: record.seq } : { op: 'replace', start: record.seq, end: record.seq }, sourceEventSeqs: [record.seq] });
+    if (replaced) session.append('user/message', textMessage(note, runtimeSource), { surfaceOp: { op: 'replace', startSeq: record.seq, endSeq: record.seq }, sourceEventSeqs: [record.seq] });
     if (complete || index === 0) session.append('tool/result', { turn: 1, step: 1, message: createToolResultMessage({ callId: call.id, content: [{ type: 'text', text: 'ModuleNotFoundError: retained evidence ' + index }], isError: true }), error: { name: 'ToolError', code: 'FAILED' }, meta: { original: true } }, { surfaceOp: 'append', sourceEventSeqs: [originalCall.seq] });
   }
   session.append('step/end', { turn: 1, step: 1 });
@@ -204,7 +204,7 @@ test('旧 RECORD 和替换说明自动兼容，完整结果身份不变，重载
     assert.equal(requests.length, 1);
     const expected = seed.filter(event => event.type === 'tool/result').map(event => event.data.message);
     // V4 子会话的系统提示接在继承记录之后，不能用根会话的工具顺序断言它。
-    if (!(inherited && SESSION_FORMAT_VERSION >= 4)) {
+    if (!inherited) {
       assertToolOrder(requests[0].messages);
       assert.deepEqual(requests[0].messages.filter(message => message.source.kind === 'tool'), expected);
     } else {
@@ -213,14 +213,14 @@ test('旧 RECORD 和替换说明自动兼容，完整结果身份不变，重载
     assert.deepEqual(agent.session.snapshotEvents(0, seed.length), seed, '原始事件不得重写');
     await installed.dispose();
     const restored = Session.create('replay', JSON.parse(JSON.stringify(agent.session.snapshotEvents())));
-    if (!(inherited && SESSION_FORMAT_VERSION >= 4)) assertToolOrder(restored.deriveMessages());
+    if (!inherited) assertToolOrder(restored.deriveMessages());
     const runtime = new PuaRuntime(ctx, new StateStore(), new SourceCatalog(), new AbortController().signal);
     assert.equal(runtime.read(agent.session).failureCount, inherited ? 0 : 2);
     const previousLength = agent.session.seq;
     await ctx.plugin(plugin).await();
     agent.followup(textMessage('再次继续'));
     await agent.whenIdle();
-    if (!(inherited && SESSION_FORMAT_VERSION >= 4)) assertToolOrder(requests.at(-1).messages);
+    if (!inherited) assertToolOrder(requests.at(-1).messages);
     assert.equal(agent.session.snapshotEvents(previousLength).filter(event => event.surfaceOp?.op === 'replace').length, 0, '兼容处理必须幂等');
   });
 });

@@ -78,5 +78,3 @@ export declare const FLAVORS: readonly [{
 export type FlavorId = (typeof FLAVORS)[number]['id'];
 /** 解析公开标识或别名；未知名称返回 undefined。 */
 export declare function resolveFlavor(value: string): FlavorId | undefined;
-export declare function flavorLabel(id: FlavorId): string;
-export declare function listFlavors(): string;

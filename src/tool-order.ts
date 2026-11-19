@@ -1,18 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { type Session, type UserMessage } from '@deepseek-ai/dsh-session';
-import { replacementSurface } from './session-compat.js';
+import { type Session } from '@deepseek-ai/dsh-session';
 import { isPluginSource } from './message-source.js';
 
 interface PendingCalls { cursor: Session['seq']; ids: Map<string, Session["surface"]["nodes"][number]> }
 const calls = new WeakMap<Session, PendingCalls>();
 
-/** V3 工具结果是带 tool-result 块的 user 消息；V4 提升为 tool 角色，调用号留在 source.callId。 */
-function toolResultCallId(message: { role?: string; source?: { kind?: string; callId?: string }; content?: readonly { type?: string; toolCallId?: string }[] } | null | undefined): string | undefined {
+/** V4 工具结果提升为 tool 角色，调用号留在 source.callId。 */
+function toolResultCallId(message: { role?: string; source?: { kind?: string; callId?: string } } | null | undefined): string | undefined {
   if (!message || message.source?.kind !== 'tool' || !message.source.callId) return undefined;
-  if (message.role === 'tool') return message.source.callId;
-  if (message.role !== 'user' || message.content?.length !== 1) return undefined;
-  const block = message.content[0];
-  return block?.type === 'tool-result' && block.toolCallId === message.source.callId ? message.source.callId : undefined;
+  return message.role === 'tool' ? message.source.callId : undefined;
 }
 
 /** 从原始日志增量检查整组调用；包含已声明但尚未派发的并行调用。 */
@@ -55,7 +51,7 @@ export function repairPuaToolOrder(session: Session, plugin: string): void {
     if (!ids.length || new Set(ids).size !== ids.length) continue;
     const pending = new Set<string>(ids);
     let gap: Session['surface']['nodes'][number][] = [];
-    const replacements: { nodes: typeof gap; message: NonNullable<ReturnType<Session['deriveEventMessage']>> }[] = [];
+    const replacements: { nodes: typeof gap }[] = [];
     let next = index + 1;
     for (; next < nodes.length && pending.size; next++) {
       const seq = nodes[next]!;
@@ -68,26 +64,21 @@ export function repairPuaToolOrder(session: Session, plugin: string): void {
       if (!message) break;
       const callId = toolResultCallId(message);
       if (!callId || !pending.delete(callId)) break;
-      if (gap.length) replacements.push({ nodes: [...gap, seq], message });
+      if (gap.length) replacements.push({ nodes: [...gap, seq] });
       gap = [];
     }
     // 缺失结果或夹入其他来源消息时不猜测，也不进行半组修复。
     if (pending.size) continue;
     for (const replacement of replacements) {
-      const toolRole = (replacement.message.role as string) === 'tool';
-      const hidden = toolRole ? replacement.nodes.slice(0, -1) : replacement.nodes;
+      const hidden = replacement.nodes.slice(0, -1);
       const surface = {
-        surfaceOp: replacementSurface(hidden[0]!, hidden.at(-1)!),
+        surfaceOp: { op: 'replace' as const, startSeq: hidden[0]!, endSeq: hidden.at(-1)! },
         sourceEventSeqs: hidden,
       };
-      if (toolRole) {
-        // V4 的 tool/result 替换只能改写一个结果节点。空系统消息盖住 PUA 记录且不进入模型请求，原工具结果留在表面上。
-        session.append('system/message', {
-          message: { id: randomUUID(), role: 'system', content: [], source: { kind: 'system-prompt' } },
-        } as never, surface);
-      } else {
-        session.append('user/message', replacement.message as UserMessage, surface);
-      }
+      // V4 的 tool/result 替换只能改写一个结果节点。空系统消息盖住 PUA 记录且不进入模型请求，原工具结果留在表面上。
+      session.append('system/message', {
+        message: { id: randomUUID(), role: 'system', content: [], source: { kind: 'system-prompt' } },
+      } as never, surface);
     }
     index = next - 1;
   }

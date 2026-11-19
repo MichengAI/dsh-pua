@@ -25,10 +25,3 @@ export function resolveFlavor(value: string): FlavorId | undefined {
   return FLAVORS.find(item => item.id === normalized || item.aliases.some(alias => alias === normalized))?.id;
 }
 
-export function flavorLabel(id: FlavorId): string {
-  return FLAVORS.find(item => item.id === id)!.label;
-}
-
-export function listFlavors(): string {
-  return FLAVORS.map(item => `${item.id}（${item.label}）`).join('、');
-}
