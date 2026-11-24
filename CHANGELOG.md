@@ -1,5 +1,19 @@
 # 更新记录
 
+## 1.0.14
+
+### 中文
+
+- **宿主兼容扩展**：完成 DeepSeek Harness `0.2.3-alpha.2` 兼容验证，支持范围覆盖 `0.2.2-rc.1` 至 `0.2.3-alpha.2` 及同代后续预发布版本。
+- **修复启动阶段激活异常**：修复在 DSH `0.2.3` 系列宿主及新版运行环境下启动时因根上下文事件监听触发的激活报错（#18）。
+- **依赖与说明同步**：对齐开发依赖至官方最新 `0.2.3-alpha.2`，同步更新各语言说明文档的前提条件与已验证版本列表。
+
+### English
+
+- **Host compatibility expansion**: Verified compatibility with DeepSeek Harness `0.2.3-alpha.2`, covering `0.2.2-rc.1` through `0.2.3-alpha.2` and subsequent pre-releases.
+- **Fix startup activation error**: Resolve an issue where the plugin encountered an activation error during startup on DSH `0.2.3` series hosts and newer runtimes when setting up root context event listeners (#18).
+- **Dependencies and documentation sync**: Align development dependencies with official `0.2.3-alpha.2`, and update verified version lists across all localized documentation.
+
 ## 1.0.13
 
 ### 中文
