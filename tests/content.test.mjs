@@ -12,7 +12,7 @@ test('所有风味可以被真实宿主渲染，体积有界且不混入其他�
     const text = prompts.get(flavor.id);
     assert.ok(Buffer.byteLength(text, 'utf8') < MAX_PROMPT_BYTES);
     assert.equal((text.match(/^## \d+\. /gm) ?? []).length, 1, flavor.id);
-    assert.equal(renderPrompt({ sections: [{ name: 'pua', text }], contexts: [], tools: [], variables: {} }), text);
+    assert.equal(renderPrompt({ sections: [{ name: 'pua', text }], contexts: [], tools: [], variables: {} }).trim(), text.trim());
   }
 });
 

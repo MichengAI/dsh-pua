@@ -66,10 +66,10 @@ async function setup(t, { count = 1, rounds = 1, seed, inherited = false, execut
   const ctx = new Context();
   t.after(() => ctx.fiber.dispose());
   new SessionStore(ctx);
-  new SessionProjectionRegistry(ctx);
+  await ctx.plugin(SessionProjectionRegistry).await();
   new LlmRuntime(ctx);
   new CommandRuntime(ctx);
-  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  await ctx.plugin(SystemPrompt, { includeHarnessIdentity: false }).await();
   new ToolRuntime(ctx); installToolExecutor(ctx);
   await ctx.plugin(AgentRegistry).await();
   await ctx.plugin(AgentLoop, resolveAgentLoopConfig(AgentLoop)).await();

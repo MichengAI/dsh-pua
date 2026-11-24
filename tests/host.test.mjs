@@ -6,7 +6,8 @@ import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { Context } from '@deepseek-ai/cordis';
 import { CommandRuntime } from '@deepseek-ai/dsh-commands';
-import { Session, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session';
+import { SessionStore, Session, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session';
+import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection';
 import { SystemPrompt, renderPrompt } from '@deepseek-ai/dsh-system-prompt';
 import * as plugin from '../lib/index.js';
 import { PuaRuntime } from '../lib/runtime.js';
@@ -15,8 +16,10 @@ import { SourceCatalog } from '../lib/source.js';
 
 async function setup(t) {
   const ctx = new Context();
+  new SessionStore(ctx);
+  await ctx.plugin(SessionProjectionRegistry).await();
   new CommandRuntime(ctx);
-  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  await ctx.plugin(SystemPrompt, { includeHarnessIdentity: false }).await();
   const installed = ctx.plugin(plugin);
   await installed.await();
   t.after(() => ctx.fiber.dispose());
@@ -32,7 +35,7 @@ function agent(id = 'a', seed = [], extra = {}, inherited = 0) {
 
 const run = (ctx, a, line, signal = new AbortController().signal) => ctx.commands.execute(a, line, [], signal);
 const prompt = async (ctx, a) => {
-  const assembly = await ctx.systemPrompt.assemble({ agent: a });
+  const assembly = await ctx.systemPrompt.assemble({ agent: a, session: a.session });
   return renderPrompt(assembly);
 };
 
@@ -191,10 +194,13 @@ test('审查预检等待期间不激活；晚到的 off 在审查完成及重建
 
 test('宿主拒绝激活期根事件时仍注册 /pua', async t => {
   const ctx = new Context();
+  new SessionStore(ctx);
+  await ctx.plugin(SessionProjectionRegistry).await();
   new CommandRuntime(ctx);
-  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  await ctx.plugin(SystemPrompt, { includeHarnessIdentity: false }).await();
   const originalSymbol = Symbol.for('cordis.original');
-  let events = ctx.root.events;
+  const root = (Context.root ? ctx[Context.root] : ctx.root) ?? ctx;
+  let events = root.events;
   const seen = new WeakSet();
   while (events && typeof events === 'object' && !seen.has(events)) {
     seen.add(events);
@@ -208,7 +214,7 @@ test('宿主拒绝激活期根事件时仍注册 /pua', async t => {
     configurable: true,
     writable: true,
     value: function (...args) {
-      if (this?.ctx === ctx.root && (args[0] === 'session/event' || args[0] === 'agent/disposed')) {
+      if (this?.ctx === root && (args[0] === 'session/event' || args[0] === 'agent/disposed')) {
         denied += 1;
         throw new Error('dsh-tui: root.events.on is unavailable from a plugin activation');
       }
@@ -226,10 +232,13 @@ test('宿主拒绝激活期根事件时仍注册 /pua', async t => {
 
 test('根事件的其他错误仍阻止激活', async t => {
   const ctx = new Context();
+  new SessionStore(ctx);
+  await ctx.plugin(SessionProjectionRegistry).await();
   new CommandRuntime(ctx);
-  new SystemPrompt(ctx, { includeHarnessIdentity: false });
+  await ctx.plugin(SystemPrompt, { includeHarnessIdentity: false }).await();
   const originalSymbol = Symbol.for('cordis.original');
-  let events = ctx.root.events;
+  const root = (Context.root ? ctx[Context.root] : ctx.root) ?? ctx;
+  let events = root.events;
   const seen = new WeakSet();
   while (events && typeof events === 'object' && !seen.has(events)) {
     seen.add(events);
@@ -242,7 +251,7 @@ test('根事件的其他错误仍阻止激活', async t => {
     configurable: true,
     writable: true,
     value: function (...args) {
-      if (this?.ctx === ctx.root && args[0] === 'session/event') throw new Error('root listener failed');
+      if (this?.ctx === root && args[0] === 'session/event') throw new Error('root listener failed');
       return original.apply(this, args);
     },
   });
@@ -284,9 +293,11 @@ test('Cordis 4.2+ 下 root 重构为 Symbol 且直接访问 ctx.root 抛错时�
 
 test('Cordis 4.2+ 下若 Symbol 缺失且直接读取 ctx.root 抛错时安全降级至当前上下文', async t => {
   const rootCtx = new Context();
+  const cordisRootSymbol = Symbol.for('cordis.root');
   let rootAttempted = false;
   const childCtx = new Proxy(rootCtx, {
     get(target, prop, receiver) {
+      if (prop === cordisRootSymbol) return undefined;
       if (prop === 'root') {
         rootAttempted = true;
         throw new Error('cannot get property "root" without inject');
@@ -294,6 +305,7 @@ test('Cordis 4.2+ 下若 Symbol 缺失且直接读取 ctx.root 抛错时安全�
       return Reflect.get(target, prop, receiver);
     },
     has(target, prop) {
+      if (prop === cordisRootSymbol) return false;
       if (prop === 'root') return true;
       return Reflect.has(target, prop);
     },
