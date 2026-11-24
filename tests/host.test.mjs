@@ -1,12 +1,17 @@
 import { installToolExecutor } from "./tool-executor.mjs";
 import test from 'node:test';
 import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { Context } from '@deepseek-ai/cordis';
 import { CommandRuntime } from '@deepseek-ai/dsh-commands';
 import { Session, SESSION_FORMAT_VERSION } from '@deepseek-ai/dsh-session';
 import { SystemPrompt, renderPrompt } from '@deepseek-ai/dsh-system-prompt';
 import * as plugin from '../lib/index.js';
+import { PuaRuntime } from '../lib/runtime.js';
+import { StateStore } from '../lib/state.js';
+import { SourceCatalog } from '../lib/source.js';
 
 async function setup(t) {
   const ctx = new Context();
@@ -243,6 +248,79 @@ test('根事件的其他错误仍阻止激活', async t => {
   });
   t.after(() => { delete events.on; return ctx.fiber.dispose(); });
   await assert.rejects(ctx.plugin(plugin).await(), /root listener failed/);
+});
+
+test('Cordis 4.2+ 下 root 重构为 Symbol 且直接访问 ctx.root 抛错时仍能正常激活与监听', async t => {
+  const rootCtx = new Context();
+  const cordisRootSymbol = Symbol.for('cordis.root');
+
+  let symbolResolved = false;
+  let rootAccessBlocked = false;
+  const childCtx = new Proxy(rootCtx, {
+    get(target, prop, receiver) {
+      if (prop === 'root') {
+        rootAccessBlocked = true;
+        throw new Error('cannot get property "root" without inject');
+      }
+      if (prop === cordisRootSymbol) {
+        symbolResolved = true;
+        return rootCtx;
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+    has(target, prop) {
+      if (prop === 'root') return false;
+      if (prop === cordisRootSymbol) return true;
+      return Reflect.has(target, prop);
+    },
+  });
+
+  t.after(() => rootCtx.fiber.dispose());
+  const runtime = new PuaRuntime(childCtx, new StateStore(), new SourceCatalog(), new AbortController().signal);
+  assert.ok(symbolResolved, '优先通过 Symbol.for("cordis.root") 解析根上下文');
+  assert.equal(rootAccessBlocked, false, '未直接读取未注入的 root 属性');
+  assert.ok(runtime, 'PuaRuntime 初始化成功');
+});
+
+test('Cordis 4.2+ 下若 Symbol 缺失且直接读取 ctx.root 抛错时安全降级至当前上下文', async t => {
+  const rootCtx = new Context();
+  let rootAttempted = false;
+  const childCtx = new Proxy(rootCtx, {
+    get(target, prop, receiver) {
+      if (prop === 'root') {
+        rootAttempted = true;
+        throw new Error('cannot get property "root" without inject');
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+    has(target, prop) {
+      if (prop === 'root') return true;
+      return Reflect.has(target, prop);
+    },
+  });
+
+  t.after(() => rootCtx.fiber.dispose());
+  const runtime = new PuaRuntime(childCtx, new StateStore(), new SourceCatalog(), new AbortController().signal);
+  assert.ok(rootAttempted, '回退探测 root 触发未注入拦截后安全降级');
+  assert.ok(runtime, 'PuaRuntime 在无 Symbol 且 root 报错时平稳降级');
+});
+
+test('在系统已安装的真实 Cordis 4.2 上完整激活插件并就绪', async t => {
+  const globalCordisPath = 'D:/Tools/nodejs/node_global/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/cordis';
+  if (!existsSync(globalCordisPath)) {
+    t.skip('未检测到本机全局 Cordis 4.2 安装路径');
+    return;
+  }
+  const require = createRequire(import.meta.url);
+  const cordis42 = require(globalCordisPath);
+  const root = new cordis42.Context();
+  t.after(() => root.fiber?.dispose?.());
+  root.provide('commands', { register: () => {}, find: () => ({ name: 'pua' }), execute: async () => ({ result: { kind: 'success' } }) });
+  root.provide('systemPrompt', { section: () => {} });
+
+  const installed = root.plugin(plugin);
+  await (installed.await ? installed.await() : installed);
+  assert.ok(installed.state >= 1 && !installed.error, '真实 Cordis 4.2 宿主下插件激活成功且无报错');
 });
 
 test('预检期间取消或卸载，不投递任务且不恢复开启状态', async t => {

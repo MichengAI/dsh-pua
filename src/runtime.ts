@@ -389,11 +389,23 @@ export class PuaRuntime {
     // 卸载发生在工具组中途时，只保留待写状态的边界监听，写完即撤销。
     // 根上下文监听不注入候选或唤醒模型，也不接管工具生命周期。
     // dsh-tui 会拒绝插件激活期间的 root.events。官方宿主仍保留延后落库；被拒绝时降级为卸载当场尝试写入。
+    // Cordis 4.2+ (DSH 0.2.3+) 将根上下文重构至 Symbol.for('cordis.root')，直接读取未 inject 的 ctx.root 会抛错。
     let rootEventsDenied = false;
+    const resolveRoot = (c: Context): Context => {
+      const cordisRoot = Symbol.for('cordis.root');
+      if (cordisRoot in c && (c as any)[cordisRoot]) return (c as any)[cordisRoot];
+      try {
+        if ('root' in c && (c as any).root) return (c as any).root;
+      } catch {
+        // 捕获 Cordis 4.2+ 未注入属性读取拦截
+      }
+      return c;
+    };
     const listenAfterUnload = (event: 'session/event' | 'agent/disposed', listener: (...args: any[]) => void): (() => void) => {
       if (rootEventsDenied) return () => {};
       try {
-        return ctx.root.on(event, listener as never);
+        const root = resolveRoot(ctx);
+        return root.on(event, listener as never);
       } catch (error) {
         if (!(error instanceof Error) || !/unavailable from a plugin activation/u.test(error.message)) throw error;
         rootEventsDenied = true;
