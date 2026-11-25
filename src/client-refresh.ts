@@ -31,8 +31,10 @@ export function watchComposerConfiguration(
       pending = false;
       if (!active) return;
       if (failed) {
-        timer = setTimeout(refresh, retryDelay);
-        retryDelay = Math.min(retryDelay * 2, 4000);
+        if (retryDelay <= 2000) {
+          timer = setTimeout(refresh, retryDelay);
+          retryDelay *= 2;
+        }
       } else {
         retryDelay = 250;
       }
@@ -84,7 +86,7 @@ export function watchActivity(
       inFlight = false;
       if (active) {
         const isRunning = options?.isRunning ? options.isRunning() : true;
-        const shouldPoll = lastVisible || isRunning;
+        const shouldPoll = options?.isRunning ? (lastVisible || isRunning) : true;
         if (shouldPoll) {
           timer = setTimeout(() => void poll(), 750);
         }
