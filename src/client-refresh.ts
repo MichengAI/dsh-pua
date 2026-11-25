@@ -1,13 +1,13 @@
 import type { ActivitySnapshot, ConfigurationSnapshot, PuaRemoteApi } from './remote-contract.js';
 
-/** 聊天入口独立读取全局可见性；新会话未就绪时快速重试，稳定后低频同步。 */
+/** 聊天入口独立读取全局可见性；新会话未就绪时退避重试，就绪后按需刷新，避免盲轮询。 */
 export function watchComposerConfiguration(
   remote: Pick<PuaRemoteApi, 'getGlobal' | 'getSession'>,
   sessionId: string,
   onGlobal: (enabled: boolean) => void,
   onSession: (snapshot: ConfigurationSnapshot) => void,
   onError: (message: string) => void = () => {},
-  errorText: string,
+  errorText: string = '',
 ): { refresh: () => void; dispose: () => void } {
   let active = true;
   let pending = false;
@@ -30,27 +30,77 @@ export function watchComposerConfiguration(
     void Promise.all([global, session]).then(() => {
       pending = false;
       if (!active) return;
-      const delay = failed ? retryDelay : 4000;
-      retryDelay = failed ? Math.min(retryDelay * 2, 4000) : 250;
-      timer = setTimeout(refresh, delay);
+      if (failed) {
+        timer = setTimeout(refresh, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 4000);
+      } else {
+        retryDelay = 250;
+      }
     });
   };
   refresh();
   return { refresh, dispose: () => { active = false; clearTimeout(timer); } };
 }
 
-/** 当前会话的短轮询；卸载后忽略在途结果，连接失败时不保留过期运行状态。 */
-export function watchActivity(remote: Pick<PuaRemoteApi, 'getActivity'>, sessionId: string,
-  receive: (value: ActivitySnapshot | null) => void): () => void {
+export interface ActivityWatchOptions {
+  /** 是否处于运行中；提供时支持闲置休眠，未提供时保持向后兼容的连续轮询。 */
+  isRunning?: () => boolean;
+}
+
+export interface ActivityWatcher {
+  (): void;
+  refresh: () => void;
+  dispose: () => void;
+}
+
+/** 当前会话的任务状态观察；任务运行或验证期间按 750ms 轮询，闲置时自动休眠停机。 */
+export function watchActivity(
+  remote: Pick<PuaRemoteApi, 'getActivity'>,
+  sessionId: string,
+  receive: (value: ActivitySnapshot | null) => void,
+  options?: ActivityWatchOptions,
+): ActivityWatcher {
   let active = true;
+  let inFlight = false;
+  let lastVisible = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  async function refresh() {
+
+  async function poll() {
+    if (!active || inFlight) return;
+    clearTimeout(timer);
+    inFlight = true;
     try {
       const result = await remote.getActivity(sessionId);
-      if (active) receive(result.ok ? result.value : null);
-    } catch { if (active) receive(null); }
-    finally { if (active) timer = setTimeout(() => void refresh(), 750); }
+      if (active) {
+        lastVisible = result.ok ? Boolean(result.value?.visible) : false;
+        receive(result.ok ? result.value : null);
+      }
+    } catch {
+      if (active) {
+        lastVisible = false;
+        receive(null);
+      }
+    } finally {
+      inFlight = false;
+      if (active) {
+        const isRunning = options?.isRunning ? options.isRunning() : true;
+        const shouldPoll = lastVisible || isRunning;
+        if (shouldPoll) {
+          timer = setTimeout(() => void poll(), 750);
+        }
+      }
+    }
   }
-  void refresh();
-  return () => { active = false; clearTimeout(timer); };
+
+  void poll();
+
+  const dispose = () => {
+    active = false;
+    clearTimeout(timer);
+  };
+  const handle = Object.assign(dispose, {
+    refresh: () => void poll(),
+    dispose,
+  });
+  return handle;
 }

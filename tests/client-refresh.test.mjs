@@ -58,3 +58,65 @@ test('状态卡片刷新覆盖结束状态，失败清除旧状态，卸载不�
   await settle(); assert.equal(received.length, 3);
   t.mock.timers.tick(5000); await settle(); assert.equal(calls, 4);
 });
+
+test('watchComposerConfiguration 成功后休眠，不无脑轮询，仅在手动 refresh 时发起请求', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let calls = 0;
+  const watcher = watchComposerConfiguration({
+    getGlobal: () => ok({ values: { enabled: true } }),
+    getSession: () => { calls++; return ok({ values: { enabled: true } }); },
+  }, 'idle-session', () => {}, () => {});
+  await settle();
+  assert.equal(calls, 1);
+  // 过去 10 秒，确认没有定时器盲轮询发请求
+  t.mock.timers.tick(10000); await settle();
+  assert.equal(calls, 1);
+  // 手动调用 refresh（例如窗口获得焦点或打开弹窗）
+  watcher.refresh();
+  await settle();
+  assert.equal(calls, 2);
+  watcher.dispose();
+});
+
+test('watchActivity 传入 isRunning 时在闲置态自动休眠，处于运行态或 visible 时轮询并在结束后再次休眠', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let calls = 0;
+  let running = false;
+  let visible = false;
+  const received = [];
+  const handle = watchActivity({
+    getActivity: () => {
+      calls++;
+      return ok({ visible });
+    },
+  }, 'session-idle', value => received.push(value), { isRunning: () => running });
+
+  // 1. 首次挂载拉取 1 次，当前既没有运行也没有 visible，应自动休眠
+  await settle();
+  assert.equal(calls, 1);
+  assert.equal(received.at(-1).visible, false);
+  t.mock.timers.tick(5000); await settle();
+  assert.equal(calls, 1, '闲置期间保持休眠，不再发送无意义的轮询请求');
+
+  // 2. 外部事件（会话开始运行，用户发送消息）唤醒
+  running = true;
+  visible = true;
+  handle.refresh();
+  await settle();
+  assert.equal(calls, 2);
+  // 处于运行态时，按 750ms 频率轮询
+  t.mock.timers.tick(750); await settle();
+  assert.equal(calls, 3);
+
+  // 3. 任务结束（Agent 变 idle，visible 变 false）
+  running = false;
+  visible = false;
+  t.mock.timers.tick(750); await settle();
+  assert.equal(calls, 4);
+  assert.equal(received.at(-1).visible, false);
+
+  // 4. 确认任务结束后再次休眠停机
+  t.mock.timers.tick(5000); await settle();
+  assert.equal(calls, 4, '任务完成后立即休眠，不再继续轮询');
+  handle.dispose();
+});

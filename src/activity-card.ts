@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IconChevronDown, IconChevronUp, IconClose, IconGauge } from './icons.js';
 import type { ActivitySnapshot, PuaRemoteApi } from './remote-contract.js';
 
-import { watchActivity } from './client-refresh.js';
+import { watchActivity, type ActivityWatcher } from './client-refresh.js';
 
 import { modeName } from './display.js';
 import { ACTIVITY, flavorLabel, resolveUiLang } from './i18n.js';
@@ -14,15 +14,51 @@ function iconButton(label: string, onClick: () => void, icon: React.ReactElement
 }
 
 /** 沿用官方输入区 dock；任务结束后卸下卡片，折叠只影响显示。操作按钮跟 BTW 气泡同一套圆形图标。 */
-export function ActivityCard({ remote, sessionId, hostLocale }: { remote: PuaRemoteApi; sessionId: string; hostLocale?: string | undefined }): React.ReactElement | null {
+export function ActivityCard({
+  remote,
+  sessionId,
+  hostLocale,
+  running,
+}: {
+  remote: PuaRemoteApi;
+  sessionId: string;
+  hostLocale?: string | undefined;
+  running?: boolean;
+}): React.ReactElement | null {
   const [snapshot, setSnapshot] = useState<ActivitySnapshot | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  useEffect(() => watchActivity(remote, sessionId, value => {
-    setSnapshot(value);
-    if (!value?.visible) { setExpanded(false); setError(''); }
-  }), [remote, sessionId]);
+  const runningRef = useRef(running);
+  runningRef.current = running;
+  const watcherRef = useRef<ActivityWatcher | null>(null);
+
+  useEffect(() => {
+    const watcher = watchActivity(
+      remote,
+      sessionId,
+      value => {
+        setSnapshot(value);
+        if (!value?.visible) { setExpanded(false); setError(''); }
+      },
+      { isRunning: () => Boolean(runningRef.current) },
+    );
+    watcherRef.current = watcher;
+    const onFocus = () => watcher.refresh();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      watcher.dispose();
+      watcherRef.current = null;
+    };
+  }, [remote, sessionId]);
+
+  useEffect(() => {
+    if (running) {
+      watcherRef.current?.refresh();
+    }
+  }, [running]);
+
   if (!snapshot?.visible) return null;
   const loop = snapshot.loop;
   const config = snapshot.configuration;

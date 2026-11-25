@@ -333,19 +333,30 @@ function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteAp
   const [snapshot, setSnapshot] = useState<ConfigurationSnapshot>();
   const copy = UI[resolveUiLang(snapshot?.values.language, hostLocale)];
   const trigger = useRef<HTMLButtonElement>(null);
+  const watcherRef = useRef<{ refresh: () => void; dispose: () => void } | null>(null);
   useEffect(() => {
     const watcher = watchComposerConfiguration(remote, sessionId, enabled => {
       setGlobalEnabled(enabled);
       if (!enabled) setOpen(false);
     }, setSnapshot, setReadError, copy.composer.readError);
-    window.addEventListener('focus', watcher.refresh);
-    return () => { watcher.dispose(); window.removeEventListener('focus', watcher.refresh); };
-  }, [remote, sessionId, open]);
-  const close = () => { setOpen(false); trigger.current?.focus(); };
+    watcherRef.current = watcher;
+    const onFocus = () => watcher.refresh();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      watcher.dispose();
+      window.removeEventListener('focus', onFocus);
+      watcherRef.current = null;
+    };
+  }, [remote, sessionId]);
+  const close = () => {
+    setOpen(false);
+    trigger.current?.focus();
+    watcherRef.current?.refresh();
+  };
   const disabled = snapshot?.values.enabled === false;
   if (!globalEnabled) return null;
   return h('div', { className: 'pua-composer' },
-    h(Button as any, { ref: trigger, variant: 'ghost', size: 'sm', className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'data-on': snapshot?.values.enabled === true, 'aria-label': !snapshot ? copy.composer.readingAria : disabled ? copy.composer.offAria : copy.composer.onAria, 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => setOpen(true), title: readError || (!snapshot ? copy.composer.readingTitle : disabled ? copy.composer.offTitle : copy.composer.onTitle), icon: h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(disabled ? IconGaugeOff : IconGauge)) }, 'PUA'),
+    h(Button as any, { ref: trigger, variant: 'ghost', size: 'sm', className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'data-on': snapshot?.values.enabled === true, 'aria-label': !snapshot ? copy.composer.readingAria : disabled ? copy.composer.offAria : copy.composer.onAria, 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => { watcherRef.current?.refresh(); setOpen(true); }, title: readError || (!snapshot ? copy.composer.readingTitle : disabled ? copy.composer.offTitle : copy.composer.onTitle), icon: h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(disabled ? IconGaugeOff : IconGauge)) }, 'PUA'),
     h(Modal, { open, onClose: close, title: copy.panel.sessionHeading, closeLabel: copy.composer.close, className: 'pua-session-modal', contentClassName: 'pua-session-modal-content' },
       h(ConfigurationPanel, { key: sessionId, remote, sessionId, hostLocale, onLoopStarted: close })));
 }
@@ -414,6 +425,12 @@ export async function apply(ctx: ClientContext): Promise<() => void> {
   ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({ name: 'plugins.bundle.config', key: BUNDLE_NAME }, props => h(PuaPluginConfig, { remote, view: props.view, hostLocale })));
   ctx.slots.inject('plugins.row.config', () => ctx.slots.register({ name: 'plugins.row.config', key: `${BUNDLE_NAME}#${CLIENT_ROW}` }, props => h(PuaPluginConfig, { remote, view: props.view, hostLocale })));
   ctx.slots.inject('conversation.input.left', () => ctx.slots.register({ name: 'conversation.input.left', id: CLIENT_ROW, order: 10 }, props => props.sessionId ? h(ComposerButton, { key: props.sessionId, remote, sessionId: props.sessionId, hostLocale }) : null));
-  ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({ name: 'conversation.input.dock', id: CLIENT_ROW, order: -40 }, props => props.session ? h(ActivityCard, { key: props.session.sessionId, remote, sessionId: props.session.sessionId, hostLocale }) : null));
+  ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({ name: 'conversation.input.dock', id: CLIENT_ROW, order: -40 }, props => {
+    if (!props.session) return null;
+    const sessionObj = props.session as { sessionId?: string; id?: string; running?: boolean };
+    const sid = sessionObj.sessionId ?? sessionObj.id;
+    if (!sid) return null;
+    return h(ActivityCard, { key: sid, remote, sessionId: sid, running: Boolean(sessionObj.running), hostLocale });
+  }));
   return unmount;
 }
