@@ -137,3 +137,33 @@ test('watchComposerConfiguration 失败与成功准确回调错误状态，支�
   assert.equal(Boolean(errors[1]), false, '刷新成功后应清除错误标记');
   watcher.dispose();
 });
+
+test('配置读取连续失败时快速退避后转 30s 低频兜底，成功后退避重置为常速', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let calls = 0;
+  let healthy = false;
+  const watcher = watchComposerConfiguration({
+    getGlobal: () => {
+      calls++;
+      return healthy ? ok({ values: { enabled: true } }) : Promise.resolve({ ok: false, error: { message: '宿主设置服务尚未就绪' } });
+    },
+    getSession: () => ok({ values: { enabled: true } }),
+  }, 'flaky-session', () => {}, () => {});
+  await settle();
+  assert.equal(calls, 1);
+  t.mock.timers.tick(250); await settle(); assert.equal(calls, 2);
+  t.mock.timers.tick(500); await settle(); assert.equal(calls, 3);
+  t.mock.timers.tick(1000); await settle(); assert.equal(calls, 4);
+  t.mock.timers.tick(2000); await settle(); assert.equal(calls, 5);
+  // 快速退避耗尽后不得停在 4s 短周期，也不得彻底放弃
+  t.mock.timers.tick(4000); await settle(); assert.equal(calls, 5, '快速退避阶段结束后不应在 4s 内继续请求');
+  t.mock.timers.tick(26000); await settle();
+  assert.equal(calls, 6, '30s 低频兜底必须重新尝试，否则读取失败后入口永久不恢复');
+  // 兜底尝试成功 → 退避回到常速，下一次失败仍走 250ms 快速重试
+  healthy = true;
+  t.mock.timers.tick(30000); await settle(); assert.equal(calls, 7);
+  healthy = false;
+  watcher.refresh(); await settle(); assert.equal(calls, 8);
+  t.mock.timers.tick(250); await settle(); assert.equal(calls, 9, '成功后退避必须重置为 250ms');
+  watcher.dispose();
+});

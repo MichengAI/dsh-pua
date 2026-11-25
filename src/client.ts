@@ -8,13 +8,33 @@ import { watchComposerConfiguration } from './client-refresh.js';
 import { ActivityCard, ACTIVITY_CSS } from './activity-card.js';
 import { IconChevronDown, IconClose, IconGauge, IconGaugeOff, IconRefresh } from './icons.js';
 import { TYPERT_REMOTE, type ConfigurationSnapshot, type PuaRemoteApi } from './remote-contract.js';
+import type { SessionSnapshot } from '@deepseek-ai/dsh-api-session-controller/client';
 
 const h = React.createElement;
 type Key = keyof Configuration;
 interface SlotRenderProps {
   sessionId?: string;
-  session?: { sessionId: string; running?: boolean };
+  /** 与宿主 conversation.input.dock 的 InputZone.session 同源，字段改动会在这里被类型检查拦住。 */
+  session?: Pick<SessionSnapshot, 'sessionId' | 'running'>;
   view?: 'summary' | 'page';
+}
+/** 配置变更事件名：聊天入口与状态卡片据此在保存后立即刷新。 */
+export const SETTINGS_UPDATED_EVENT = 'pua:settings-updated';
+export interface SettingsUpdatedDetail {
+  global: boolean;
+  sessionId?: string | undefined;
+}
+/** 向同页面广播配置已变更；保存成功后调用，供各入口按需重读。 */
+export function notifySettingsUpdated(detail: SettingsUpdatedDetail): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(SETTINGS_UPDATED_EVENT, { detail }));
+}
+/**
+ * 入口按钮的禁用条件：只有「首次读取尚未返回」才禁用（避免打开空弹窗）。
+ * 读取失败后必须保持可点击——读取失败时聊天入口是用户唯一可发现的重试入口。
+ */
+export function composerTriggerDisabled(snapshot: ConfigurationSnapshot | undefined, hasReadError: boolean): boolean {
+  return !snapshot && !hasReadError;
 }
 interface ClientContext {
   slots: { inject(name: string, register: () => () => void): () => void;
@@ -232,9 +252,7 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
       const saved = await unwrap(global ? remote.setGlobal(configSchema.parse(draft), snapshot.revision) : remote.setSession(sessionId!, parsePatch(patch ?? {}), snapshot.revision));
       accept(saved);
       setStatus(!global && patch?.enabled === true && !saved.values.enabled ? copy.panel.statusSavedSession : copy.panel.statusSaved);
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('pua:settings-updated', { detail: { global, sessionId } }));
-      }
+      notifySettingsUpdated({ global, sessionId });
     } catch (reason) { setError(message(reason, copy, lang)); setStatus(copy.panel.statusNotSaved); }
     finally { saving.current = false; setBusy(false); }
   }
@@ -363,7 +381,7 @@ function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteAp
   const disabled = snapshot?.values.enabled === false;
   if (!globalEnabled) return null;
   return h('div', { className: 'pua-composer' },
-    h(Button as any, { ref: trigger, variant: 'ghost', size: 'sm', className: 'pua-trigger', disabled: !snapshot || !!readError, 'aria-busy': !snapshot, 'data-disabled': disabled, 'data-on': snapshot?.values.enabled === true, 'aria-label': !snapshot ? copy.composer.readingAria : disabled ? copy.composer.offAria : copy.composer.onAria, 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => { watcherRef.current?.refresh(); setOpen(true); }, title: readError || (!snapshot ? copy.composer.readingTitle : disabled ? copy.composer.offTitle : copy.composer.onTitle), icon: h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(disabled ? IconGaugeOff : IconGauge)) }, 'PUA'),
+    h(Button as any, { ref: trigger, variant: 'ghost', size: 'sm', className: 'pua-trigger', disabled: composerTriggerDisabled(snapshot, hasReadError), 'aria-busy': !snapshot, 'data-disabled': disabled, 'data-on': snapshot?.values.enabled === true, 'aria-label': hasReadError ? copy.composer.readError : !snapshot ? copy.composer.readingAria : disabled ? copy.composer.offAria : copy.composer.onAria, 'aria-haspopup': 'dialog', 'aria-expanded': open, onClick: () => { watcherRef.current?.refresh(); setOpen(true); }, title: readError || (!snapshot ? copy.composer.readingTitle : disabled ? copy.composer.offTitle : copy.composer.onTitle), icon: h('span', { className: 'pua-entry-icon', 'aria-hidden': true }, h(disabled ? IconGaugeOff : IconGauge)) }, 'PUA'),
     h(Modal, { open, onClose: close, title: copy.panel.sessionHeading, closeLabel: copy.composer.close, className: 'pua-session-modal', contentClassName: 'pua-session-modal-content' },
       h(ConfigurationPanel, { key: sessionId, remote, sessionId, hostLocale, onLoopStarted: close })));
 }

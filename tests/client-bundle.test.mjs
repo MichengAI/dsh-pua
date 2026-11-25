@@ -10,8 +10,12 @@ const closeIcon = () => null;
 
 function loadClient() {
   let contribution;
+  // 提供可派发事件的最小浏览器 window，使「设置变更广播」能被真实断言而不是字符串检查。
+  const browserWindow = new EventTarget();
+  browserWindow.__ModuleLoader__ = { load: value => { contribution = value; } };
   runInNewContext(readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8'), {
-    window: { __ModuleLoader__: { load: value => { contribution = value; } } },
+    window: browserWindow,
+    CustomEvent,
   });
   assert.equal(contribution.id, '@michengai/dsh-pua');
   const requireLocal = createRequire(import.meta.url);
@@ -26,7 +30,7 @@ function loadClient() {
     }
     return requireLocal(name);
   });
-  return { client, sharedControls };
+  return { client, sharedControls, browserWindow };
 }
 
 test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡片，卸载释放远程贡献', async () => {
@@ -240,7 +244,28 @@ test('客户端 sourcemap 来自最终 bundle 并包含依赖模块映射', () =
   assert.equal(map.sources.length, map.sourcesContent.length);
 });
 
-test('设置变更向 window 派发 pua:settings-updated 事件，且聊天栏与卡片监听该事件触发即时无损刷新', () => {
-  const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
-  assert.ok(js.includes('pua:settings-updated'), '必须派发并监听 pua:settings-updated 事件');
+test('配置保存成功后向 window 真实派发 pua:settings-updated 事件，负载带全局/会话归属', () => {
+  const { client, browserWindow } = loadClient();
+  const received = [];
+  browserWindow.addEventListener('pua:settings-updated', event => received.push(event.detail));
+  client.notifySettingsUpdated({ global: true });
+  client.notifySettingsUpdated({ global: false, sessionId: 'sess-1' });
+  assert.deepEqual(received, [{ global: true }, { global: false, sessionId: 'sess-1' }], '聊天栏与状态卡片依赖该事件唤醒刷新');
+});
+
+test('配置保存成功路径调用 notifySettingsUpdated，派发点不被静默删除', () => {
+  // 派发点位于组件 save 内部，无法在静态渲染里驱动；用源码哨兵防止整段调用被删（行为语义由上一条用例保证）。
+  const source = readFileSync(new URL('../src/client.ts', import.meta.url), 'utf8');
+  assert.match(source, /notifySettingsUpdated\(\{\s*global,\s*sessionId\s*\}\)/, '保存成功后必须调用 notifySettingsUpdated');
+});
+
+test('聊天入口只在首次读取未返回时禁用，读取失败后保持可点击重试', () => {
+  const { client } = loadClient();
+  assert.equal(client.composerTriggerDisabled(undefined, false), true, '加载中禁用，避免打开空弹窗');
+  assert.equal(client.composerTriggerDisabled(undefined, true), false, '读取失败必须可点击重试，否则用户没有可发现的恢复入口');
+  assert.equal(client.composerTriggerDisabled({ values: {} }, false), false);
+  assert.equal(client.composerTriggerDisabled({ values: {} }, true), false);
+  // 判定必须真的被渲染使用，否则上面的语义只是无人调用的纯函数。
+  const source = readFileSync(new URL('../src/client.ts', import.meta.url), 'utf8');
+  assert.match(source, /disabled: composerTriggerDisabled\(snapshot, hasReadError\)/);
 });

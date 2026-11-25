@@ -4,15 +4,15 @@
 
 ### 中文
 
-- **消除闲置网络请求**：优化聊天栏入口与任务状态卡片的生命周期，在闲置与后台状态下彻底停止无意义的网络请求；仅在任务运行、切换回窗口或操作设置时按需刷新，大幅降低网络与系统资源开销。
+- **消除闲置网络请求**：优化聊天栏入口与任务状态卡片的生命周期，在闲置与后台状态下彻底停止无意义的网络请求；仅在任务运行、切换回窗口或操作设置时按需刷新，大幅降低网络与系统资源开销。配置读取失败时会先快速重试，再转入低频自愈检查，不会停留在「入口不可用」。
 - **设置即时生效体验**：在插件设置面板中调整配置后，聊天栏入口状态即时联动，无需手动重载或重新打开会话。
-- **界面契约与国际化稳定性提升**：对齐宿主最新输入区扩展契约，优化多语言界面切换时错误提示的即时更新与视觉一致性。
+- **稳定性与多语言体验**：聊天栏入口与任务状态卡片在最新宿主上显示更稳定；读取失败时可直接点击入口重试；切换界面语言后，错误提示会立即跟随切换。
 
 ### English
 
-- **Eliminate idle network requests**: Optimize lifecycle management for the chat entry button and task status card, completely eliminating idle background network polling; requests are now triggered purely on demand when tasks run, windows gain focus, or settings are opened.
+- **Eliminate idle network requests**: Optimize lifecycle management for the chat entry button and task status card, completely eliminating idle background network polling; requests are now triggered purely on demand when tasks run, windows gain focus, or settings are opened. A failed configuration read now retries quickly, then falls back to an infrequent self-healing check instead of leaving the entry unavailable.
 - **Instant settings synchronization**: Changes made in the plugin settings panel now take effect immediately in the chat composer entry without requiring a manual reload or session reopen.
-- **Host contract and localization reliability**: Align with the latest host composer extension contracts and ensure error tooltips instantly follow UI language changes.
+- **Stability and localization**: The composer entry and status card render reliably on the latest host, a failed read can be retried by clicking the entry, and error messages follow interface language changes immediately.
 
 ## 1.0.14
 
