@@ -13,7 +13,7 @@ const h = React.createElement;
 type Key = keyof Configuration;
 interface SlotRenderProps {
   sessionId?: string;
-  session?: { sessionId: string };
+  session?: { sessionId: string; running?: boolean };
   view?: 'summary' | 'page';
 }
 interface ClientContext {
@@ -232,6 +232,9 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
       const saved = await unwrap(global ? remote.setGlobal(configSchema.parse(draft), snapshot.revision) : remote.setSession(sessionId!, parsePatch(patch ?? {}), snapshot.revision));
       accept(saved);
       setStatus(!global && patch?.enabled === true && !saved.values.enabled ? copy.panel.statusSavedSession : copy.panel.statusSaved);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('pua:settings-updated', { detail: { global, sessionId } }));
+      }
     } catch (reason) { setError(message(reason, copy, lang)); setStatus(copy.panel.statusNotSaved); }
     finally { saving.current = false; setBusy(false); }
   }
@@ -329,22 +332,26 @@ export function ConfigurationPanel({ remote, sessionId, hostLocale, onLoopStarte
 function ComposerButton({ remote, sessionId, hostLocale }: { remote: PuaRemoteApi; sessionId: string; hostLocale?: string | undefined }): React.ReactElement | null {
   const [open, setOpen] = useState(false);
   const [globalEnabled, setGlobalEnabled] = useState(false);
-  const [readError, setReadError] = useState('');
+  const [hasReadError, setHasReadError] = useState(false);
   const [snapshot, setSnapshot] = useState<ConfigurationSnapshot>();
   const copy = UI[resolveUiLang(snapshot?.values.language, hostLocale)];
+  const readError = hasReadError ? copy.composer.readError : '';
   const trigger = useRef<HTMLButtonElement>(null);
   const watcherRef = useRef<{ refresh: () => void; dispose: () => void } | null>(null);
   useEffect(() => {
     const watcher = watchComposerConfiguration(remote, sessionId, enabled => {
       setGlobalEnabled(enabled);
       if (!enabled) setOpen(false);
-    }, setSnapshot, setReadError, copy.composer.readError);
+    }, setSnapshot, (err: boolean | string) => setHasReadError(Boolean(err)));
     watcherRef.current = watcher;
     const onFocus = () => watcher.refresh();
+    const onSettingsUpdated = () => watcher.refresh();
     window.addEventListener('focus', onFocus);
+    window.addEventListener('pua:settings-updated', onSettingsUpdated);
     return () => {
       watcher.dispose();
       window.removeEventListener('focus', onFocus);
+      window.removeEventListener('pua:settings-updated', onSettingsUpdated);
       watcherRef.current = null;
     };
   }, [remote, sessionId]);
@@ -426,11 +433,9 @@ export async function apply(ctx: ClientContext): Promise<() => void> {
   ctx.slots.inject('plugins.row.config', () => ctx.slots.register({ name: 'plugins.row.config', key: `${BUNDLE_NAME}#${CLIENT_ROW}` }, props => h(PuaPluginConfig, { remote, view: props.view, hostLocale })));
   ctx.slots.inject('conversation.input.left', () => ctx.slots.register({ name: 'conversation.input.left', id: CLIENT_ROW, order: 10 }, props => props.sessionId ? h(ComposerButton, { key: props.sessionId, remote, sessionId: props.sessionId, hostLocale }) : null));
   ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({ name: 'conversation.input.dock', id: CLIENT_ROW, order: -40 }, props => {
-    if (!props.session) return null;
-    const sessionObj = props.session as { sessionId?: string; id?: string; running?: boolean };
-    const sid = sessionObj.sessionId ?? sessionObj.id;
-    if (!sid) return null;
-    return h(ActivityCard, { key: sid, remote, sessionId: sid, running: Boolean(sessionObj.running), hostLocale });
+    const session = props.session;
+    if (!session?.sessionId) return null;
+    return h(ActivityCard, { key: session.sessionId, remote, sessionId: session.sessionId, running: Boolean(session.running), hostLocale });
   }));
   return unmount;
 }

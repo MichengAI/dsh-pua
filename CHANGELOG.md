@@ -1,5 +1,19 @@
 # 更新记录
 
+## 1.0.15
+
+### 中文
+
+- **消除闲置网络请求**：优化聊天栏入口与任务状态卡片的生命周期，在闲置与后台状态下彻底停止无意义的网络请求；仅在任务运行、切换回窗口或操作设置时按需刷新，大幅降低网络与系统资源开销。
+- **设置即时生效体验**：在插件设置面板中调整配置后，聊天栏入口状态即时联动，无需手动重载或重新打开会话。
+- **界面契约与国际化稳定性提升**：对齐宿主最新输入区扩展契约，优化多语言界面切换时错误提示的即时更新与视觉一致性。
+
+### English
+
+- **Eliminate idle network requests**: Optimize lifecycle management for the chat entry button and task status card, completely eliminating idle background network polling; requests are now triggered purely on demand when tasks run, windows gain focus, or settings are opened.
+- **Instant settings synchronization**: Changes made in the plugin settings panel now take effect immediately in the chat composer entry without requiring a manual reload or session reopen.
+- **Host contract and localization reliability**: Align with the latest host composer extension contracts and ensure error tooltips instantly follow UI language changes.
+
 ## 1.0.14
 
 ### 中文

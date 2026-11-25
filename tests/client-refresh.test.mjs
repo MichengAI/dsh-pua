@@ -120,3 +120,20 @@ test('watchActivity 传入 isRunning 时在闲置态自动休眠，处于运行�
   assert.equal(calls, 4, '任务完成后立即休眠，不再继续轮询');
   handle.dispose();
 });
+
+test('watchComposerConfiguration 失败与成功准确回调错误状态，支持布尔/无参数消费以适配动态国际化', async () => {
+  let calls = 0;
+  const errors = [];
+  const watcher = watchComposerConfiguration({
+    getGlobal: () => ++calls === 1 ? Promise.reject(new Error('fail')) : ok({ values: { enabled: true } }),
+    getSession: () => ok({ values: { enabled: true } }),
+  }, 'dyn-lang', () => {}, () => {}, err => errors.push(err));
+  await settle();
+  assert.equal(errors.length, 1);
+  assert.equal(Boolean(errors[0]), true, '首次失败应传递真值错误');
+  watcher.refresh();
+  await settle();
+  assert.equal(errors.length, 2);
+  assert.equal(Boolean(errors[1]), false, '刷新成功后应清除错误标记');
+  watcher.dispose();
+});

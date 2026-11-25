@@ -45,9 +45,12 @@ export function ActivityCard({
     );
     watcherRef.current = watcher;
     const onFocus = () => watcher.refresh();
+    const onSettingsUpdated = () => watcher.refresh();
     window.addEventListener('focus', onFocus);
+    window.addEventListener('pua:settings-updated', onSettingsUpdated);
     return () => {
       window.removeEventListener('focus', onFocus);
+      window.removeEventListener('pua:settings-updated', onSettingsUpdated);
       watcher.dispose();
       watcherRef.current = null;
     };

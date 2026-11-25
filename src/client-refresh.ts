@@ -6,8 +6,8 @@ export function watchComposerConfiguration(
   sessionId: string,
   onGlobal: (enabled: boolean) => void,
   onSession: (snapshot: ConfigurationSnapshot) => void,
-  onError: (message: string) => void = () => {},
-  errorText: string = '',
+  onError: (error: boolean | string) => void = () => {},
+  errorText?: string,
 ): { refresh: () => void; dispose: () => void } {
   let active = true;
   let pending = false;
@@ -21,8 +21,8 @@ export function watchComposerConfiguration(
     // 不用 Promise.all 将可见性绑在 Agent 的加载生命周期上。
     const global = Promise.resolve().then(() => remote.getGlobal()).then(result => {
       if (!result.ok) throw new Error(result.error.message);
-      if (active) { onGlobal(result.value.values.enabled); onError(''); }
-    }).catch(() => { failed = true; if (active) onError(errorText); });
+      if (active) { onGlobal(result.value.values.enabled); onError(false); }
+    }).catch(() => { failed = true; if (active) onError(errorText ?? true); });
     const session = Promise.resolve().then(() => remote.getSession(sessionId)).then(result => {
       if (!result.ok) throw new Error(result.error.message);
       if (active) onSession(result.value);

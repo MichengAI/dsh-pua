@@ -1,6 +1,6 @@
 import type { ActivitySnapshot, ConfigurationSnapshot, PuaRemoteApi } from './remote-contract.js';
 /** 聊天入口独立读取全局可见性；新会话未就绪时退避重试，就绪后按需刷新，避免盲轮询。 */
-export declare function watchComposerConfiguration(remote: Pick<PuaRemoteApi, 'getGlobal' | 'getSession'>, sessionId: string, onGlobal: (enabled: boolean) => void, onSession: (snapshot: ConfigurationSnapshot) => void, onError?: (message: string) => void, errorText?: string): {
+export declare function watchComposerConfiguration(remote: Pick<PuaRemoteApi, 'getGlobal' | 'getSession'>, sessionId: string, onGlobal: (enabled: boolean) => void, onSession: (snapshot: ConfigurationSnapshot) => void, onError?: (error: boolean | string) => void, errorText?: string): {
     refresh: () => void;
     dispose: () => void;
 };

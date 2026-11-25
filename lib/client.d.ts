@@ -5,6 +5,7 @@ interface SlotRenderProps {
     sessionId?: string;
     session?: {
         sessionId: string;
+        running?: boolean;
     };
     view?: 'summary' | 'page';
 }

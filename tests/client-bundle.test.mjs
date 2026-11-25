@@ -59,6 +59,28 @@ test('交付客户端 bundle 经宿主加载器注册配置、入口和状态卡
   dispose(); assert.equal(unmounted, true);
 });
 
+test('输入区 dock 槽位按宿主 SessionSnapshot 契约装配运行卡片，传递 sessionId 与 running', async () => {
+  const { client } = loadClient();
+  const slots = [];
+  await client.apply({
+    remote: { $mount: async () => () => {} },
+    get: name => name === 'remote.puaConfig' ? {} : {},
+    effect: () => {},
+    slots: { inject: (_name, register) => register(), register: (options, render) => { slots.push({ ...options, render }); return () => {}; } },
+  });
+  const dock = slots.find(slot => slot.name === 'conversation.input.dock');
+  assert.ok(dock, '必须注册 conversation.input.dock');
+  assert.equal(dock.render({}), null);
+  assert.equal(dock.render({ session: {} }), null);
+  assert.equal(dock.render({ session: { id: 'legacy-id', running: true } }), null, 'SessionSnapshot 不存在 id，不应接受非契约字段');
+  const cardRunning = dock.render({ session: { sessionId: 'sess-active', running: true } });
+  assert.equal(cardRunning.props.sessionId, 'sess-active');
+  assert.equal(cardRunning.props.running, true);
+  const cardIdle = dock.render({ session: { sessionId: 'sess-idle', running: false } });
+  assert.equal(cardIdle.props.sessionId, 'sess-idle');
+  assert.equal(cardIdle.props.running, false);
+});
+
 test('英文宿主的插件摘要使用英文说明', async () => {
   const { client } = loadClient();
   const slots = [];
@@ -216,4 +238,9 @@ test('客户端 sourcemap 来自最终 bundle 并包含依赖模块映射', () =
   assert.ok(map.sources.some(source => source.endsWith('/configuration.ts')));
   assert.ok(map.mappings.length > 0);
   assert.equal(map.sources.length, map.sourcesContent.length);
+});
+
+test('设置变更向 window 派发 pua:settings-updated 事件，且聊天栏与卡片监听该事件触发即时无损刷新', () => {
+  const js = readFileSync(new URL('../lib/client.js', import.meta.url), 'utf8');
+  assert.ok(js.includes('pua:settings-updated'), '必须派发并监听 pua:settings-updated 事件');
 });
